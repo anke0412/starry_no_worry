@@ -43,9 +43,9 @@ a {
 
 .hero {
   position: relative;
-  min-height: 92svh;
+  min-height: 52svh;
   overflow: hidden;
-  padding: 28px clamp(20px, 5vw, 72px) 72px;
+  padding: 28px clamp(20px, 5vw, 72px) 36px;
 }
 
 .topbar {
@@ -85,7 +85,7 @@ a {
   position: relative;
   z-index: 2;
   width: min(760px, 100%);
-  padding-top: clamp(72px, 11vw, 150px);
+  padding-top: clamp(48px, 8vw, 108px);
 }
 
 .eyebrow {
@@ -170,19 +170,19 @@ h1 {
 .orbit,
 .zodiac-ring {
   position: absolute;
-  inset: 8%;
+  inset: 25%;
   border: 1px solid rgba(34, 51, 38, 0.2);
   border-radius: 50%;
 }
 
 .orbit-two {
-  inset: 23%;
+  inset: 20%;
   border-style: dashed;
 }
 
 .sun-core {
   position: absolute;
-  inset: 36%;
+  inset: 40%;
   border-radius: 50%;
   background: radial-gradient(circle, #f8c6a8, #ffdce3 65%, rgba(255, 255, 255, 0.4));
   box-shadow: 0 0 80px rgba(248, 198, 168, 0.85);
@@ -190,8 +190,8 @@ h1 {
 
 .petal {
   position: absolute;
-  width: 88px;
-  height: 124px;
+  width: 32px;
+  height: 48px;
   border-radius: 999px 999px 999px 24px;
   background: rgba(255, 220, 227, 0.78);
   transform-origin: bottom center;
@@ -204,14 +204,14 @@ h1 {
 }
 
 .petal-b {
-  right: 15%;
-  bottom: 22%;
+  right: 28%;
+  bottom: 32%;
   rotate: 110deg;
 }
 
 .petal-c {
   left: 18%;
-  bottom: 28%;
+  bottom: 48%;
   rotate: -58deg;
 }
 
@@ -306,6 +306,11 @@ h1 {
   padding: 18px;
   border: 1px solid rgba(34, 51, 38, 0.12);
   border-radius: 24px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.person-fields legend {
+  grid-column: 1 / -1;
 }
 
 .person-fields label {
@@ -450,6 +455,32 @@ select:focus {
   padding: 11px 16px;
 }
 
+.result-page {
+  min-height: 100svh;
+  padding: 28px clamp(20px, 5vw, 72px) 72px;
+}
+
+.result-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 42px;
+}
+
+.result-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.result-layout .agent-section,
+.result-layout .chart-panel {
+  width: 100%;
+  margin: 0;
+}
+
 @keyframes floatIn {
   from {
     opacity: 0;
@@ -481,6 +512,16 @@ select:focus {
 
   .segmented {
     grid-template-columns: 1fr;
+  }
+
+  .person-fields,
+  .result-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .result-topbar {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 
