@@ -6,14 +6,14 @@ import { buildInterpretationContext, createInterpretationReport } from "./lib/in
 
 const defaultPeople = {
   primary: {
-    name: "Luna",
-    date: "1996-04-12",
+    name: "古乐兽",
+    date: "1996-01-01",
     time: "08:30",
     location: "上海",
   },
   secondary: {
-    name: "Sol",
-    date: "1993-09-07",
+    name: "大耳兽",
+    date: "2000-01-01",
     time: "21:10",
     location: "北京",
   },
@@ -26,6 +26,7 @@ export default function App() {
   const [forecastDate, setForecastDate] = useState("2026-05-01");
   const [result, setResult] = useState(() => buildResult("single", "natal", defaultPeople, "2026-05-01"));
   const [error, setError] = useState("");
+  const [currentView, setCurrentView] = useState("workspace");
   const [isPending, startTransition] = useTransition();
 
   const categories = categoriesForMode(activeMode);
@@ -45,7 +46,9 @@ export default function App() {
     startTransition(() => {
       try {
         setResult(buildResult(activeMode, activeCategory, people, forecastDate));
+        setCurrentView("result");
         setError("");
+        window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (chartError) {
         setError(chartError.message);
       }
@@ -62,25 +65,51 @@ export default function App() {
     }));
   }
 
+  function handleGoHome() {
+    setCurrentView("workspace");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  if (currentView === "result") {
+    return (
+      <main className="result-page">
+        <nav className="result-topbar" aria-label="结果页导航">
+          <a className="brand" href="#top" aria-label="Starry首页" onClick={handleGoHome}>
+            <span className="brand-mark">✦</span>
+            Celestial Starry
+          </a>
+          <button className="secondary-action" type="button" onClick={() => setCurrentView("workspace")}>
+            返回修改资料
+          </button>
+        </nav>
+
+        <section className="result-layout" id="top">
+          <ChartPanel result={result} />
+          <AgentPanel report={result.report} />
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main>
       <section className="hero">
         <nav className="topbar" aria-label="主导航">
-          <a className="brand" href="#top" aria-label="Celestial Spring 首页">
+          <a className="brand" href="#top" aria-label="Starry首页" onClick={handleGoHome}>
             <span className="brand-mark">✦</span>
-            Celestial Spring
+            Celestial Starry
           </a>
           <div className="nav-links">
             <a href="#workspace">开始排盘</a>
-            <a href="#agent">解读 Agent</a>
+            <a href="#architecture">查看模块</a>
           </div>
         </nav>
 
         <div className="hero-content" id="top">
           <p className="eyebrow">Spring Astrology Studio</p>
-          <h1>把星盘、关系和时间趋势放进一个温柔清晰的工作台。</h1>
+          <h1>星盘工作台</h1>
           <p className="hero-copy">
-            先用春天感入口降低门槛，再进入专业排盘流程。当前框架已预留真实天文历算法和 AI agent 接口。
+            专业排盘流程与AI agent 解读
           </p>
           <div className="hero-actions">
             <a className="primary-action" href="#workspace">建立星盘</a>
@@ -111,13 +140,13 @@ export default function App() {
       <section className="workspace" id="workspace">
         <div className="workspace-heading">
           <p className="eyebrow">Chart Workspace</p>
-          <h2>选择盘型，输入资料，生成解读上下文。</h2>
+          <h2>开始你的探索之旅</h2>
         </div>
 
         <div className="workspace-grid">
           <form className="control-panel" onSubmit={handleGenerate}>
             <div className="field-group">
-              <label>解读模式</label>
+              <label>解读类型</label>
               <div className="segmented">
                 {readingModes.map((mode) => (
                   <button
@@ -172,29 +201,6 @@ export default function App() {
         </div>
       </section>
 
-      <section className="agent-section" id="agent">
-        <div>
-          <p className="eyebrow">Interpretation Agent</p>
-          <h2>{result.report.agentName}</h2>
-          <p>{result.report.summary}</p>
-        </div>
-        <div className="report-list">
-          {result.report.sections.map((section) => (
-            <article key={section.id}>
-              <h3>{section.title}</h3>
-              <p>{section.body}</p>
-            </article>
-          ))}
-        </div>
-        <div className="question-bank">
-          <h3>可继续追问</h3>
-          {result.report.recommendedQuestions.map((question) => (
-            <button key={question} type="button">
-              {question}
-            </button>
-          ))}
-        </div>
-      </section>
     </main>
   );
 }
@@ -263,6 +269,34 @@ function ChartPanel({ result }) {
             ))}
           </ul>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function AgentPanel({ report }) {
+  return (
+    <section className="agent-section" id="agent">
+      <div>
+        <p className="eyebrow">Interpretation Agent</p>
+        <h2>{report.agentName}</h2>
+        <p>{report.summary}</p>
+      </div>
+      <div className="report-list">
+        {report.sections.map((section) => (
+          <article key={section.id}>
+            <h3>{section.title}</h3>
+            <p>{section.body}</p>
+          </article>
+        ))}
+      </div>
+      <div className="question-bank">
+        <h3>可继续追问</h3>
+        {report.recommendedQuestions.map((question) => (
+          <button key={question} type="button">
+            {question}
+          </button>
+        ))}
       </div>
     </section>
   );
