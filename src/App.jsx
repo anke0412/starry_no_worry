@@ -1,4 +1,4 @@
-import { useState, useTransition } from "react";
+import React, { useState, useTransition } from "react";
 
 import { categoriesForMode, readingModes } from "./data/chartCatalog.js";
 import { createChartRequest, generateChartSnapshot } from "./lib/chartEngine.js";
