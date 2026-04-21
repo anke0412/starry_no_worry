@@ -293,6 +293,12 @@ h1 {
   gap: 10px;
 }
 
+.date-time-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .field-group > label,
 .person-fields legend,
 .person-fields label {
@@ -515,6 +521,7 @@ select:focus {
   }
 
   .person-fields,
+  .date-time-row,
   .result-layout {
     grid-template-columns: 1fr;
   }
