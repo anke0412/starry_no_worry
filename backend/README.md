@@ -7,22 +7,24 @@ FastAPI service boundary for astrology chart calculation.
 From the repository root:
 
 ```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -r backend/requirements-dev.txt
+python3.12 -m venv .venv312
+.venv312/bin/python -m pip install -r backend/requirements-dev.txt
 ```
+
+Python 3.12 is recommended for the backend environment. Python 3.14 can build some astronomy packages differently on macOS and may fail on native extension compilation.
 
 ## Run Tests
 
 ```bash
 cd backend
-../.venv/bin/python -m pytest tests
+../.venv312/bin/python -m pytest tests
 ```
 
 ## Run API Locally
 
 ```bash
 cd backend
-../.venv/bin/python -m uvicorn app.main:app --reload --port 8000
+../.venv312/bin/python -m uvicorn app.main:app --reload --port 8000
 ```
 
 Health check:
@@ -43,3 +45,13 @@ This branch establishes the service shell only:
 - Backend tests
 
 Chart calculation endpoints will be added in later `dev_[detailed_functionname]` branches.
+
+## Ephemeris Foundation
+
+The current ephemeris service uses `ephem` as the calculation adapter. It provides:
+
+- Birth datetime normalization to UTC
+- Default planet body list
+- Ecliptic longitude calculation
+- Zodiac sign, degree, and minute mapping
+- Golden test coverage for a known Sun position
