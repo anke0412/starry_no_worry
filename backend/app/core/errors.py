@@ -17,6 +17,10 @@ def register_error_handlers(app: FastAPI) -> None:
             )
             return JSONResponse(status_code=404, content=response.model_dump())
 
+        if isinstance(exc.detail, dict) and "code" in exc.detail and "message" in exc.detail:
+            response = ErrorResponse(error=ErrorDetail(**exc.detail))
+            return JSONResponse(status_code=exc.status_code, content=response.model_dump())
+
         response = ErrorResponse(
             error=ErrorDetail(
                 code="http_error",
