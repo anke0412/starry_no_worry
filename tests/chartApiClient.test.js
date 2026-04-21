@@ -66,6 +66,7 @@ test("calls the natal chart API and maps backend placements with localized label
   assert.equal(chart.title, "小星 的本命星盘");
   assert.equal(chart.people[0].name, "小星");
   assert.equal(chart.placements[0].planet, "太阳");
+  assert.equal(chart.placements[0].sign, "白羊");
   assert.equal(chart.placements[0].minute, 24);
   assert.equal(chart.aspects[0].from, "太阳");
   assert.equal(chart.aspects[0].to, "月亮");

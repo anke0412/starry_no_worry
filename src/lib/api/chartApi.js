@@ -27,6 +27,21 @@ const BODY_LABELS = {
   Pluto: "冥王星",
 };
 
+const SIGN_LABELS = {
+  Aries: "白羊",
+  Taurus: "金牛",
+  Gemini: "双子",
+  Cancer: "巨蟹",
+  Leo: "狮子",
+  Virgo: "处女",
+  Libra: "天秤",
+  Scorpio: "天蝎",
+  Sagittarius: "射手",
+  Capricorn: "摩羯",
+  Aquarius: "水瓶",
+  Pisces: "双鱼",
+};
+
 export async function calculateChart(input, fetcher = fetch) {
   const category = findCategory(input.category);
 
@@ -86,7 +101,7 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
     focus: category.focus,
     placements: result.placements.slice(0, 12).map((placement) => ({
       planet: localizeBody(placement.body),
-      sign: placement.sign,
+      sign: localizeSign(placement.sign),
       house: placement.house ?? "-",
       degree: placement.degree,
       minute: placement.minute,
@@ -112,4 +127,8 @@ function peopleForResult(input) {
 
 function localizeBody(body) {
   return BODY_LABELS[body] ?? body;
+}
+
+function localizeSign(sign) {
+  return SIGN_LABELS[sign] ?? sign;
 }
