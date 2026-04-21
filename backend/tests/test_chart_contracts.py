@@ -43,16 +43,11 @@ def test_chart_endpoints_are_registered_in_openapi_schema():
     assert "/api/charts/transit" in schema["paths"]
 
 
-def test_natal_endpoint_accepts_contract_and_returns_not_implemented():
+def test_natal_endpoint_accepts_contract_and_returns_chart_result():
     response = client.post("/api/charts/natal", json={"primary": birth_profile_payload()})
 
-    assert response.status_code == 501
-    assert response.json() == {
-        "error": {
-            "code": "not_implemented",
-            "message": "Chart calculation endpoint is not implemented yet.",
-        }
-    }
+    assert response.status_code == 200
+    assert response.json()["chartType"] == "natal"
 
 
 def test_synastry_endpoint_requires_secondary_profile():

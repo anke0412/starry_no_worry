@@ -4,7 +4,7 @@ This document records the Phase 1 chart API contract shared by the React fronten
 
 ## Current Status
 
-The chart endpoints are registered and validate request bodies, but calculation is not implemented yet. Valid requests return a structured `not_implemented` error until the calculation modules are added.
+The natal chart endpoint returns a real `ChartResult` with ephemeris-backed placements and major aspects. The synastry and transit endpoints are registered and validate request bodies, but calculation is not implemented yet.
 
 ## Base URL
 
@@ -97,6 +97,10 @@ Request:
 }
 ```
 
+Response: `ChartResult`.
+
+The Phase 1 natal response currently includes real planet placements and major aspects. House cusps are returned as an empty list until house calculation is added.
+
 ### POST /api/charts/synastry
 
 Request:
@@ -152,7 +156,7 @@ Request:
 
 ## Temporary Not Implemented Response
 
-Valid chart requests currently return:
+Valid synastry and transit requests currently return:
 
 ```json
 {
