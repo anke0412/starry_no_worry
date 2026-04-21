@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 import re
 
-from app.models.chart import CalculationMetadata, ChartResult, NatalChartRequest
+from app.models.chart import BirthProfile, CalculationMetadata, ChartResult, NatalChartRequest
 from app.services.aspects import calculate_major_aspects
 from app.services.ephemeris import EphemerisService
 
@@ -11,13 +11,15 @@ class NatalChartService:
         self.ephemeris = ephemeris or EphemerisService()
 
     def calculate(self, request: NatalChartRequest) -> ChartResult:
-        placements = self.ephemeris.calculate_profile_placements(request.primary)
+        return self.calculate_from_profile(request.primary)
 
+    def calculate_from_profile(self, profile: BirthProfile) -> ChartResult:
+        placements = self.ephemeris.calculate_profile_placements(profile)
         return ChartResult(
-            chartId=build_natal_chart_id(request),
+            chartId=build_natal_chart_id(profile),
             chartType="natal",
-            title=f"{request.primary.name} Natal Chart",
-            profiles=[request.primary],
+            title=f"{profile.name} Natal Chart",
+            profiles=[profile],
             calculation=CalculationMetadata(
                 engine=self.ephemeris.engine_name,
                 engineVersion=self.ephemeris.engine_version,
@@ -29,6 +31,6 @@ class NatalChartService:
         )
 
 
-def build_natal_chart_id(request: NatalChartRequest) -> str:
-    raw = f"natal-{request.primary.name}-{request.primary.date}-{request.primary.time}"
+def build_natal_chart_id(profile: BirthProfile) -> str:
+    raw = f"natal-{profile.name}-{profile.date}-{profile.time}"
     return re.sub(r"[^a-z0-9]+", "-", raw.lower()).strip("-")
