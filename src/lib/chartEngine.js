@@ -26,8 +26,11 @@ export function createChartRequest(input) {
   return {
     mode: input.mode,
     category: input.category,
+    primary: normalizePerson(input.primary),
+    secondary: input.secondary ? normalizePerson(input.secondary) : null,
     people: [normalizePerson(input.primary), input.secondary ? normalizePerson(input.secondary) : null].filter(Boolean),
     forecastDate: input.forecastDate || "",
+    forecastTime: input.forecastTime || "12:00",
     categoryMeta: category,
     createdAt: new Date().toISOString(),
   };
@@ -72,6 +75,7 @@ function normalizePerson(person) {
     date: person.date,
     time: person.time,
     location: person.location.trim(),
+    timezone: person.timezone,
   };
 }
 

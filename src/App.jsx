@@ -1,6 +1,7 @@
 import React, { useState, useTransition } from "react";
 
 import { categoriesForMode, readingModes } from "./data/chartCatalog.js";
+import { calculateChart } from "./lib/api/chartApi.js";
 import { createChartRequest, generateChartSnapshot } from "./lib/chartEngine.js";
 import { buildInterpretationContext, createInterpretationReport } from "./lib/interpretationAgent.js";
 
@@ -10,12 +11,14 @@ const defaultPeople = {
     date: "1996-01-01",
     time: "08:30",
     location: "上海",
+    timezone: "Asia/Shanghai",
   },
   secondary: {
     name: "大耳兽",
     date: "2000-01-01",
     time: "21:10",
     location: "北京",
+    timezone: "Asia/Shanghai",
   },
 };
 
@@ -24,9 +27,11 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState("natal");
   const [people, setPeople] = useState(defaultPeople);
   const [forecastDate, setForecastDate] = useState("2026-05-01");
+  const [forecastTime, setForecastTime] = useState("12:00");
   const [result, setResult] = useState(() => buildResult("single", "natal", defaultPeople, "2026-05-01"));
   const [error, setError] = useState("");
   const [currentView, setCurrentView] = useState("workspace");
+  const [isLoading, setIsLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const categories = categoriesForMode(activeMode);
@@ -40,19 +45,34 @@ export default function App() {
     setActiveCategory(nextCategory);
   }
 
-  function handleGenerate(event) {
+  async function handleGenerate(event) {
     event.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-    startTransition(() => {
-      try {
-        setResult(buildResult(activeMode, activeCategory, people, forecastDate));
+    try {
+      const request = createChartRequest({
+        mode: activeMode,
+        category: activeCategory,
+        primary: people.primary,
+        secondary: people.secondary,
+        forecastDate,
+        forecastTime,
+      });
+      const chart = await calculateChart(request);
+      const report = createInterpretationReport(buildInterpretationContext(chart));
+
+      startTransition(() => {
+        setResult({ chart, report });
         setCurrentView("result");
         setError("");
         window.scrollTo({ top: 0, behavior: "smooth" });
-      } catch (chartError) {
-        setError(chartError.message);
-      }
-    });
+      });
+    } catch (chartError) {
+      setError(chartError.message);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   function updatePerson(role, field, value) {
@@ -179,21 +199,32 @@ export default function App() {
             ) : null}
 
             {needsForecastDate ? (
-              <div className="field-group">
-                <label htmlFor="forecastDate">推运日期</label>
-                <input
-                  id="forecastDate"
-                  type="date"
-                  value={forecastDate}
-                  onChange={(event) => setForecastDate(event.target.value)}
-                />
+              <div className="date-time-row">
+                <div className="field-group">
+                  <label htmlFor="forecastDate">推运日期</label>
+                  <input
+                    id="forecastDate"
+                    type="date"
+                    value={forecastDate}
+                    onChange={(event) => setForecastDate(event.target.value)}
+                  />
+                </div>
+                <div className="field-group">
+                  <label htmlFor="forecastTime">推运时间</label>
+                  <input
+                    id="forecastTime"
+                    type="time"
+                    value={forecastTime}
+                    onChange={(event) => setForecastTime(event.target.value)}
+                  />
+                </div>
               </div>
             ) : null}
 
             {error ? <p className="form-error">{error}</p> : null}
 
-            <button className="generate-button" disabled={isPending} type="submit">
-              {isPending ? "生成中..." : "生成星盘与解读"}
+            <button className="generate-button" disabled={isLoading || isPending} type="submit">
+              {isLoading || isPending ? "连接后端计算中..." : "生成星盘与解读"}
             </button>
           </form>
 
@@ -225,6 +256,10 @@ function PersonFields({ person, role, title, onChange }) {
         出生地
         <input value={person.location} onChange={(event) => onChange(role, "location", event.target.value)} />
       </label>
+      <label>
+        时区
+        <input value={person.timezone} onChange={(event) => onChange(role, "timezone", event.target.value)} />
+      </label>
     </fieldset>
   );
 }
@@ -241,7 +276,7 @@ function ChartPanel({ result }) {
         {result.chart.placements.map((placement, index) => (
           <span
             className="planet-dot"
-            key={placement.planet}
+            key={`${placement.planet}-${index}`}
             style={{
               "--angle": `${index * 58 + 18}deg`,
               "--distance": `${38 + (index % 3) * 13}%`,
@@ -262,9 +297,10 @@ function ChartPanel({ result }) {
         <div>
           <h3>行星落点</h3>
           <ul>
-            {result.chart.placements.map((placement) => (
-              <li key={placement.planet}>
-                {placement.planet}：{placement.sign} {placement.degree}°，第 {placement.house} 宫
+            {result.chart.placements.map((placement, index) => (
+              <li key={`${placement.planet}-${index}`}>
+                {placement.planet}：{placement.sign} {placement.degree}°{placement.minute ? `${placement.minute}'` : ""}
+                ，第 {placement.house} 宫
               </li>
             ))}
           </ul>
@@ -302,13 +338,14 @@ function AgentPanel({ report }) {
   );
 }
 
-function buildResult(mode, category, people, forecastDate) {
+function buildResult(mode, category, people, forecastDate, forecastTime = "12:00") {
   const request = createChartRequest({
     mode,
     category,
     primary: people.primary,
     secondary: people.secondary,
     forecastDate,
+    forecastTime,
   });
   const chart = generateChartSnapshot(request);
   const report = createInterpretationReport(buildInterpretationContext(chart));
