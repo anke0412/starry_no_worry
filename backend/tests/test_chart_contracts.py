@@ -56,6 +56,19 @@ def test_synastry_endpoint_requires_secondary_profile():
     assert response.status_code == 422
 
 
+def test_synastry_endpoint_accepts_contract_and_returns_chart_result():
+    response = client.post(
+        "/api/charts/synastry",
+        json={
+            "primary": birth_profile_payload("Luna"),
+            "secondary": birth_profile_payload("Sol"),
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["chartType"] == "synastry"
+
+
 def test_transit_endpoint_requires_transit_date_and_time():
     response = client.post("/api/charts/transit", json={"primary": birth_profile_payload()})
 
