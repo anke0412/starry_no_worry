@@ -26,13 +26,13 @@ const primary = {
   timezone: "Asia/Shanghai",
 };
 
-test("calls the natal chart API and maps backend placements for the workspace", async () => {
+test("calls the natal chart API and maps backend placements with localized labels", async () => {
   const chart = await calculateChart(
     {
       mode: "single",
       category: "natal",
-      people: [primary],
-      primary,
+      people: [{ ...primary, name: "旧名字" }],
+      primary: { ...primary, name: "小星" },
       forecastDate: "",
       forecastTime: "12:00",
     },
@@ -63,8 +63,12 @@ test("calls the natal chart API and maps backend placements for the workspace", 
 
   assert.equal(chart.id, "natal-luna");
   assert.equal(chart.source, "api");
-  assert.equal(chart.placements[0].planet, "Sun");
+  assert.equal(chart.title, "小星 的本命星盘");
+  assert.equal(chart.people[0].name, "小星");
+  assert.equal(chart.placements[0].planet, "太阳");
   assert.equal(chart.placements[0].minute, 24);
+  assert.equal(chart.aspects[0].from, "太阳");
+  assert.equal(chart.aspects[0].to, "月亮");
   assert.equal(chart.aspects[0].orb, "1.25°");
 });
 

@@ -14,6 +14,19 @@ const SUPPORTED_ENDPOINTS = {
   transit: "/api/charts/transit",
 };
 
+const BODY_LABELS = {
+  Sun: "太阳",
+  Moon: "月亮",
+  Mercury: "水星",
+  Venus: "金星",
+  Mars: "火星",
+  Jupiter: "木星",
+  Saturn: "土星",
+  Uranus: "天王星",
+  Neptune: "海王星",
+  Pluto: "冥王星",
+};
+
 export async function calculateChart(input, fetcher = fetch) {
   const category = findCategory(input.category);
 
@@ -60,25 +73,27 @@ function buildPayload(input) {
 }
 
 export function mapChartResultToWorkspaceChart(result, input, category = findCategory(input.category)) {
+  const people = peopleForResult(input);
+
   return {
     id: result.chartId,
-    title: `${input.people.map((person) => person.name).join(" × ")} 的${category.outputTitle}`,
+    title: `${people.map((person) => person.name).join(" × ")} 的${category.outputTitle}`,
     mode: input.mode,
     category: input.category,
     categoryLabel: category.label,
-    people: input.people,
+    people,
     forecastDate: input.forecastDate,
     focus: category.focus,
     placements: result.placements.slice(0, 12).map((placement) => ({
-      planet: placement.body,
+      planet: localizeBody(placement.body),
       sign: placement.sign,
       house: placement.house ?? "-",
       degree: placement.degree,
       minute: placement.minute,
     })),
     aspects: result.aspects.slice(0, 8).map((aspect) => ({
-      from: aspect.from,
-      to: aspect.to,
+      from: localizeBody(aspect.from),
+      to: localizeBody(aspect.to),
       type: aspect.type,
       orb: `${aspect.orb}°`,
     })),
@@ -89,4 +104,12 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
     source: "api",
     rawResult: result,
   };
+}
+
+function peopleForResult(input) {
+  return [input.primary, input.secondary].filter(Boolean);
+}
+
+function localizeBody(body) {
+  return BODY_LABELS[body] ?? body;
 }
