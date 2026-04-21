@@ -73,3 +73,17 @@ def test_transit_endpoint_requires_transit_date_and_time():
     response = client.post("/api/charts/transit", json={"primary": birth_profile_payload()})
 
     assert response.status_code == 422
+
+
+def test_transit_endpoint_accepts_contract_and_returns_chart_result():
+    response = client.post(
+        "/api/charts/transit",
+        json={
+            "primary": birth_profile_payload(),
+            "transitDate": "2026-05-01",
+            "transitTime": "12:00",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["chartType"] == "transit"

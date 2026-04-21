@@ -4,7 +4,7 @@ This document records the Phase 1 chart API contract shared by the React fronten
 
 ## Current Status
 
-The natal and synastry chart endpoints return real `ChartResult` responses with ephemeris-backed placements and major aspects. The transit endpoint is registered and validates request bodies, but calculation is not implemented yet.
+The natal, synastry, and transit chart endpoints return real `ChartResult` responses with ephemeris-backed placements and major aspects. House cusps remain empty in Phase 1 until house calculation is added.
 
 ## Base URL
 
@@ -158,9 +158,16 @@ Request:
 }
 ```
 
+Response: `ChartResult`.
+
+The Phase 1 transit response includes the primary natal placements, transit-sky placements for `transitDate` and `transitTime`, transit-to-natal major aspects, and two source charts in `relatedCharts`:
+
+- `primaryNatal`
+- `transitSky`
+
 ## Temporary Not Implemented Response
 
-Valid transit requests currently return:
+There are no Phase 1 chart endpoints using the temporary not implemented response. Future placeholder chart endpoints should use:
 
 ```json
 {
