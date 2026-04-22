@@ -33,6 +33,7 @@ test("calls the natal chart API and maps backend placements with localized label
       category: "natal",
       people: [{ ...primary, name: "旧名字" }],
       primary: { ...primary, name: "小星" },
+      secondary: { ...primary, name: "大耳兽" },
       forecastDate: "",
       forecastTime: "12:00",
     },
@@ -92,12 +93,20 @@ test("calls the natal chart API and maps backend placements with localized label
         },
       ],
       aspects: [
+        { from: "Neptune", to: "South Node", type: "square", orb: 2.8 },
+        { from: "Mercury", to: "Mars", type: "sextile", orb: 1.6 },
         {
           from: "Sun",
           to: "North Node",
           type: "trine",
           orb: 1.25,
         },
+        { from: "Moon", to: "Venus", type: "square", orb: 1.4 },
+        { from: "Mars", to: "Jupiter", type: "opposition", orb: 2.0 },
+        { from: "Venus", to: "Saturn", type: "trine", orb: 1.8 },
+        { from: "Jupiter", to: "Uranus", type: "square", orb: 2.2 },
+        { from: "Saturn", to: "Neptune", type: "sextile", orb: 2.4 },
+        { from: "Uranus", to: "Pluto", type: "trine", orb: 2.6 },
       ],
     }),
   );
@@ -105,6 +114,7 @@ test("calls the natal chart API and maps backend placements with localized label
   assert.equal(chart.id, "natal-luna");
   assert.equal(chart.source, "api");
   assert.equal(chart.title, "小星 的本命星盘");
+  assert.equal(chart.people.length, 1);
   assert.equal(chart.people[0].name, "小星");
   assert.equal(chart.placements[0].planet, "太阳");
   assert.equal(chart.placements[0].sign, "白羊");
@@ -120,6 +130,13 @@ test("calls the natal chart API and maps backend placements with localized label
   assert.equal(chart.aspects[0].from, "太阳");
   assert.equal(chart.aspects[0].to, "北交点");
   assert.equal(chart.aspects[0].orb, "1.25°");
+  assert.equal(chart.aspects.length, 9);
+  assert.deepEqual(
+    chart.aspects.map((aspect) => aspect.from),
+    ["太阳", "月亮", "火星", "金星", "水星", "木星", "土星", "天王星", "海王星"],
+  );
+  assert.equal(chart.aspects[8].from, "海王星");
+  assert.equal(chart.aspects[8].to, "南交点");
 });
 
 test("calls the transit chart API with forecast date and time", async () => {

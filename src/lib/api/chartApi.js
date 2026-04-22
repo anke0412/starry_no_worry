@@ -31,6 +31,23 @@ const BODY_LABELS = {
   Midheaven: "天顶",
 };
 
+const BODY_SORT_ORDER = [
+  "Sun",
+  "Moon",
+  "Mars",
+  "Venus",
+  "Mercury",
+  "Jupiter",
+  "Saturn",
+  "Uranus",
+  "Neptune",
+  "Pluto",
+  "North Node",
+  "South Node",
+  "Ascendant",
+  "Midheaven",
+];
+
 const SIGN_LABELS = {
   Aries: "白羊",
   Taurus: "金牛",
@@ -92,7 +109,7 @@ function buildPayload(input) {
 }
 
 export function mapChartResultToWorkspaceChart(result, input, category = findCategory(input.category)) {
-  const people = peopleForResult(input);
+  const people = peopleForResult(input, category);
 
   return {
     id: result.chartId,
@@ -110,7 +127,7 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
       degree: placement.degree,
       minute: placement.minute,
     })),
-    aspects: result.aspects.slice(0, 8).map((aspect) => ({
+    aspects: sortAspectsByBodyOrder(result.aspects).map((aspect) => ({
       from: localizeBody(aspect.from),
       to: localizeBody(aspect.to),
       type: aspect.type,
@@ -125,8 +142,29 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
   };
 }
 
-function peopleForResult(input) {
-  return [input.primary, input.secondary].filter(Boolean);
+function peopleForResult(input, category) {
+  if (category.requiresSecondPerson) {
+    return [input.primary, input.secondary].filter(Boolean);
+  }
+
+  return [input.primary].filter(Boolean);
+}
+
+function sortAspectsByBodyOrder(aspects) {
+  return [...aspects].sort((first, second) => {
+    const fromDifference = bodyOrder(first.from) - bodyOrder(second.from);
+
+    if (fromDifference !== 0) {
+      return fromDifference;
+    }
+
+    return bodyOrder(first.to) - bodyOrder(second.to);
+  });
+}
+
+function bodyOrder(body) {
+  const index = BODY_SORT_ORDER.indexOf(body);
+  return index === -1 ? BODY_SORT_ORDER.length : index;
 }
 
 function localizeBody(body) {
