@@ -167,8 +167,7 @@ h1 {
   animation: floatIn 900ms ease both;
 }
 
-.orbit,
-.zodiac-ring {
+.orbit {
   position: absolute;
   inset: 25%;
   border: 1px solid rgba(34, 51, 38, 0.2);
@@ -378,33 +377,126 @@ select:focus {
   letter-spacing: -0.06em;
 }
 
-.chart-visual {
-  position: relative;
-  display: grid;
-  width: min(440px, 100%);
-  aspect-ratio: 1;
-  place-items: center;
+.chart-wheel-frame {
+  width: min(520px, 100%);
   margin: 18px auto 34px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle, rgba(255, 220, 227, 0.75) 0 16%, transparent 17%),
-    repeating-conic-gradient(from 8deg, rgba(34, 51, 38, 0.1) 0 1deg, transparent 1deg 30deg),
-    radial-gradient(circle, rgba(220, 236, 207, 0.7), rgba(255, 248, 234, 0.75));
 }
 
-.planet-dot {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  display: grid;
-  width: 38px;
-  height: 38px;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--ink);
-  color: var(--cream);
+.chart-wheel {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  filter: drop-shadow(0 26px 48px rgba(76, 94, 63, 0.18));
+}
+
+.wheel-surface {
+  fill: url("#wheelGlow");
+  stroke: rgba(34, 51, 38, 0.18);
+  stroke-width: 1.5;
+}
+
+.wheel-zodiac-band,
+.wheel-house-band,
+.wheel-aspect-field {
+  fill: none;
+  stroke: rgba(34, 51, 38, 0.12);
+}
+
+.wheel-zodiac-band {
+  stroke-width: 28;
+  stroke: rgba(255, 220, 227, 0.46);
+}
+
+.wheel-house-band {
+  stroke-width: 1;
+}
+
+.wheel-aspect-field {
+  stroke: rgba(97, 125, 85, 0.16);
+  stroke-dasharray: 3 7;
+}
+
+.wheel-zodiac-tick,
+.wheel-house-line {
+  stroke: rgba(34, 51, 38, 0.2);
+  stroke-width: 1;
+}
+
+.wheel-zodiac-label,
+.wheel-house-label,
+.wheel-axis text,
+.wheel-placement text {
+  dominant-baseline: middle;
   font-weight: 900;
-  transform: rotate(var(--angle)) translate(var(--distance)) rotate(calc(var(--angle) * -1));
+  text-anchor: middle;
+}
+
+.wheel-zodiac-label {
+  fill: rgba(34, 51, 38, 0.68);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.wheel-house-label {
+  fill: rgba(97, 125, 85, 0.72);
+  font-size: 10px;
+}
+
+.wheel-axis line {
+  stroke: rgba(34, 51, 38, 0.58);
+  stroke-width: 1.7;
+}
+
+.wheel-axis text {
+  fill: var(--ink);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+}
+
+.wheel-aspect-line {
+  opacity: 0.64;
+  stroke-linecap: round;
+  stroke-width: 1.5;
+}
+
+.wheel-aspect-square,
+.wheel-aspect-opposition {
+  stroke-width: 1.9;
+}
+
+.wheel-placement circle {
+  fill: rgba(255, 250, 240, 0.94);
+  stroke: var(--ink);
+  stroke-width: 1.4;
+}
+
+.wheel-layer-2 .wheel-placement circle {
+  fill: rgba(255, 220, 227, 0.94);
+  stroke: rgba(97, 125, 85, 0.88);
+}
+
+.wheel-placement text {
+  fill: var(--ink);
+  font-size: 10px;
+}
+
+.chart-wheel-caption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+  color: rgba(34, 51, 38, 0.68);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.chart-wheel-caption span {
+  border: 1px solid rgba(34, 51, 38, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 250, 240, 0.58);
+  padding: 7px 11px;
 }
 
 .chart-data {

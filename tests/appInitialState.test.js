@@ -15,6 +15,12 @@ test("chart result panel renders an aspect list", () => {
   assert.match(appSource, /result\.chart\.aspects\.map/);
 });
 
+test("chart result panel renders a reusable chart wheel instead of the placeholder visual", () => {
+  assert.match(appSource, /<ChartWheel chart=\{result\.chart\} \/>/);
+  assert.doesNotMatch(appSource, /星盘图占位/);
+  assert.doesNotMatch(appSource, /planet-dot/);
+});
+
 test("natal result page uses stacked interpretation layout and tables", () => {
   assert.match(appSource, /className="result-stack"/);
   assert.match(appSource, /result\.chart\.placementGroups\.map/);
