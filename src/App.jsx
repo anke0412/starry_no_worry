@@ -2,7 +2,7 @@ import React, { useState, useTransition } from "react";
 
 import { categoriesForMode, readingModes } from "./data/chartCatalog.js";
 import { calculateChart } from "./lib/api/chartApi.js";
-import { createChartRequest, generateChartSnapshot } from "./lib/chartEngine.js";
+import { createChartRequest } from "./lib/chartEngine.js";
 import { buildInterpretationContext, createInterpretationReport } from "./lib/interpretationAgent.js";
 
 const defaultPeople = {
@@ -28,7 +28,7 @@ export default function App() {
   const [people, setPeople] = useState(defaultPeople);
   const [forecastDate, setForecastDate] = useState("2026-05-01");
   const [forecastTime, setForecastTime] = useState("12:00");
-  const [result, setResult] = useState(() => buildResult("single", "natal", defaultPeople, "2026-05-01"));
+  const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [currentView, setCurrentView] = useState("workspace");
   const [isLoading, setIsLoading] = useState(false);
@@ -90,7 +90,7 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  if (currentView === "result") {
+  if (currentView === "result" && result) {
     return (
       <main className="result-page">
         <nav className="result-topbar" aria-label="结果页导航">
@@ -228,7 +228,7 @@ export default function App() {
             </button>
           </form>
 
-          <ChartPanel result={result} />
+          {result ? <ChartPanel result={result} /> : null}
         </div>
       </section>
 
@@ -336,19 +336,4 @@ function AgentPanel({ report }) {
       </div>
     </section>
   );
-}
-
-function buildResult(mode, category, people, forecastDate, forecastTime = "12:00") {
-  const request = createChartRequest({
-    mode,
-    category,
-    primary: people.primary,
-    secondary: people.secondary,
-    forecastDate,
-    forecastTime,
-  });
-  const chart = generateChartSnapshot(request);
-  const report = createInterpretationReport(buildInterpretationContext(chart));
-
-  return { chart, report };
 }
