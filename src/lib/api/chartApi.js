@@ -127,18 +127,48 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
       degree: placement.degree,
       minute: placement.minute,
     })),
-    aspects: sortAspectsByBodyOrder(result.aspects).map((aspect) => ({
-      from: localizeBody(aspect.from),
-      to: localizeBody(aspect.to),
-      type: aspect.type,
-      orb: `${aspect.orb}°`,
-    })),
+    aspects: sortAspectsByBodyOrder(result.aspects).map(mapAspect),
+    overlays: mapOverlays(result.relatedCharts),
     houseNotes: category.focus.map((item, index) => ({
       house: index + 1,
       theme: item,
     })),
     source: "api",
     rawResult: result,
+  };
+}
+
+function mapOverlays(relatedCharts) {
+  if (!relatedCharts) {
+    return [];
+  }
+
+  return ["primaryOverlay", "secondaryOverlay", "transitOverlay"]
+    .map((key) => relatedCharts[key])
+    .filter(Boolean)
+    .map((overlay) => ({
+      id: overlay.overlayId,
+      title: `${overlay.overlayName} 落入 ${overlay.referenceName} 的宫位`,
+      referenceName: overlay.referenceName,
+      overlayName: overlay.overlayName,
+      placements: overlay.placements.map((placement) => ({
+        planet: localizeBody(placement.body),
+        sign: localizeSign(placement.sign),
+        degree: placement.degree,
+        minute: placement.minute,
+        sourceHouse: placement.sourceHouse ?? "-",
+        overlayHouse: placement.overlayHouse,
+      })),
+      aspects: sortAspectsByBodyOrder(overlay.aspects).map(mapAspect),
+    }));
+}
+
+function mapAspect(aspect) {
+  return {
+    from: localizeBody(aspect.from),
+    to: localizeBody(aspect.to),
+    type: aspect.type,
+    orb: `${aspect.orb}°`,
   };
 }
 

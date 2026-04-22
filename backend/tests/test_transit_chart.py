@@ -42,6 +42,13 @@ def test_transit_endpoint_returns_natal_transit_sky_and_inter_chart_aspects():
     assert data["relatedCharts"]["transitSky"]["profiles"][0]["time"] == "12:00"
     assert data["relatedCharts"]["transitSky"]["placements"][0]["body"] == "Sun"
     assert data["relatedCharts"]["transitSky"]["placements"][0]["sign"] == "Taurus"
+    assert data["relatedCharts"]["transitOverlay"]["referenceName"] == "Luna"
+    assert data["relatedCharts"]["transitOverlay"]["overlayName"] == "Transit Sky"
+    assert len(data["relatedCharts"]["transitOverlay"]["houses"]) == 12
+    assert data["relatedCharts"]["transitOverlay"]["placements"][0]["body"] == "Sun"
+    assert data["relatedCharts"]["transitOverlay"]["placements"][0]["sourceHouse"] is not None
+    assert data["relatedCharts"]["transitOverlay"]["placements"][0]["overlayHouse"] is not None
+    assert data["relatedCharts"]["transitOverlay"]["aspects"] == data["aspects"]
     assert {
         "from": "Sun",
         "to": "Sun",
