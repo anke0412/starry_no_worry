@@ -31,6 +31,23 @@ const BODY_LABELS = {
   Midheaven: "天顶",
 };
 
+const BODY_SORT_ORDER = [
+  "Sun",
+  "Moon",
+  "Mars",
+  "Venus",
+  "Mercury",
+  "Jupiter",
+  "Saturn",
+  "Uranus",
+  "Neptune",
+  "Pluto",
+  "North Node",
+  "South Node",
+  "Ascendant",
+  "Midheaven",
+];
+
 const SIGN_LABELS = {
   Aries: "白羊",
   Taurus: "金牛",
@@ -110,7 +127,7 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
       degree: placement.degree,
       minute: placement.minute,
     })),
-    aspects: result.aspects.map((aspect) => ({
+    aspects: sortAspectsByBodyOrder(result.aspects).map((aspect) => ({
       from: localizeBody(aspect.from),
       to: localizeBody(aspect.to),
       type: aspect.type,
@@ -131,6 +148,23 @@ function peopleForResult(input, category) {
   }
 
   return [input.primary].filter(Boolean);
+}
+
+function sortAspectsByBodyOrder(aspects) {
+  return [...aspects].sort((first, second) => {
+    const fromDifference = bodyOrder(first.from) - bodyOrder(second.from);
+
+    if (fromDifference !== 0) {
+      return fromDifference;
+    }
+
+    return bodyOrder(first.to) - bodyOrder(second.to);
+  });
+}
+
+function bodyOrder(body) {
+  const index = BODY_SORT_ORDER.indexOf(body);
+  return index === -1 ? BODY_SORT_ORDER.length : index;
 }
 
 function localizeBody(body) {
