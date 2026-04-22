@@ -92,7 +92,7 @@ function buildPayload(input) {
 }
 
 export function mapChartResultToWorkspaceChart(result, input, category = findCategory(input.category)) {
-  const people = peopleForResult(input);
+  const people = peopleForResult(input, category);
 
   return {
     id: result.chartId,
@@ -125,8 +125,12 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
   };
 }
 
-function peopleForResult(input) {
-  return [input.primary, input.secondary].filter(Boolean);
+function peopleForResult(input, category) {
+  if (category.requiresSecondPerson) {
+    return [input.primary, input.secondary].filter(Boolean);
+  }
+
+  return [input.primary].filter(Boolean);
 }
 
 function localizeBody(body) {

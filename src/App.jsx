@@ -327,6 +327,16 @@ function ChartPanel({ result }) {
             ))}
           </ul>
         </div>
+        <div>
+          <h3>主要相位</h3>
+          <ul>
+            {result.chart.aspects.map((aspect, index) => (
+              <li key={`${aspect.from}-${aspect.to}-${index}`}>
+                {aspect.from}与{aspect.to}：{aspect.type}，容许度 {aspect.orb}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

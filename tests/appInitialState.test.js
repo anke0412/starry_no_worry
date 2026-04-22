@@ -9,3 +9,8 @@ test("workspace does not initialize with a generated placeholder chart", () => {
   assert.doesNotMatch(appSource, /useState\(\(\) => buildResult\(/);
   assert.doesNotMatch(appSource, /function EmptyChartState/);
 });
+
+test("chart result panel renders an aspect list", () => {
+  assert.match(appSource, />主要相位</);
+  assert.match(appSource, /result\.chart\.aspects\.map/);
+});

@@ -33,6 +33,7 @@ test("calls the natal chart API and maps backend placements with localized label
       category: "natal",
       people: [{ ...primary, name: "旧名字" }],
       primary: { ...primary, name: "小星" },
+      secondary: { ...primary, name: "大耳兽" },
       forecastDate: "",
       forecastTime: "12:00",
     },
@@ -105,6 +106,7 @@ test("calls the natal chart API and maps backend placements with localized label
   assert.equal(chart.id, "natal-luna");
   assert.equal(chart.source, "api");
   assert.equal(chart.title, "小星 的本命星盘");
+  assert.equal(chart.people.length, 1);
   assert.equal(chart.people[0].name, "小星");
   assert.equal(chart.placements[0].planet, "太阳");
   assert.equal(chart.placements[0].sign, "白羊");
