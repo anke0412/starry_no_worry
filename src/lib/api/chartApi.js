@@ -25,6 +25,10 @@ const BODY_LABELS = {
   Uranus: "天王星",
   Neptune: "海王星",
   Pluto: "冥王星",
+  "North Node": "北交点",
+  "South Node": "南交点",
+  Ascendant: "上升点",
+  Midheaven: "天顶",
 };
 
 const SIGN_LABELS = {
@@ -99,7 +103,7 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
     people,
     forecastDate: input.forecastDate,
     focus: category.focus,
-    placements: result.placements.slice(0, 12).map((placement) => ({
+    placements: result.placements.slice(0, 14).map((placement) => ({
       planet: localizeBody(placement.body),
       sign: localizeSign(placement.sign),
       house: placement.house ?? "-",

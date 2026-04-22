@@ -86,8 +86,11 @@ class EphemerisService:
     engine_name = "ephem"
     engine_version = ephem.__version__
 
+    def normalize_profile_datetime(self, profile: BirthProfile) -> datetime:
+        return normalize_birth_datetime(profile)
+
     def calculate_profile_placements(self, profile: BirthProfile, bodies: tuple[str, ...] = DEFAULT_BODIES) -> list[Placement]:
-        utc_datetime = normalize_birth_datetime(profile)
+        utc_datetime = self.normalize_profile_datetime(profile)
         return [self.calculate_body(utc_datetime, body) for body in bodies]
 
     def calculate_body(self, utc_datetime: datetime, body: str) -> Placement:

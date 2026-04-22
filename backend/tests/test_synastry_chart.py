@@ -14,6 +14,8 @@ def profile(name: str, date: str, time: str, location_name: str = "Shanghai") ->
         "date": date,
         "time": time,
         "locationName": location_name,
+        "latitude": 31.2304 if location_name == "Shanghai" else 39.9042,
+        "longitude": 121.4737 if location_name == "Shanghai" else 116.4074,
         "timezone": "Asia/Shanghai",
     }
 
@@ -62,6 +64,8 @@ def test_synastry_endpoint_returns_dual_natal_results_and_inter_chart_aspects():
     assert len(data["placements"]) == 20
     assert data["relatedCharts"]["primaryNatal"]["chartType"] == "natal"
     assert data["relatedCharts"]["secondaryNatal"]["chartType"] == "natal"
+    assert "North Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
+    assert "South Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
     assert {
         "from": "Moon",
         "to": "Venus",

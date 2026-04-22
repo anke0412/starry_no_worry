@@ -36,10 +36,18 @@ function normalizeBirthProfile(profile) {
     date: profile.date,
     time: profile.time,
     locationName: profile.locationName ?? profile.location,
-    latitude: profile.latitude,
-    longitude: profile.longitude,
+    latitude: normalizeCoordinate(profile.latitude),
+    longitude: normalizeCoordinate(profile.longitude),
     timezone: profile.timezone,
   });
+}
+
+function normalizeCoordinate(value) {
+  if (value === "" || value === undefined || value === null) {
+    return undefined;
+  }
+
+  return Number(value);
 }
 
 function compactObject(value) {

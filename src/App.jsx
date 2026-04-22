@@ -11,6 +11,8 @@ const defaultPeople = {
     date: "1996-01-01",
     time: "08:30",
     location: "上海",
+    latitude: "31.2304",
+    longitude: "121.4737",
     timezone: "Asia/Shanghai",
   },
   secondary: {
@@ -18,6 +20,8 @@ const defaultPeople = {
     date: "2000-01-01",
     time: "21:10",
     location: "北京",
+    latitude: "39.9042",
+    longitude: "116.4074",
     timezone: "Asia/Shanghai",
   },
 };
@@ -255,6 +259,24 @@ function PersonFields({ person, role, title, onChange }) {
       <label>
         出生地
         <input value={person.location} onChange={(event) => onChange(role, "location", event.target.value)} />
+      </label>
+      <label>
+        纬度
+        <input
+          type="number"
+          step="0.0001"
+          value={person.latitude}
+          onChange={(event) => onChange(role, "latitude", event.target.value)}
+        />
+      </label>
+      <label>
+        经度
+        <input
+          type="number"
+          step="0.0001"
+          value={person.longitude}
+          onChange={(event) => onChange(role, "longitude", event.target.value)}
+        />
       </label>
       <label>
         时区
