@@ -42,18 +42,34 @@ def test_natal_endpoint_returns_real_ephemeris_placements():
         "Uranus",
         "Neptune",
         "Pluto",
+        "North Node",
+        "South Node",
         "Ascendant",
         "Midheaven",
     ]
+    north_node = next(placement for placement in data["placements"] if placement["body"] == "North Node")
+    south_node = next(placement for placement in data["placements"] if placement["body"] == "South Node")
     assert data["placements"][0]["sign"] == "Capricorn"
     assert data["placements"][0]["degree"] == 10
     assert data["placements"][0]["longitude"] == 280.378583
+    assert abs(((north_node["longitude"] + 180) % 360) - south_node["longitude"]) < 0.000001
+    assert north_node["house"] is not None
+    assert south_node["house"] is not None
     assert len(data["houses"]) == 12
     assert data["houses"][0]["house"] == 1
     assert data["houses"][0]["sign"]
     assert data["houses"][0]["degree"] is not None
     assert data["houses"][0]["minute"] is not None
     assert all(placement["house"] is not None for placement in data["placements"])
+    assert {
+        "from": "North Node",
+        "to": "South Node",
+        "type": "opposition",
+        "angle": 180.0,
+        "orb": 0.0,
+        "applying": None,
+        "weight": None,
+    } in data["aspects"]
     assert {
         "from": "Sun",
         "to": "Saturn",

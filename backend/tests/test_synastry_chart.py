@@ -64,6 +64,8 @@ def test_synastry_endpoint_returns_dual_natal_results_and_inter_chart_aspects():
     assert len(data["placements"]) == 20
     assert data["relatedCharts"]["primaryNatal"]["chartType"] == "natal"
     assert data["relatedCharts"]["secondaryNatal"]["chartType"] == "natal"
+    assert "North Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
+    assert "South Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
     assert {
         "from": "Moon",
         "to": "Venus",

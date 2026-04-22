@@ -62,6 +62,7 @@ The current ephemeris layer uses `ephem` for planet positions and `pyswisseph` f
 - Ecliptic longitude calculation
 - Zodiac sign, degree, and minute mapping
 - Placidus house cusps
+- Mean lunar nodes
 - Ascendant and Midheaven
 - Planet house assignment
 - Golden test coverage for a known Sun position

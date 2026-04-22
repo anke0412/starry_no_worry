@@ -39,7 +39,11 @@ class SynastryChartService:
 
 
 def planetary_placements(placements: list[Placement]) -> list[Placement]:
-    return [placement for placement in placements if placement.body not in {"Ascendant", "Midheaven"}]
+    return [
+        placement
+        for placement in placements
+        if placement.body not in {"North Node", "South Node", "Ascendant", "Midheaven"}
+    ]
 
 
 def calculate_inter_chart_aspects(

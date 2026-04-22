@@ -104,14 +104,18 @@ Request:
 
 Response: `ChartResult`.
 
-The natal response includes real planet placements, major aspects, 12 Placidus house cusps, Ascendant, Midheaven, and the house number for each planetary placement.
+The natal response includes real planet placements, mean lunar nodes, major aspects, 12 Placidus house cusps, Ascendant, Midheaven, and the house number for each placement.
 
 `placements` includes the 10 default planets followed by:
 
+- `North Node`
+- `South Node`
 - `Ascendant`
 - `Midheaven`
 
 Missing `timezone`, `latitude`, or `longitude` returns `422 invalid_chart_request`.
+
+The backend currently uses the mean lunar node for `North Node`; `South Node` is returned as the exact opposite point.
 
 ### POST /api/charts/synastry
 

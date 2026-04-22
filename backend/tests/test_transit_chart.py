@@ -35,6 +35,8 @@ def test_transit_endpoint_returns_natal_transit_sky_and_inter_chart_aspects():
     assert len(data["placements"]) == 20
     assert data["houses"] == []
     assert data["relatedCharts"]["primaryNatal"]["chartType"] == "natal"
+    assert "North Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
+    assert "South Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
     assert data["relatedCharts"]["transitSky"]["chartType"] == "transitSky"
     assert data["relatedCharts"]["transitSky"]["profiles"][0]["date"] == "2026-05-01"
     assert data["relatedCharts"]["transitSky"]["profiles"][0]["time"] == "12:00"

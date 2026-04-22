@@ -5,6 +5,7 @@ from app.models.chart import BirthProfile, CalculationMetadata, ChartResult, Nat
 from app.services.aspects import calculate_major_aspects
 from app.services.ephemeris import EphemerisService
 from app.services.houses import HouseCalculationService, assign_house
+from app.services.lunar_nodes import LunarNodeService
 
 
 class NatalChartService:
@@ -12,9 +13,11 @@ class NatalChartService:
         self,
         ephemeris: EphemerisService | None = None,
         houses: HouseCalculationService | None = None,
+        lunar_nodes: LunarNodeService | None = None,
     ) -> None:
         self.ephemeris = ephemeris or EphemerisService()
         self.houses = houses or HouseCalculationService()
+        self.lunar_nodes = lunar_nodes or LunarNodeService()
 
     def calculate(self, request: NatalChartRequest) -> ChartResult:
         return self.calculate_from_profile(request.primary, request.settings.house_system)
@@ -22,14 +25,16 @@ class NatalChartService:
     def calculate_from_profile(self, profile: BirthProfile, house_system: str = "placidus") -> ChartResult:
         utc_datetime = self.ephemeris.normalize_profile_datetime(profile)
         placements = self.ephemeris.calculate_profile_placements(profile)
+        node_calculation = self.lunar_nodes.calculate(utc_datetime)
         house_calculation = self.houses.calculate(profile, utc_datetime, house_system)
         house_cusps = [house.longitude for house in house_calculation.houses]
+        calculated_points = [*placements, node_calculation.north_node, node_calculation.south_node]
 
-        for placement in placements:
+        for placement in calculated_points:
             placement.house = assign_house(placement.longitude, house_cusps)
 
-        planetary_placements = list(placements)
-        placements.extend([house_calculation.ascendant, house_calculation.midheaven])
+        aspect_placements = list(calculated_points)
+        placements = [*calculated_points, house_calculation.ascendant, house_calculation.midheaven]
 
         return ChartResult(
             chartId=build_natal_chart_id(profile),
@@ -43,7 +48,7 @@ class NatalChartService:
             ),
             placements=placements,
             houses=house_calculation.houses,
-            aspects=calculate_major_aspects(planetary_placements),
+            aspects=calculate_major_aspects(aspect_placements),
         )
 
 

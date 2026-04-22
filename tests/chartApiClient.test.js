@@ -49,6 +49,31 @@ test("calls the natal chart API and maps backend placements with localized label
           minute: 24,
           house: null,
         },
+        { body: "Moon", longitude: 40, sign: "Taurus", degree: 10, minute: 0, house: 1 },
+        { body: "Mercury", longitude: 60, sign: "Gemini", degree: 0, minute: 0, house: 1 },
+        { body: "Venus", longitude: 90, sign: "Cancer", degree: 0, minute: 0, house: 2 },
+        { body: "Mars", longitude: 120, sign: "Leo", degree: 0, minute: 0, house: 3 },
+        { body: "Jupiter", longitude: 150, sign: "Virgo", degree: 0, minute: 0, house: 4 },
+        { body: "Saturn", longitude: 180, sign: "Libra", degree: 0, minute: 0, house: 5 },
+        { body: "Uranus", longitude: 210, sign: "Scorpio", degree: 0, minute: 0, house: 6 },
+        { body: "Neptune", longitude: 240, sign: "Sagittarius", degree: 0, minute: 0, house: 7 },
+        { body: "Pluto", longitude: 270, sign: "Capricorn", degree: 0, minute: 0, house: 8 },
+        {
+          body: "North Node",
+          longitude: 112.6,
+          sign: "Cancer",
+          degree: 22,
+          minute: 36,
+          house: 2,
+        },
+        {
+          body: "South Node",
+          longitude: 292.6,
+          sign: "Capricorn",
+          degree: 22,
+          minute: 36,
+          house: 8,
+        },
         {
           body: "Ascendant",
           longitude: 88.2,
@@ -69,7 +94,7 @@ test("calls the natal chart API and maps backend placements with localized label
       aspects: [
         {
           from: "Sun",
-          to: "Moon",
+          to: "North Node",
           type: "trine",
           orb: 1.25,
         },
@@ -84,12 +109,16 @@ test("calls the natal chart API and maps backend placements with localized label
   assert.equal(chart.placements[0].planet, "太阳");
   assert.equal(chart.placements[0].sign, "白羊");
   assert.equal(chart.placements[0].minute, 24);
-  assert.equal(chart.placements[1].planet, "上升点");
-  assert.equal(chart.placements[1].sign, "双子");
-  assert.equal(chart.placements[2].planet, "天顶");
-  assert.equal(chart.placements[2].sign, "双鱼");
+  assert.equal(chart.placements[10].planet, "北交点");
+  assert.equal(chart.placements[10].sign, "巨蟹");
+  assert.equal(chart.placements[11].planet, "南交点");
+  assert.equal(chart.placements[11].sign, "摩羯");
+  assert.equal(chart.placements[12].planet, "上升点");
+  assert.equal(chart.placements[12].sign, "双子");
+  assert.equal(chart.placements[13].planet, "天顶");
+  assert.equal(chart.placements[13].sign, "双鱼");
   assert.equal(chart.aspects[0].from, "太阳");
-  assert.equal(chart.aspects[0].to, "月亮");
+  assert.equal(chart.aspects[0].to, "北交点");
   assert.equal(chart.aspects[0].orb, "1.25°");
 });
 
