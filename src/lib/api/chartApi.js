@@ -110,7 +110,7 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
       degree: placement.degree,
       minute: placement.minute,
     })),
-    aspects: result.aspects.slice(0, 8).map((aspect) => ({
+    aspects: result.aspects.map((aspect) => ({
       from: localizeBody(aspect.from),
       to: localizeBody(aspect.to),
       type: aspect.type,

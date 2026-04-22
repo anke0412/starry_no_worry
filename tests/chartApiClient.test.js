@@ -99,6 +99,14 @@ test("calls the natal chart API and maps backend placements with localized label
           type: "trine",
           orb: 1.25,
         },
+        { from: "Moon", to: "Venus", type: "square", orb: 1.4 },
+        { from: "Mercury", to: "Mars", type: "sextile", orb: 1.6 },
+        { from: "Venus", to: "Saturn", type: "trine", orb: 1.8 },
+        { from: "Mars", to: "Jupiter", type: "opposition", orb: 2.0 },
+        { from: "Jupiter", to: "Uranus", type: "square", orb: 2.2 },
+        { from: "Saturn", to: "Neptune", type: "sextile", orb: 2.4 },
+        { from: "Uranus", to: "Pluto", type: "trine", orb: 2.6 },
+        { from: "Neptune", to: "South Node", type: "square", orb: 2.8 },
       ],
     }),
   );
@@ -122,6 +130,9 @@ test("calls the natal chart API and maps backend placements with localized label
   assert.equal(chart.aspects[0].from, "太阳");
   assert.equal(chart.aspects[0].to, "北交点");
   assert.equal(chart.aspects[0].orb, "1.25°");
+  assert.equal(chart.aspects.length, 9);
+  assert.equal(chart.aspects[8].from, "海王星");
+  assert.equal(chart.aspects[8].to, "南交点");
 });
 
 test("calls the transit chart API with forecast date and time", async () => {
