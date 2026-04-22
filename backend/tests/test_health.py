@@ -28,3 +28,17 @@ def test_unknown_route_returns_structured_error():
             "message": "The requested resource was not found.",
         }
     }
+
+
+def test_local_vite_origins_can_preflight_chart_requests():
+    response = client.options(
+        "/api/charts/natal",
+        headers={
+            "Origin": "http://127.0.0.1:5173",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://127.0.0.1:5173"
