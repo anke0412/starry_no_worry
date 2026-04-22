@@ -63,6 +63,21 @@ const SIGN_LABELS = {
   Pisces: "双鱼",
 };
 
+const TRADITIONAL_SIGN_RULERS = {
+  Aries: "Mars",
+  Taurus: "Venus",
+  Gemini: "Mercury",
+  Cancer: "Moon",
+  Leo: "Sun",
+  Virgo: "Mercury",
+  Libra: "Venus",
+  Scorpio: "Mars",
+  Sagittarius: "Jupiter",
+  Capricorn: "Saturn",
+  Aquarius: "Saturn",
+  Pisces: "Jupiter",
+};
+
 export async function calculateChart(input, fetcher = fetch) {
   const category = findCategory(input.category);
 
@@ -121,12 +136,10 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
     forecastDate: input.forecastDate,
     focus: category.focus,
     placements: result.placements.slice(0, 14).map((placement) => ({
-      planet: localizeBody(placement.body),
-      sign: localizeSign(placement.sign),
-      house: placement.house ?? "-",
-      degree: placement.degree,
-      minute: placement.minute,
+      ...mapPlacement(placement),
     })),
+    placementGroups: mapPlacementGroups(result, input),
+    aspectOwners: mapAspectOwners(result, input),
     aspects: sortAspectsByBodyOrder(result.aspects).map(mapAspect),
     overlays: mapOverlays(result.relatedCharts),
     houseNotes: category.focus.map((item, index) => ({
@@ -135,6 +148,73 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
     })),
     source: "api",
     rawResult: result,
+  };
+}
+
+function mapPlacementGroups(result, input) {
+  const relatedCharts = result.relatedCharts;
+
+  if (input.category === "synastry" && relatedCharts?.primaryNatal && relatedCharts?.secondaryNatal) {
+    return [
+      mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
+      mapPlacementGroup(relatedCharts.secondaryNatal, `${chartProfileName(relatedCharts.secondaryNatal, input.secondary.name)} 的本命星体`),
+    ];
+  }
+
+  if (input.category === "transit" && relatedCharts?.primaryNatal && relatedCharts?.transitSky) {
+    return [
+      mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
+      mapPlacementGroup(relatedCharts.transitSky, "流年天象星体"),
+    ];
+  }
+
+  return [
+    {
+      id: result.chartId,
+      title: `${input.primary.name} 的星体落点`,
+      placements: result.placements.slice(0, 14).map(mapPlacement),
+    },
+  ];
+}
+
+function mapPlacementGroup(chart, title) {
+  return {
+    id: chart.chartId ?? title,
+    title,
+    placements: (chart.placements ?? []).slice(0, 14).map(mapPlacement),
+  };
+}
+
+function mapPlacement(placement) {
+  return {
+    planet: localizeBody(placement.body),
+    sign: localizeSign(placement.sign),
+    house: placement.house ?? "-",
+    degree: placement.degree,
+    minute: placement.minute,
+  };
+}
+
+function mapAspectOwners(result, input) {
+  const relatedCharts = result.relatedCharts;
+
+  if (relatedCharts?.primaryOverlay) {
+    return {
+      from: relatedCharts.primaryOverlay.referenceName,
+      to: relatedCharts.primaryOverlay.overlayName,
+    };
+  }
+
+  if (relatedCharts?.transitOverlay) {
+    return {
+      from: relatedCharts.transitOverlay.referenceName,
+      to: "流年",
+    };
+  }
+
+  return {
+    from: input.primary.name,
+    to: input.primary.name,
   };
 }
 
@@ -148,9 +228,10 @@ function mapOverlays(relatedCharts) {
     .filter(Boolean)
     .map((overlay) => ({
       id: overlay.overlayId,
-      title: `${overlay.overlayName} 落入 ${overlay.referenceName} 的宫位`,
+      title: `${overlayDisplayName(overlay.overlayName)} 飞入 ${overlay.referenceName}`,
+      houseTableTitle: `${overlayDisplayName(overlay.overlayName)} 飞入 ${overlay.referenceName} 的宫位`,
       referenceName: overlay.referenceName,
-      overlayName: overlay.overlayName,
+      overlayName: overlayDisplayName(overlay.overlayName),
       placements: overlay.placements.map((placement) => ({
         planet: localizeBody(placement.body),
         sign: localizeSign(placement.sign),
@@ -158,6 +239,7 @@ function mapOverlays(relatedCharts) {
         minute: placement.minute,
         sourceHouse: placement.sourceHouse ?? "-",
         overlayHouse: placement.overlayHouse,
+        overlayHouseRuler: houseRuler(overlay.houses, placement.overlayHouse),
       })),
       aspects: sortAspectsByBodyOrder(overlay.aspects).map(mapAspect),
     }));
@@ -195,6 +277,24 @@ function sortAspectsByBodyOrder(aspects) {
 function bodyOrder(body) {
   const index = BODY_SORT_ORDER.indexOf(body);
   return index === -1 ? BODY_SORT_ORDER.length : index;
+}
+
+function chartProfileName(chart, fallback) {
+  return chart.profiles?.[0]?.name ?? fallback;
+}
+
+function overlayDisplayName(name) {
+  return name === "Transit Sky" ? "流年星体" : name;
+}
+
+function houseRuler(houses, houseNumber) {
+  const house = houses?.find((item) => item.house === houseNumber);
+
+  if (!house) {
+    return "-";
+  }
+
+  return localizeBody(TRADITIONAL_SIGN_RULERS[house.sign]) ?? "-";
 }
 
 function localizeBody(body) {

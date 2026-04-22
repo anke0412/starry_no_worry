@@ -316,41 +316,43 @@ function ChartPanel({ result }) {
           <h3>重点主题</h3>
           <p>{result.chart.focus.join(" / ")}</p>
         </div>
-        <div>
-          <h3>星体落点</h3>
-          <div className="data-table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>星体</th>
-                  <th>星座</th>
-                  <th>度数</th>
-                  <th>宫位</th>
-                </tr>
-              </thead>
-              <tbody>
-                {result.chart.placements.map((placement, index) => (
-                  <tr key={`${placement.planet}-${index}`}>
-                    <td>{placement.planet}</td>
-                    <td>{placement.sign}</td>
-                    <td>
-                      {placement.degree}°{placement.minute ? `${placement.minute}'` : ""}
-                    </td>
-                    <td>第 {placement.house} 宫</td>
+        {result.chart.placementGroups.map((group) => (
+          <div key={group.id}>
+            <h3>{group.title}</h3>
+            <div className="data-table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>星体</th>
+                    <th>星座</th>
+                    <th>度数</th>
+                    <th>宫位</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {group.placements.map((placement, index) => (
+                    <tr key={`${group.id}-${placement.planet}-${index}`}>
+                      <td>{placement.planet}</td>
+                      <td>{placement.sign}</td>
+                      <td>
+                        {placement.degree}°{placement.minute ? `${placement.minute}'` : ""}
+                      </td>
+                      <td>第 {placement.house} 宫</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        ))}
         <div>
           <h3>主要相位</h3>
           <div className="data-table-wrap">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>星体 A</th>
-                  <th>星体 B</th>
+                  <th>{result.chart.aspectOwners.from} 的星体</th>
+                  <th>{result.chart.aspectOwners.to} 的星体</th>
                   <th>相位类型</th>
                   <th>容许度</th>
                 </tr>
@@ -370,7 +372,7 @@ function ChartPanel({ result }) {
         </div>
         {result.chart.overlays.map((overlay) => (
           <div key={overlay.id}>
-            <h3>{overlay.title}</h3>
+            <h3>{overlay.houseTableTitle}</h3>
             <div className="data-table-wrap">
               <table className="data-table">
                 <thead>
@@ -379,7 +381,8 @@ function ChartPanel({ result }) {
                     <th>星座</th>
                     <th>度数</th>
                     <th>原本宫位</th>
-                    <th>落入参考盘宫位</th>
+                    <th>飞入宫位</th>
+                    <th>飞入宫位宫主星</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -392,6 +395,7 @@ function ChartPanel({ result }) {
                       </td>
                       <td>第 {placement.sourceHouse} 宫</td>
                       <td>第 {placement.overlayHouse} 宫</td>
+                      <td>{placement.overlayHouseRuler}</td>
                     </tr>
                   ))}
                 </tbody>
