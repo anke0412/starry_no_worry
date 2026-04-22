@@ -13,8 +13,10 @@ class SynastryChartService:
         self.natal = NatalChartService(self.ephemeris)
 
     def calculate(self, request: SynastryChartRequest) -> ChartResult:
-        primary_natal = self.natal.calculate_from_profile(request.primary)
-        secondary_natal = self.natal.calculate_from_profile(request.secondary)
+        primary_natal = self.natal.calculate_from_profile(request.primary, request.settings.house_system)
+        secondary_natal = self.natal.calculate_from_profile(request.secondary, request.settings.house_system)
+        primary_planets = planetary_placements(primary_natal.placements)
+        secondary_planets = planetary_placements(secondary_natal.placements)
 
         return ChartResult(
             chartId=build_synastry_chart_id(request),
@@ -26,14 +28,18 @@ class SynastryChartService:
                 engineVersion=self.ephemeris.engine_version,
                 calculatedAt=datetime.now(UTC).isoformat(),
             ),
-            placements=[*primary_natal.placements, *secondary_natal.placements],
+            placements=[*primary_planets, *secondary_planets],
             houses=[],
-            aspects=calculate_inter_chart_aspects(primary_natal.placements, secondary_natal.placements),
+            aspects=calculate_inter_chart_aspects(primary_planets, secondary_planets),
             relatedCharts={
                 "primaryNatal": primary_natal.model_dump(by_alias=True),
                 "secondaryNatal": secondary_natal.model_dump(by_alias=True),
             },
         )
+
+
+def planetary_placements(placements: list[Placement]) -> list[Placement]:
+    return [placement for placement in placements if placement.body not in {"Ascendant", "Midheaven"}]
 
 
 def calculate_inter_chart_aspects(

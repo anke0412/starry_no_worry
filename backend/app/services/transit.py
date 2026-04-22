@@ -5,7 +5,7 @@ from app.models.chart import BirthProfile, CalculationMetadata, ChartResult, Tra
 from app.services.aspects import calculate_major_aspects
 from app.services.ephemeris import EphemerisService
 from app.services.natal import NatalChartService
-from app.services.synastry import calculate_inter_chart_aspects
+from app.services.synastry import calculate_inter_chart_aspects, planetary_placements
 
 
 class TransitChartService:
@@ -14,8 +14,9 @@ class TransitChartService:
         self.natal = NatalChartService(self.ephemeris)
 
     def calculate(self, request: TransitChartRequest) -> ChartResult:
-        primary_natal = self.natal.calculate_from_profile(request.primary)
+        primary_natal = self.natal.calculate_from_profile(request.primary, request.settings.house_system)
         transit_sky = self.calculate_transit_sky(request)
+        primary_planets = planetary_placements(primary_natal.placements)
 
         return ChartResult(
             chartId=build_transit_chart_id(request),
@@ -23,9 +24,9 @@ class TransitChartService:
             title=f"{request.primary.name} Transit Chart",
             profiles=[request.primary],
             calculation=self.build_calculation_metadata(),
-            placements=[*primary_natal.placements, *transit_sky.placements],
+            placements=[*primary_planets, *transit_sky.placements],
             houses=[],
-            aspects=calculate_inter_chart_aspects(transit_sky.placements, primary_natal.placements),
+            aspects=calculate_inter_chart_aspects(transit_sky.placements, primary_planets),
             relatedCharts={
                 "primaryNatal": primary_natal.model_dump(by_alias=True),
                 "transitSky": transit_sky.model_dump(by_alias=True),

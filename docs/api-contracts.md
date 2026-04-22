@@ -1,10 +1,10 @@
 # Starry No Worry API Contracts
 
-This document records the Phase 1 chart API contract shared by the React frontend and FastAPI backend.
+This document records the chart API contract shared by the React frontend and FastAPI backend.
 
 ## Current Status
 
-The natal, synastry, and transit chart endpoints return real `ChartResult` responses with ephemeris-backed placements and major aspects. House cusps remain empty in Phase 1 until house calculation is added.
+The natal, synastry, and transit chart endpoints return real `ChartResult` responses with ephemeris-backed placements and major aspects. Natal charts now include Placidus house cusps, Ascendant, Midheaven, and planet house placement.
 
 ## Base URL
 
@@ -56,6 +56,9 @@ Required fields:
 Optional fields:
 
 - `id`
+
+Required for calculated natal charts, synastry source natal charts, and transit source natal charts:
+
 - `latitude`
 - `longitude`
 - `timezone`
@@ -71,7 +74,7 @@ Optional fields:
 }
 ```
 
-Phase 1 only supports the default setting values. Later modules can expand the allowed values.
+The backend currently supports `placidus` houses, `tropical` zodiac, `major` aspects, and the default orb profile. Unsupported house systems return `422 invalid_chart_request`.
 
 ## Chart Endpoints
 
@@ -86,6 +89,8 @@ Request:
     "date": "1996-04-12",
     "time": "08:30",
     "locationName": "Shanghai",
+    "latitude": 31.2304,
+    "longitude": 121.4737,
     "timezone": "Asia/Shanghai"
   },
   "settings": {
@@ -99,7 +104,14 @@ Request:
 
 Response: `ChartResult`.
 
-The Phase 1 natal response currently includes real planet placements and major aspects. House cusps are returned as an empty list until house calculation is added.
+The natal response includes real planet placements, major aspects, 12 Placidus house cusps, Ascendant, Midheaven, and the house number for each planetary placement.
+
+`placements` includes the 10 default planets followed by:
+
+- `Ascendant`
+- `Midheaven`
+
+Missing `timezone`, `latitude`, or `longitude` returns `422 invalid_chart_request`.
 
 ### POST /api/charts/synastry
 
@@ -112,6 +124,8 @@ Request:
     "date": "1996-04-12",
     "time": "08:30",
     "locationName": "Shanghai",
+    "latitude": 31.2304,
+    "longitude": 121.4737,
     "timezone": "Asia/Shanghai"
   },
   "secondary": {
@@ -119,6 +133,8 @@ Request:
     "date": "1993-09-07",
     "time": "21:10",
     "locationName": "Beijing",
+    "latitude": 39.9042,
+    "longitude": 116.4074,
     "timezone": "Asia/Shanghai"
   },
   "settings": {
@@ -132,7 +148,7 @@ Request:
 
 Response: `ChartResult`.
 
-The Phase 1 synastry response currently includes both natal placement sets, inter-chart major aspects, and both source natal charts in `relatedCharts`.
+The synastry response includes both planetary placement sets, inter-chart major aspects, and both source natal charts in `relatedCharts`. Each related natal chart includes its own houses, Ascendant, and Midheaven.
 
 ### POST /api/charts/transit
 
@@ -145,6 +161,8 @@ Request:
     "date": "1996-04-12",
     "time": "08:30",
     "locationName": "Shanghai",
+    "latitude": 31.2304,
+    "longitude": 121.4737,
     "timezone": "Asia/Shanghai"
   },
   "transitDate": "2026-05-01",
@@ -160,10 +178,12 @@ Request:
 
 Response: `ChartResult`.
 
-The Phase 1 transit response includes the primary natal placements, transit-sky placements for `transitDate` and `transitTime`, transit-to-natal major aspects, and two source charts in `relatedCharts`:
+The transit response includes the primary natal planetary placements, transit-sky placements for `transitDate` and `transitTime`, transit-to-natal major aspects, and two source charts in `relatedCharts`:
 
 - `primaryNatal`
 - `transitSky`
+
+`primaryNatal` includes houses, Ascendant, and Midheaven. `transitSky` remains a sky snapshot without houses.
 
 ## Temporary Not Implemented Response
 

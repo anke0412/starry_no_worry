@@ -75,6 +75,8 @@ function normalizePerson(person) {
     date: person.date,
     time: person.time,
     location: person.location.trim(),
+    latitude: person.latitude,
+    longitude: person.longitude,
     timezone: person.timezone,
   };
 }

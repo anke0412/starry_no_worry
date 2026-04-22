@@ -13,6 +13,8 @@ def transit_payload() -> dict:
             "date": "2000-01-01",
             "time": "20:00",
             "locationName": "Shanghai",
+            "latitude": 31.2304,
+            "longitude": 121.4737,
             "timezone": "Asia/Shanghai",
         },
         "transitDate": "2026-05-01",

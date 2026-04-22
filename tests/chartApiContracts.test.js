@@ -12,6 +12,8 @@ const primary = {
   date: "1996-04-12",
   time: "08:30",
   location: "Shanghai",
+  latitude: "31.2304",
+  longitude: "121.4737",
   timezone: "Asia/Shanghai",
 };
 
@@ -20,6 +22,8 @@ const secondary = {
   date: "1993-09-07",
   time: "21:10",
   location: "Beijing",
+  latitude: "39.9042",
+  longitude: "116.4074",
   timezone: "Asia/Shanghai",
 };
 
@@ -30,6 +34,8 @@ test("builds a natal chart API payload with default settings", () => {
       date: "1996-04-12",
       time: "08:30",
       locationName: "Shanghai",
+      latitude: 31.2304,
+      longitude: 121.4737,
       timezone: "Asia/Shanghai",
     },
     settings: {

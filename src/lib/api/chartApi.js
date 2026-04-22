@@ -25,6 +25,8 @@ const BODY_LABELS = {
   Uranus: "天王星",
   Neptune: "海王星",
   Pluto: "冥王星",
+  Ascendant: "上升点",
+  Midheaven: "天顶",
 };
 
 const SIGN_LABELS = {

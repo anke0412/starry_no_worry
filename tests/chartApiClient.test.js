@@ -49,6 +49,22 @@ test("calls the natal chart API and maps backend placements with localized label
           minute: 24,
           house: null,
         },
+        {
+          body: "Ascendant",
+          longitude: 88.2,
+          sign: "Gemini",
+          degree: 28,
+          minute: 12,
+          house: 1,
+        },
+        {
+          body: "Midheaven",
+          longitude: 331.5,
+          sign: "Pisces",
+          degree: 1,
+          minute: 30,
+          house: 10,
+        },
       ],
       aspects: [
         {
@@ -68,6 +84,10 @@ test("calls the natal chart API and maps backend placements with localized label
   assert.equal(chart.placements[0].planet, "太阳");
   assert.equal(chart.placements[0].sign, "白羊");
   assert.equal(chart.placements[0].minute, 24);
+  assert.equal(chart.placements[1].planet, "上升点");
+  assert.equal(chart.placements[1].sign, "双子");
+  assert.equal(chart.placements[2].planet, "天顶");
+  assert.equal(chart.placements[2].sign, "双鱼");
   assert.equal(chart.aspects[0].from, "太阳");
   assert.equal(chart.aspects[0].to, "月亮");
   assert.equal(chart.aspects[0].orb, "1.25°");

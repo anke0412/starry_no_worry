@@ -13,6 +13,8 @@ def natal_payload() -> dict:
             "date": "2000-01-01",
             "time": "20:00",
             "locationName": "Shanghai",
+            "latitude": 31.2304,
+            "longitude": 121.4737,
             "timezone": "Asia/Shanghai",
         }
     }
@@ -40,11 +42,18 @@ def test_natal_endpoint_returns_real_ephemeris_placements():
         "Uranus",
         "Neptune",
         "Pluto",
+        "Ascendant",
+        "Midheaven",
     ]
     assert data["placements"][0]["sign"] == "Capricorn"
     assert data["placements"][0]["degree"] == 10
     assert data["placements"][0]["longitude"] == 280.378583
-    assert data["houses"] == []
+    assert len(data["houses"]) == 12
+    assert data["houses"][0]["house"] == 1
+    assert data["houses"][0]["sign"]
+    assert data["houses"][0]["degree"] is not None
+    assert data["houses"][0]["minute"] is not None
+    assert all(placement["house"] is not None for placement in data["placements"])
     assert {
         "from": "Sun",
         "to": "Saturn",
@@ -67,5 +76,55 @@ def test_natal_endpoint_returns_structured_error_without_timezone():
         "error": {
             "code": "invalid_chart_request",
             "message": "Birth profile timezone is required for ephemeris calculation.",
+        }
+    }
+
+
+def test_natal_endpoint_requires_birth_coordinates():
+    payload = natal_payload()
+    del payload["primary"]["latitude"]
+
+    response = client.post("/api/charts/natal", json=payload)
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "error": {
+            "code": "invalid_chart_request",
+            "message": "Birth profile latitude is required for house calculation.",
+        }
+    }
+
+
+def test_natal_endpoint_rejects_invalid_birth_coordinates():
+    payload = natal_payload()
+    payload["primary"]["latitude"] = 120
+
+    response = client.post("/api/charts/natal", json=payload)
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "error": {
+            "code": "invalid_chart_request",
+            "message": "Birth profile latitude must be between -90 and 90.",
+        }
+    }
+
+
+def test_natal_endpoint_rejects_unsupported_house_system_with_structured_error():
+    payload = natal_payload()
+    payload["settings"] = {
+        "houseSystem": "whole-sign",
+        "zodiac": "tropical",
+        "aspectSet": "major",
+        "orbProfile": "default",
+    }
+
+    response = client.post("/api/charts/natal", json=payload)
+
+    assert response.status_code == 422
+    assert response.json() == {
+        "error": {
+            "code": "invalid_chart_request",
+            "message": "Unsupported house system: whole-sign",
         }
     }

@@ -17,7 +17,7 @@ class BirthProfile(BaseModel):
 
 
 class ChartSettings(BaseModel):
-    house_system: Literal["placidus"] = Field(default="placidus", alias="houseSystem")
+    house_system: str = Field(default="placidus", alias="houseSystem")
     zodiac: Literal["tropical"] = "tropical"
     aspect_set: Literal["major"] = Field(default="major", alias="aspectSet")
     orb_profile: Literal["default"] = Field(default="default", alias="orbProfile")

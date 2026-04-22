@@ -14,6 +14,8 @@ def birth_profile_payload(name: str = "Luna") -> dict:
         "date": "1996-04-12",
         "time": "08:30",
         "locationName": "Shanghai",
+        "latitude": 31.2304,
+        "longitude": 121.4737,
         "timezone": "Asia/Shanghai",
     }
 

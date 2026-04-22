@@ -14,6 +14,8 @@ def profile(name: str, date: str, time: str, location_name: str = "Shanghai") ->
         "date": date,
         "time": time,
         "locationName": location_name,
+        "latitude": 31.2304 if location_name == "Shanghai" else 39.9042,
+        "longitude": 121.4737 if location_name == "Shanghai" else 116.4074,
         "timezone": "Asia/Shanghai",
     }
 
