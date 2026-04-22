@@ -197,6 +197,20 @@ test("maps overlay house placements for synastry and transit results", async () 
           label: "Sol in Luna houses",
           referenceName: "Luna",
           overlayName: "Sol",
+          houses: [
+            { house: 1, sign: "Aries" },
+            { house: 2, sign: "Taurus" },
+            { house: 3, sign: "Gemini" },
+            { house: 4, sign: "Cancer" },
+            { house: 5, sign: "Leo" },
+            { house: 6, sign: "Virgo" },
+            { house: 7, sign: "Libra" },
+            { house: 8, sign: "Scorpio" },
+            { house: 9, sign: "Sagittarius" },
+            { house: 10, sign: "Capricorn" },
+            { house: 11, sign: "Aquarius" },
+            { house: 12, sign: "Pisces" },
+          ],
           placements: [
             {
               body: "Venus",
@@ -215,19 +229,34 @@ test("maps overlay house placements for synastry and transit results", async () 
           label: "Luna in Sol houses",
           referenceName: "Sol",
           overlayName: "Luna",
+          houses: [],
           placements: [],
           aspects: [],
+        },
+        primaryNatal: {
+          profiles: [{ name: "Luna" }],
+          placements: [{ body: "Sun", sign: "Aries", degree: 1, minute: 0, house: 1 }],
+        },
+        secondaryNatal: {
+          profiles: [{ name: "Sol" }],
+          placements: [{ body: "Moon", sign: "Taurus", degree: 2, minute: 0, house: 2 }],
         },
       },
     }),
   );
 
+  assert.equal(synastryChart.placementGroups[0].title, "Luna 的本命星体");
+  assert.equal(synastryChart.placementGroups[1].title, "Sol 的本命星体");
+  assert.equal(synastryChart.aspectOwners.from, "Luna");
+  assert.equal(synastryChart.aspectOwners.to, "Sol");
   assert.equal(synastryChart.overlays.length, 2);
-  assert.equal(synastryChart.overlays[0].title, "Sol 落入 Luna 的宫位");
+  assert.equal(synastryChart.overlays[0].title, "Sol 飞入 Luna");
+  assert.equal(synastryChart.overlays[0].houseTableTitle, "Sol 飞入 Luna 的宫位");
   assert.equal(synastryChart.overlays[0].placements[0].planet, "金星");
   assert.equal(synastryChart.overlays[0].placements[0].sign, "双子");
   assert.equal(synastryChart.overlays[0].placements[0].sourceHouse, 2);
   assert.equal(synastryChart.overlays[0].placements[0].overlayHouse, 7);
+  assert.equal(synastryChart.overlays[0].placements[0].overlayHouseRuler, "金星");
   assert.equal(synastryChart.overlays[0].aspects[0].from, "月亮");
   assert.equal(synastryChart.overlays[0].aspects[0].to, "金星");
 
@@ -252,6 +281,9 @@ test("maps overlay house placements for synastry and transit results", async () 
           label: "Transit sky in Luna houses",
           referenceName: "Luna",
           overlayName: "Transit Sky",
+          houses: [
+            { house: 10, sign: "Capricorn" },
+          ],
           placements: [
             {
               body: "Saturn",
@@ -265,14 +297,27 @@ test("maps overlay house placements for synastry and transit results", async () 
           ],
           aspects: [{ from: "Sun", to: "Saturn", type: "square", orb: 1.1 }],
         },
+        primaryNatal: {
+          profiles: [{ name: "Luna" }],
+          placements: [{ body: "Sun", sign: "Aries", degree: 1, minute: 0, house: 1 }],
+        },
+        transitSky: {
+          profiles: [{ name: "Transit Sky" }],
+          placements: [{ body: "Saturn", sign: "Pisces", degree: 20, minute: 0, house: 11 }],
+        },
       },
     }),
   );
 
+  assert.equal(transitChart.placementGroups[0].title, "Luna 的本命星体");
+  assert.equal(transitChart.placementGroups[1].title, "流年天象星体");
+  assert.equal(transitChart.aspectOwners.from, "Luna");
+  assert.equal(transitChart.aspectOwners.to, "流年");
   assert.equal(transitChart.overlays.length, 1);
-  assert.equal(transitChart.overlays[0].title, "Transit Sky 落入 Luna 的宫位");
+  assert.equal(transitChart.overlays[0].title, "流年星体 飞入 Luna");
   assert.equal(transitChart.overlays[0].placements[0].planet, "土星");
   assert.equal(transitChart.overlays[0].placements[0].overlayHouse, 10);
+  assert.equal(transitChart.overlays[0].placements[0].overlayHouseRuler, "土星");
 });
 
 test("rejects future chart categories that are not in the phase 1 backend", async () => {

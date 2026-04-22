@@ -17,19 +17,22 @@ test("chart result panel renders an aspect list", () => {
 
 test("natal result page uses stacked interpretation layout and tables", () => {
   assert.match(appSource, /className="result-stack"/);
-  assert.match(appSource, />星体落点</);
+  assert.match(appSource, /result\.chart\.placementGroups\.map/);
   assert.match(appSource, />星体</);
   assert.match(appSource, />星座</);
   assert.match(appSource, />度数</);
   assert.match(appSource, />宫位</);
-  assert.match(appSource, />星体 A</);
-  assert.match(appSource, />星体 B</);
+  assert.match(appSource, /result\.chart\.aspectOwners\.from/);
+  assert.match(appSource, /result\.chart\.aspectOwners\.to/);
   assert.match(appSource, />相位类型</);
   assert.match(appSource, />容许度</);
 });
 
 test("result page renders overlay house tables when available", () => {
   assert.match(appSource, /result\.chart\.overlays\.map/);
-  assert.match(appSource, />落入参考盘宫位</);
+  assert.match(appSource, />飞入宫位</);
   assert.match(appSource, />原本宫位</);
+  assert.match(appSource, />飞入宫位宫主星</);
+  assert.match(appSource, /result\.chart\.placementGroups\.map/);
+  assert.match(appSource, /result\.chart\.aspectOwners\.from/);
 });
