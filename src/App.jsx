@@ -107,7 +107,7 @@ export default function App() {
           </button>
         </nav>
 
-        <section className="result-layout" id="top">
+        <section className="result-stack" id="top">
           <ChartPanel result={result} />
           <AgentPanel report={result.report} />
         </section>
@@ -317,25 +317,56 @@ function ChartPanel({ result }) {
           <p>{result.chart.focus.join(" / ")}</p>
         </div>
         <div>
-          <h3>行星落点</h3>
-          <ul>
-            {result.chart.placements.map((placement, index) => (
-              <li key={`${placement.planet}-${index}`}>
-                {placement.planet}：{placement.sign} {placement.degree}°{placement.minute ? `${placement.minute}'` : ""}
-                ，第 {placement.house} 宫
-              </li>
-            ))}
-          </ul>
+          <h3>星体落点</h3>
+          <div className="data-table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>星体</th>
+                  <th>星座</th>
+                  <th>度数</th>
+                  <th>宫位</th>
+                </tr>
+              </thead>
+              <tbody>
+                {result.chart.placements.map((placement, index) => (
+                  <tr key={`${placement.planet}-${index}`}>
+                    <td>{placement.planet}</td>
+                    <td>{placement.sign}</td>
+                    <td>
+                      {placement.degree}°{placement.minute ? `${placement.minute}'` : ""}
+                    </td>
+                    <td>第 {placement.house} 宫</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         <div>
           <h3>主要相位</h3>
-          <ul>
-            {result.chart.aspects.map((aspect, index) => (
-              <li key={`${aspect.from}-${aspect.to}-${index}`}>
-                {aspect.from}与{aspect.to}：{aspect.type}，容许度 {aspect.orb}
-              </li>
-            ))}
-          </ul>
+          <div className="data-table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>星体 A</th>
+                  <th>星体 B</th>
+                  <th>相位类型</th>
+                  <th>容许度</th>
+                </tr>
+              </thead>
+              <tbody>
+                {result.chart.aspects.map((aspect, index) => (
+                  <tr key={`${aspect.from}-${aspect.to}-${index}`}>
+                    <td>{aspect.from}</td>
+                    <td>{aspect.to}</td>
+                    <td>{aspect.type}</td>
+                    <td>{aspect.orb}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>

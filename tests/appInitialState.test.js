@@ -14,3 +14,16 @@ test("chart result panel renders an aspect list", () => {
   assert.match(appSource, />主要相位</);
   assert.match(appSource, /result\.chart\.aspects\.map/);
 });
+
+test("natal result page uses stacked interpretation layout and tables", () => {
+  assert.match(appSource, /className="result-stack"/);
+  assert.match(appSource, />星体落点</);
+  assert.match(appSource, />星体</);
+  assert.match(appSource, />星座</);
+  assert.match(appSource, />度数</);
+  assert.match(appSource, />宫位</);
+  assert.match(appSource, />星体 A</);
+  assert.match(appSource, />星体 B</);
+  assert.match(appSource, />相位类型</);
+  assert.match(appSource, />容许度</);
+});
