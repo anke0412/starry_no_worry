@@ -85,6 +85,33 @@ class Aspect(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
 
+class OverlayPlacement(BaseModel):
+    body: str
+    longitude: float
+    sign: str
+    degree: int
+    minute: int
+    source_house: int | None = Field(default=None, alias="sourceHouse")
+    overlay_house: int = Field(alias="overlayHouse")
+    retrograde: bool | None = None
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class ChartOverlay(BaseModel):
+    overlay_id: str = Field(alias="overlayId")
+    label: str
+    reference_chart_id: str = Field(alias="referenceChartId")
+    overlay_chart_id: str = Field(alias="overlayChartId")
+    reference_name: str = Field(alias="referenceName")
+    overlay_name: str = Field(alias="overlayName")
+    houses: list[HouseCusp]
+    placements: list[OverlayPlacement]
+    aspects: list[Aspect]
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
 class ChartResult(BaseModel):
     chart_id: str = Field(alias="chartId")
     chart_type: str = Field(alias="chartType")

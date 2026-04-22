@@ -368,6 +368,37 @@ function ChartPanel({ result }) {
             </table>
           </div>
         </div>
+        {result.chart.overlays.map((overlay) => (
+          <div key={overlay.id}>
+            <h3>{overlay.title}</h3>
+            <div className="data-table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>星体</th>
+                    <th>星座</th>
+                    <th>度数</th>
+                    <th>原本宫位</th>
+                    <th>落入参考盘宫位</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {overlay.placements.map((placement, index) => (
+                    <tr key={`${overlay.id}-${placement.planet}-${index}`}>
+                      <td>{placement.planet}</td>
+                      <td>{placement.sign}</td>
+                      <td>
+                        {placement.degree}°{placement.minute ? `${placement.minute}'` : ""}
+                      </td>
+                      <td>第 {placement.sourceHouse} 宫</td>
+                      <td>第 {placement.overlayHouse} 宫</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

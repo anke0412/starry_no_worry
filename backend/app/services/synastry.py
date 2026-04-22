@@ -5,18 +5,32 @@ from app.models.chart import Aspect, CalculationMetadata, ChartResult, Placement
 from app.services.aspects import angular_distance, closest_major_aspect
 from app.services.ephemeris import EphemerisService
 from app.services.natal import NatalChartService
+from app.services.overlay import ChartOverlayService
 
 
 class SynastryChartService:
     def __init__(self, ephemeris: EphemerisService | None = None) -> None:
         self.ephemeris = ephemeris or EphemerisService()
         self.natal = NatalChartService(self.ephemeris)
+        self.overlay = ChartOverlayService()
 
     def calculate(self, request: SynastryChartRequest) -> ChartResult:
         primary_natal = self.natal.calculate_from_profile(request.primary, request.settings.house_system)
         secondary_natal = self.natal.calculate_from_profile(request.secondary, request.settings.house_system)
         primary_planets = planetary_placements(primary_natal.placements)
         secondary_planets = planetary_placements(secondary_natal.placements)
+        primary_overlay = self.overlay.build(
+            overlay_id="secondary-in-primary",
+            label=f"{request.secondary.name} in {request.primary.name} houses",
+            reference_chart=primary_natal,
+            overlay_chart=secondary_natal,
+        )
+        secondary_overlay = self.overlay.build(
+            overlay_id="primary-in-secondary",
+            label=f"{request.primary.name} in {request.secondary.name} houses",
+            reference_chart=secondary_natal,
+            overlay_chart=primary_natal,
+        )
 
         return ChartResult(
             chartId=build_synastry_chart_id(request),
@@ -30,10 +44,12 @@ class SynastryChartService:
             ),
             placements=[*primary_planets, *secondary_planets],
             houses=[],
-            aspects=calculate_inter_chart_aspects(primary_planets, secondary_planets),
+            aspects=primary_overlay.aspects,
             relatedCharts={
                 "primaryNatal": primary_natal.model_dump(by_alias=True),
                 "secondaryNatal": secondary_natal.model_dump(by_alias=True),
+                "primaryOverlay": primary_overlay.model_dump(by_alias=True),
+                "secondaryOverlay": secondary_overlay.model_dump(by_alias=True),
             },
         )
 

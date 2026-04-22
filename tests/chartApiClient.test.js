@@ -174,6 +174,107 @@ test("calls the transit chart API with forecast date and time", async () => {
   assert.equal(requestBody.transitTime, "12:00");
 });
 
+test("maps overlay house placements for synastry and transit results", async () => {
+  const synastryChart = await calculateChart(
+    {
+      mode: "couple",
+      category: "synastry",
+      people: [primary],
+      primary: { ...primary, name: "小星" },
+      secondary: { ...primary, name: "小月" },
+      forecastDate: "",
+      forecastTime: "12:00",
+    },
+    successfulFetch("/api/charts/synastry", {
+      chartId: "synastry-luna-sol",
+      chartType: "synastry",
+      title: "Luna × Sol Synastry Chart",
+      placements: [],
+      aspects: [],
+      relatedCharts: {
+        primaryOverlay: {
+          overlayId: "secondary-in-primary",
+          label: "Sol in Luna houses",
+          referenceName: "Luna",
+          overlayName: "Sol",
+          placements: [
+            {
+              body: "Venus",
+              longitude: 70,
+              sign: "Gemini",
+              degree: 10,
+              minute: 0,
+              sourceHouse: 2,
+              overlayHouse: 7,
+            },
+          ],
+          aspects: [{ from: "Moon", to: "Venus", type: "trine", orb: 0.2 }],
+        },
+        secondaryOverlay: {
+          overlayId: "primary-in-secondary",
+          label: "Luna in Sol houses",
+          referenceName: "Sol",
+          overlayName: "Luna",
+          placements: [],
+          aspects: [],
+        },
+      },
+    }),
+  );
+
+  assert.equal(synastryChart.overlays.length, 2);
+  assert.equal(synastryChart.overlays[0].title, "Sol 落入 Luna 的宫位");
+  assert.equal(synastryChart.overlays[0].placements[0].planet, "金星");
+  assert.equal(synastryChart.overlays[0].placements[0].sign, "双子");
+  assert.equal(synastryChart.overlays[0].placements[0].sourceHouse, 2);
+  assert.equal(synastryChart.overlays[0].placements[0].overlayHouse, 7);
+  assert.equal(synastryChart.overlays[0].aspects[0].from, "月亮");
+  assert.equal(synastryChart.overlays[0].aspects[0].to, "金星");
+
+  const transitChart = await calculateChart(
+    {
+      mode: "forecast",
+      category: "transit",
+      people: [primary],
+      primary,
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    successfulFetch("/api/charts/transit", {
+      chartId: "transit-luna",
+      chartType: "transit",
+      title: "Luna Transit Chart",
+      placements: [],
+      aspects: [],
+      relatedCharts: {
+        transitOverlay: {
+          overlayId: "transit-in-natal",
+          label: "Transit sky in Luna houses",
+          referenceName: "Luna",
+          overlayName: "Transit Sky",
+          placements: [
+            {
+              body: "Saturn",
+              longitude: 350,
+              sign: "Pisces",
+              degree: 20,
+              minute: 0,
+              sourceHouse: 11,
+              overlayHouse: 10,
+            },
+          ],
+          aspects: [{ from: "Sun", to: "Saturn", type: "square", orb: 1.1 }],
+        },
+      },
+    }),
+  );
+
+  assert.equal(transitChart.overlays.length, 1);
+  assert.equal(transitChart.overlays[0].title, "Transit Sky 落入 Luna 的宫位");
+  assert.equal(transitChart.overlays[0].placements[0].planet, "土星");
+  assert.equal(transitChart.overlays[0].placements[0].overlayHouse, 10);
+});
+
 test("rejects future chart categories that are not in the phase 1 backend", async () => {
   await assert.rejects(
     calculateChart({

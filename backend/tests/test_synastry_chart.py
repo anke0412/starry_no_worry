@@ -64,6 +64,15 @@ def test_synastry_endpoint_returns_dual_natal_results_and_inter_chart_aspects():
     assert len(data["placements"]) == 20
     assert data["relatedCharts"]["primaryNatal"]["chartType"] == "natal"
     assert data["relatedCharts"]["secondaryNatal"]["chartType"] == "natal"
+    assert data["relatedCharts"]["primaryOverlay"]["referenceName"] == "Luna"
+    assert data["relatedCharts"]["primaryOverlay"]["overlayName"] == "Sol"
+    assert len(data["relatedCharts"]["primaryOverlay"]["houses"]) == 12
+    assert data["relatedCharts"]["primaryOverlay"]["placements"][0]["sourceHouse"] is not None
+    assert data["relatedCharts"]["primaryOverlay"]["placements"][0]["overlayHouse"] is not None
+    assert data["relatedCharts"]["primaryOverlay"]["aspects"] == data["aspects"]
+    assert data["relatedCharts"]["secondaryOverlay"]["referenceName"] == "Sol"
+    assert data["relatedCharts"]["secondaryOverlay"]["overlayName"] == "Luna"
+    assert len(data["relatedCharts"]["secondaryOverlay"]["houses"]) == 12
     assert "North Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
     assert "South Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
     assert {

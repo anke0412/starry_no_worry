@@ -27,3 +27,9 @@ test("natal result page uses stacked interpretation layout and tables", () => {
   assert.match(appSource, />相位类型</);
   assert.match(appSource, />容许度</);
 });
+
+test("result page renders overlay house tables when available", () => {
+  assert.match(appSource, /result\.chart\.overlays\.map/);
+  assert.match(appSource, />落入参考盘宫位</);
+  assert.match(appSource, />原本宫位</);
+});
