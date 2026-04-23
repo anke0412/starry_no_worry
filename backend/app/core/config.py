@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     version: str = "0.1.0"
     environment: str = "development"
     cors_origins: list[str] = ["http://localhost:5173"]
+    cors_origin_regex: str = r"^http://(localhost|127\.0\.0\.1):\d+$"
     log_level: str = "INFO"
 
     model_config = SettingsConfigDict(
