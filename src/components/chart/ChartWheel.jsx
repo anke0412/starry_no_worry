@@ -29,8 +29,9 @@ export function ChartWheel({ chart }) {
 
         <circle className="wheel-surface" cx={CENTER} cy={CENTER} r="190" />
         <circle className="wheel-zodiac-band" cx={CENTER} cy={CENTER} r="181" />
-        <circle className="wheel-house-band" cx={CENTER} cy={CENTER} r="142" />
-        <circle className="wheel-aspect-field" cx={CENTER} cy={CENTER} r="86" />
+        <circle className="wheel-house-outer" cx={CENTER} cy={CENTER} r="164" />
+        <circle className="wheel-house-band" cx={CENTER} cy={CENTER} r="146" />
+        <circle className="wheel-aspect-field" cx={CENTER} cy={CENTER} r="104" />
 
         {wheel.zodiac.map((segment, index) => (
           <g className={`wheel-zodiac-sector wheel-zodiac-sector-${index % 4}`} key={segment.id}>
@@ -58,6 +59,13 @@ export function ChartWheel({ chart }) {
 
           return (
             <g key={house.house}>
+              <line
+                className={`wheel-house-axis wheel-house-axis-${house.house}`}
+                x1={line.axisInner.x}
+                y1={line.axisInner.y}
+                x2={line.axisOuter.x}
+                y2={line.axisOuter.y}
+              />
               <line className="wheel-house-line" x1={line.inner.x} y1={line.inner.y} x2={line.outer.x} y2={line.outer.y} />
               <text className="wheel-house-label" x={label.x} y={label.y}>
                 {house.house}
@@ -66,24 +74,34 @@ export function ChartWheel({ chart }) {
           );
         })}
 
-        {wheel.aspectLines.map((aspect, index) => (
-          <line
-            className={`wheel-aspect-line wheel-aspect-${aspect.type}`}
-            key={`${aspect.from.planet}-${aspect.to.planet}-${index}`}
-            stroke={aspect.color}
-            x1={aspect.from.point.x}
-            y1={aspect.from.point.y}
-            x2={aspect.to.point.x}
-            y2={aspect.to.point.y}
-          />
-        ))}
+        {wheel.aspectLines.map((aspect, index) =>
+          aspect.type === "conjunction" ? (
+            <path
+              className={`wheel-aspect-line wheel-aspect-${aspect.type}`}
+              d={conjunctionArcPath(aspect.from.anchorPoint, aspect.to.anchorPoint)}
+              key={`${aspect.from.planet}-${aspect.to.planet}-${index}`}
+              stroke={aspect.color}
+            />
+          ) : (
+            <line
+              className={`wheel-aspect-line wheel-aspect-${aspect.type}`}
+              key={`${aspect.from.planet}-${aspect.to.planet}-${index}`}
+              stroke={aspect.color}
+              x1={aspect.from.anchorPoint.x}
+              y1={aspect.from.anchorPoint.y}
+              x2={aspect.to.anchorPoint.x}
+              y2={aspect.to.anchorPoint.y}
+            />
+          ),
+        )}
 
         {Object.values(wheel.angleMarkers).map((marker) =>
           marker ? (
             <g className="wheel-angle-marker" key={marker.label}>
               <title>{placementTitle(marker, "四轴点")}</title>
-              <circle cx={marker.point.x} cy={marker.point.y} r="10" />
-              <text x={marker.point.x} y={marker.point.y}>
+              <line className="wheel-placement-leader" {...marker.leaderLine} />
+              <circle className="wheel-placement-dot" cx={marker.anchorPoint.x} cy={marker.anchorPoint.y} r="1.8" />
+              <text x={marker.labelPoint.x} y={marker.labelPoint.y}>
                 {planetGlyph(marker.planet)}
               </text>
             </g>
@@ -106,7 +124,9 @@ export function ChartWheel({ chart }) {
             {layer.placements.map((placement, index) => (
               <g className="wheel-placement" key={`${layer.id}-${placement.planet}-${index}`}>
                 <title>{placementTitle(placement, layer.title)}</title>
-                <text x={placement.point.x} y={placement.point.y}>
+                <line className="wheel-placement-leader" {...placement.leaderLine} />
+                <circle className="wheel-placement-dot" cx={placement.anchorPoint.x} cy={placement.anchorPoint.y} r="1.8" />
+                <text x={placement.labelPoint.x} y={placement.labelPoint.y}>
                   {planetGlyph(placement.planet)}
                 </text>
               </g>
@@ -155,6 +175,15 @@ function ringSegmentPath(startLongitude, endLongitude, ascendantLongitude) {
     `A 164 164 0 0 0 ${innerStart.x} ${innerStart.y}`,
     "Z",
   ].join(" ");
+}
+
+function conjunctionArcPath(from, to) {
+  const control = {
+    x: (from.x + to.x) / 2 + (CENTER - (from.x + to.x) / 2) * 0.08,
+    y: (from.y + to.y) / 2 + (CENTER - (from.y + to.y) / 2) * 0.08,
+  };
+
+  return `M ${from.x} ${from.y} Q ${control.x} ${control.y} ${to.x} ${to.y}`;
 }
 
 function housesFromChart(chart) {

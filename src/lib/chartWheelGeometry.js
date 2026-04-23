@@ -23,9 +23,13 @@ const ASPECT_COLORS = {
 
 const AXIS_NAMES = new Set(["上升点", "下降点", "天顶", "天底", "Ascendant", "Descendant", "Midheaven", "Imum Coeli"]);
 const CLUSTER_RADIUS_OFFSETS = [0, 12, -12, 24, -24];
-const ANGLE_MARKER_RADIUS = 126;
-const HOUSE_LINE_INNER_RADIUS = 136;
-const HOUSE_LINE_OUTER_RADIUS = 158;
+const INNER_ANCHOR_RADIUS = 104;
+const INNER_LABEL_RADIUS = 126;
+const OUTER_ANCHOR_RADIUS = 128;
+const OUTER_LABEL_RADIUS = 150;
+const HOUSE_LINE_INNER_RADIUS = 146;
+const HOUSE_LINE_OUTER_RADIUS = 164;
+const HOUSE_AXIS_OUTER_RADIUS = INNER_ANCHOR_RADIUS;
 
 export function normalizeLongitude(longitude) {
   return ((Number(longitude) % 360) + 360) % 360;
@@ -78,10 +82,13 @@ export function buildChartWheelModel(chart, { center = 200 } = {}) {
   const angleMarkers = {
     ascendant: angleMarkerModel("上升点", "ASC", ascendant?.longitude, ascendant, ascendantLongitude, center),
     descendant: angleMarkerModel("下降点", "DSC", ascendant ? ascendant.longitude + 180 : null, null, ascendantLongitude, center),
+    midheaven: angleMarkerModel("天顶", "MC", midheaven?.longitude, midheaven, ascendantLongitude, center),
+    imumCoeli: angleMarkerModel("天底", "IC", midheaven ? midheaven.longitude + 180 : null, null, ascendantLongitude, center),
   };
 
   const layers = groups.map((group, index) => {
-    const baseRadius = index === 0 ? 126 : 154;
+    const baseAnchorRadius = index === 0 ? INNER_ANCHOR_RADIUS : OUTER_ANCHOR_RADIUS;
+    const baseLabelRadius = index === 0 ? INNER_LABEL_RADIUS : OUTER_LABEL_RADIUS;
     const visiblePlacements = (group.placements ?? []).filter(
       (placement) => validLongitude(placement.longitude) && !AXIS_NAMES.has(placement.planet),
     );
@@ -89,20 +96,17 @@ export function buildChartWheelModel(chart, { center = 200 } = {}) {
     return {
       id: group.id ?? `layer-${index}`,
       title: group.title,
-      radius: baseRadius,
+      anchorRadius: baseAnchorRadius,
+      labelRadius: baseLabelRadius,
       placements: visiblePlacements
         .map((placement, placementIndex) => {
-          const radius = baseRadius + clusterOffset(placement, visiblePlacements, placementIndex);
+          const labelRadius = baseLabelRadius + clusterOffset(placement, visiblePlacements, placementIndex);
 
           return {
-          ...placement,
-          radius,
-          point: pointOnWheel({
-            longitude: placement.longitude,
-            ascendantLongitude,
-            radius,
-            center,
-          }),
+            ...placement,
+            anchorRadius: baseAnchorRadius,
+            labelRadius,
+            ...placementPointModel(placement.longitude, ascendantLongitude, baseAnchorRadius, labelRadius, center),
           };
         }),
     };
@@ -147,14 +151,24 @@ export function buildHouseLineModel({ house, longitude, ascendantLongitude, cent
     radius: HOUSE_LINE_OUTER_RADIUS,
     center,
   });
+  const axisInner = { x: center, y: center };
+  const axisOuter = pointOnWheel({
+    longitude,
+    ascendantLongitude,
+    radius: HOUSE_AXIS_OUTER_RADIUS,
+    center,
+  });
 
   return {
     house,
     longitude,
     innerRadius: HOUSE_LINE_INNER_RADIUS,
     outerRadius: HOUSE_LINE_OUTER_RADIUS,
+    axisOuterRadius: HOUSE_AXIS_OUTER_RADIUS,
     inner,
     outer,
+    axisInner,
+    axisOuter,
   };
 }
 
@@ -170,13 +184,36 @@ function angleMarkerModel(planet, label, longitude, placement, ascendantLongitud
     planet,
     label,
     longitude: normalizedLongitude,
-    radius: ANGLE_MARKER_RADIUS,
-    point: pointOnWheel({
-      longitude: normalizedLongitude,
-      ascendantLongitude,
-      radius: ANGLE_MARKER_RADIUS,
-      center,
-    }),
+    anchorRadius: INNER_ANCHOR_RADIUS,
+    labelRadius: INNER_LABEL_RADIUS,
+    ...placementPointModel(normalizedLongitude, ascendantLongitude, INNER_ANCHOR_RADIUS, INNER_LABEL_RADIUS, center),
+  };
+}
+
+function placementPointModel(longitude, ascendantLongitude, anchorRadius, labelRadius, center) {
+  const anchorPoint = pointOnWheel({
+    longitude,
+    ascendantLongitude,
+    radius: anchorRadius,
+    center,
+  });
+  const labelPoint = pointOnWheel({
+    longitude,
+    ascendantLongitude,
+    radius: labelRadius,
+    center,
+  });
+
+  return {
+    point: anchorPoint,
+    anchorPoint,
+    labelPoint,
+    leaderLine: {
+      x1: labelPoint.x,
+      y1: labelPoint.y,
+      x2: anchorPoint.x,
+      y2: anchorPoint.y,
+    },
   };
 }
 

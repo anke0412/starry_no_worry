@@ -48,7 +48,19 @@ test("chart wheel renders planet glyphs without extra bubble circles", () => {
 
   assert.doesNotMatch(chartWheelSource, /<circle cx=\{placement\.point\.x\}/);
   assert.doesNotMatch(stylesSource, /\.wheel-placement circle/);
-  assert.match(chartWheelSource, /<text x=\{placement\.point\.x\} y=\{placement\.point\.y\}>/);
+  assert.match(chartWheelSource, /<text x=\{placement\.labelPoint\.x\} y=\{placement\.labelPoint\.y\}>/);
+});
+
+test("chart wheel follows a professional point leader layout", () => {
+  const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
+  const stylesSource = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
+
+  assert.match(chartWheelSource, /wheel-placement-leader/);
+  assert.match(chartWheelSource, /wheel-placement-dot/);
+  assert.match(chartWheelSource, /wheel-house-axis/);
+  assert.match(chartWheelSource, /conjunctionArcPath/);
+  assert.match(stylesSource, /\.wheel-placement-leader/);
+  assert.match(stylesSource, /\.wheel-house-axis/);
 });
 
 test("natal result page uses stacked interpretation layout and tables", () => {
