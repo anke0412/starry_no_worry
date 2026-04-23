@@ -21,8 +21,11 @@ const ASPECT_COLORS = {
   sextile: "#7fae9a",
 };
 
-const AXIS_NAMES = new Set(["上升点", "天顶", "Ascendant", "Midheaven"]);
+const AXIS_NAMES = new Set(["上升点", "下降点", "天顶", "天底", "Ascendant", "Descendant", "Midheaven", "Imum Coeli"]);
 const CLUSTER_RADIUS_OFFSETS = [0, 12, -12, 24, -24];
+const ANGLE_MARKER_RADIUS = 126;
+const HOUSE_LINE_INNER_RADIUS = 136;
+const HOUSE_LINE_OUTER_RADIUS = 158;
 
 export function normalizeLongitude(longitude) {
   return ((Number(longitude) % 360) + 360) % 360;
@@ -72,6 +75,10 @@ export function buildChartWheelModel(chart, { center = 200 } = {}) {
   const ascendant = findPlacement(allPlacements, "上升点");
   const midheaven = findPlacement(allPlacements, "天顶");
   const ascendantLongitude = validLongitude(ascendant?.longitude) ? ascendant.longitude : 0;
+  const angleMarkers = {
+    ascendant: angleMarkerModel("上升点", "ASC", ascendant?.longitude, ascendant, ascendantLongitude, center),
+    descendant: angleMarkerModel("下降点", "DSC", ascendant ? ascendant.longitude + 180 : null, null, ascendantLongitude, center),
+  };
 
   const layers = groups.map((group, index) => {
     const baseRadius = index === 0 ? 126 : 154;
@@ -101,27 +108,75 @@ export function buildChartWheelModel(chart, { center = 200 } = {}) {
     };
   });
 
-  const placementIndex = layers.flatMap((layer) =>
-    layer.placements.map((placement) => ({
-      ...placement,
-      layerId: layer.id,
-    })),
-  );
+  const placementIndex = [
+    ...layers.flatMap((layer) =>
+      layer.placements.map((placement) => ({
+        ...placement,
+        layerId: layer.id,
+      })),
+    ),
+    ...Object.values(angleMarkers).filter(Boolean),
+  ];
 
   return {
     center,
     ascendantLongitude,
     zodiac: zodiacSegments(ascendantLongitude, center),
     layers,
+    angleMarkers,
     axes: {
-      ascendant: axisModel("ASC", ascendant?.longitude, ascendant, ascendantLongitude, center),
-      descendant: axisModel("DSC", ascendant ? ascendant.longitude + 180 : null, null, ascendantLongitude, center),
       midheaven: axisModel("MC", midheaven?.longitude, midheaven, ascendantLongitude, center),
       imumCoeli: axisModel("IC", midheaven ? midheaven.longitude + 180 : null, null, ascendantLongitude, center),
     },
     aspectLines: (chart.aspects ?? [])
       .map((aspect) => aspectLineModel(aspect, placementIndex))
       .filter(Boolean),
+  };
+}
+
+export function buildHouseLineModel({ house, longitude, ascendantLongitude, center = 200 }) {
+  const inner = pointOnWheel({
+    longitude,
+    ascendantLongitude,
+    radius: HOUSE_LINE_INNER_RADIUS,
+    center,
+  });
+  const outer = pointOnWheel({
+    longitude,
+    ascendantLongitude,
+    radius: HOUSE_LINE_OUTER_RADIUS,
+    center,
+  });
+
+  return {
+    house,
+    longitude,
+    innerRadius: HOUSE_LINE_INNER_RADIUS,
+    outerRadius: HOUSE_LINE_OUTER_RADIUS,
+    inner,
+    outer,
+  };
+}
+
+function angleMarkerModel(planet, label, longitude, placement, ascendantLongitude, center) {
+  if (!validLongitude(longitude)) {
+    return null;
+  }
+
+  const normalizedLongitude = normalizeLongitude(longitude);
+
+  return {
+    ...(placement ?? {}),
+    planet,
+    label,
+    longitude: normalizedLongitude,
+    radius: ANGLE_MARKER_RADIUS,
+    point: pointOnWheel({
+      longitude: normalizedLongitude,
+      ascendantLongitude,
+      radius: ANGLE_MARKER_RADIUS,
+      center,
+    }),
   };
 }
 

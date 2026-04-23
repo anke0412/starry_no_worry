@@ -30,6 +30,18 @@ test("chart wheel includes a compact aspect legend", () => {
   assert.match(chartWheelSource, /label: "和谐相位"/);
 });
 
+test("chart wheel uses astrology glyphs and angle markers instead of text initials", () => {
+  const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
+
+  assert.match(chartWheelSource, /planetGlyph/);
+  assert.match(chartWheelSource, /☉/);
+  assert.match(chartWheelSource, /☽/);
+  assert.match(chartWheelSource, /wheel-angle-marker/);
+  assert.doesNotMatch(chartWheelSource, /planetShortLabel/);
+  assert.doesNotMatch(chartWheelSource, /wheel-axis-asc/);
+  assert.doesNotMatch(chartWheelSource, /wheel-axis-dsc/);
+});
+
 test("natal result page uses stacked interpretation layout and tables", () => {
   assert.match(appSource, /className="result-stack"/);
   assert.match(appSource, /result\.chart\.placementGroups\.map/);

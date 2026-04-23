@@ -1,11 +1,10 @@
 import React from "react";
 
-import { buildChartWheelModel, pointOnWheel } from "../../lib/chartWheelGeometry.js";
+import { buildChartWheelModel, buildHouseLineModel, pointOnWheel } from "../../lib/chartWheelGeometry.js";
 
 const VIEWBOX_SIZE = 400;
 const CENTER = 200;
-const HOUSE_LINE_RADIUS = 170;
-const HOUSE_LABEL_RADIUS = 103;
+const HOUSE_LABEL_RADIUS = 147;
 const ASPECT_LEGEND = [
   { label: "合相", className: "legend-conjunction" },
   { label: "刑冲", className: "legend-hard" },
@@ -44,16 +43,10 @@ export function ChartWheel({ chart }) {
         ))}
 
         {houseCusps.map((house) => {
-          const outer = pointOnWheel({
+          const line = buildHouseLineModel({
+            house: house.house,
             longitude: house.longitude,
             ascendantLongitude: wheel.ascendantLongitude,
-            radius: HOUSE_LINE_RADIUS,
-            center: CENTER,
-          });
-          const inner = pointOnWheel({
-            longitude: house.longitude,
-            ascendantLongitude: wheel.ascendantLongitude,
-            radius: 78,
             center: CENTER,
           });
           const label = pointOnWheel({
@@ -65,7 +58,7 @@ export function ChartWheel({ chart }) {
 
           return (
             <g key={house.house}>
-              <line className="wheel-house-line" x1={inner.x} y1={inner.y} x2={outer.x} y2={outer.y} />
+              <line className="wheel-house-line" x1={line.inner.x} y1={line.inner.y} x2={line.outer.x} y2={line.outer.y} />
               <text className="wheel-house-label" x={label.x} y={label.y}>
                 {house.house}
               </text>
@@ -85,6 +78,18 @@ export function ChartWheel({ chart }) {
           />
         ))}
 
+        {Object.values(wheel.angleMarkers).map((marker) =>
+          marker ? (
+            <g className="wheel-angle-marker" key={marker.label}>
+              <title>{placementTitle(marker, "四轴点")}</title>
+              <circle cx={marker.point.x} cy={marker.point.y} r="10" />
+              <text x={marker.point.x} y={marker.point.y}>
+                {planetGlyph(marker.planet)}
+              </text>
+            </g>
+          ) : null,
+        )}
+
         {Object.values(wheel.axes).map((axis) =>
           axis ? (
             <g className={`wheel-axis wheel-axis-${axis.label.toLowerCase()}`} key={axis.label}>
@@ -103,7 +108,7 @@ export function ChartWheel({ chart }) {
                 <title>{placementTitle(placement, layer.title)}</title>
                 <circle cx={placement.point.x} cy={placement.point.y} r={layerIndex === 0 ? 11 : 9} />
                 <text x={placement.point.x} y={placement.point.y}>
-                  {planetShortLabel(placement.planet)}
+                  {planetGlyph(placement.planet)}
                 </text>
               </g>
             ))}
@@ -173,20 +178,22 @@ function wheelFallbackLongitude(chart) {
   return chart.placementGroups?.[0]?.placements?.find((placement) => placement.planet === "上升点")?.longitude ?? 0;
 }
 
-function planetShortLabel(planet) {
+function planetGlyph(planet) {
   const labels = {
-    太阳: "日",
-    月亮: "月",
-    水星: "水",
-    金星: "金",
-    火星: "火",
-    木星: "木",
-    土星: "土",
-    天王星: "天",
-    海王星: "海",
-    冥王星: "冥",
-    北交点: "北",
-    南交点: "南",
+    太阳: "☉",
+    月亮: "☽",
+    水星: "☿",
+    金星: "♀",
+    火星: "♂",
+    木星: "♃",
+    土星: "♄",
+    天王星: "♅",
+    海王星: "♆",
+    冥王星: "♇",
+    北交点: "☊",
+    南交点: "☋",
+    上升点: "ASC",
+    下降点: "DSC",
   };
 
   return labels[planet] ?? planet.slice(0, 1);
