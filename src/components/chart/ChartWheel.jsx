@@ -4,18 +4,16 @@ import { buildChartWheelModel, buildHouseLineModel, pointOnWheel } from "../../l
 
 const VIEWBOX_SIZE = 400;
 const CENTER = 200;
-const ASPECT_LEGEND = [
-  { label: "合相", className: "legend-conjunction" },
-  { label: "刑冲", className: "legend-hard" },
-  { label: "和谐相位", className: "legend-soft" },
-];
 
 export function ChartWheel({ chart }) {
+  const [tooltip, setTooltip] = React.useState(null);
   const wheel = buildChartWheelModel(chart, { center: CENTER });
   const houseCusps = housesFromChart(chart);
+  const showTooltip = (nextTooltip) => setTooltip(nextTooltip);
+  const hideTooltip = () => setTooltip(null);
 
   return (
-    <figure className="chart-wheel-frame" aria-label={`${chart.title} 星盘轮盘`}>
+    <figure className="chart-wheel-frame" aria-label={`${chart.title} 星盘轮盘`} onMouseLeave={hideTooltip}>
       <svg className="chart-wheel" viewBox={`0 0 ${VIEWBOX_SIZE} ${VIEWBOX_SIZE}`} role="img">
         <title>{chart.title} 星盘轮盘</title>
         <defs>
@@ -33,7 +31,11 @@ export function ChartWheel({ chart }) {
         <circle className="wheel-aspect-field" cx={CENTER} cy={CENTER} r="122" />
 
         {wheel.zodiac.map((segment, index) => (
-          <g className={`wheel-zodiac-sector wheel-zodiac-sector-${index % 4}`} key={segment.id}>
+          <g
+            className={`wheel-zodiac-sector wheel-zodiac-sector-${index % 4}`}
+            key={segment.id}
+            onMouseEnter={() => showTooltip(zodiacTooltip(segment))}
+          >
             <path d={ringSegmentPath(segment.startLongitude, segment.endLongitude, wheel.ascendantLongitude)} />
             <line className="wheel-zodiac-tick" {...linePoints(segment.startLongitude, wheel.ascendantLongitude, 160, 190)} />
             <text className="wheel-zodiac-label" x={segment.labelPoint.x} y={segment.labelPoint.y}>
@@ -51,7 +53,7 @@ export function ChartWheel({ chart }) {
           });
 
           return (
-            <g key={house.house}>
+            <g key={house.house} onMouseEnter={() => showTooltip(houseTooltip(house, line, chart))}>
               <line
                 className={`wheel-house-axis wheel-house-axis-${house.house}`}
                 x1={line.axisInner.x}
@@ -70,27 +72,27 @@ export function ChartWheel({ chart }) {
         {wheel.aspectLines.map((aspect, index) =>
           aspect.type === "conjunction" ? (
             <path
-              className={`wheel-aspect-line wheel-aspect-${aspect.type}`}
+              className="wheel-aspect-hitbox"
               d={conjunctionArcPath(aspect.from.anchorPoint, aspect.to.anchorPoint)}
               key={`${aspect.from.planet}-${aspect.to.planet}-${index}`}
-              stroke={aspect.color}
+              onMouseEnter={() => showTooltip(aspectTooltip(aspect))}
             />
           ) : (
             <line
-              className={`wheel-aspect-line wheel-aspect-${aspect.type}`}
+              className="wheel-aspect-hitbox"
               key={`${aspect.from.planet}-${aspect.to.planet}-${index}`}
-              stroke={aspect.color}
               x1={aspect.from.anchorPoint.x}
               y1={aspect.from.anchorPoint.y}
               x2={aspect.to.anchorPoint.x}
               y2={aspect.to.anchorPoint.y}
+              onMouseEnter={() => showTooltip(aspectTooltip(aspect))}
             />
           ),
         )}
 
         {Object.values(wheel.angleMarkers).map((marker) =>
           marker ? (
-            <g className="wheel-angle-marker" key={marker.label}>
+            <g className="wheel-angle-marker" key={marker.label} onMouseEnter={() => showTooltip(placementTooltip(marker, "四轴点"))}>
               <title>{placementTitle(marker, "四轴点")}</title>
               <line className="wheel-placement-leader" {...marker.leaderLine} />
               <circle className="wheel-placement-dot" cx={marker.anchorPoint.x} cy={marker.anchorPoint.y} r="1.8" />
@@ -115,7 +117,11 @@ export function ChartWheel({ chart }) {
         {wheel.layers.map((layer, layerIndex) => (
           <g className={`wheel-layer wheel-layer-${layerIndex + 1}`} key={layer.id}>
             {layer.placements.map((placement, index) => (
-              <g className="wheel-placement" key={`${layer.id}-${placement.planet}-${index}`}>
+              <g
+                className="wheel-placement"
+                key={`${layer.id}-${placement.planet}-${index}`}
+                onMouseEnter={() => showTooltip(placementTooltip(placement, layer.title))}
+              >
                 <title>{placementTitle(placement, layer.title)}</title>
                 <line className="wheel-placement-leader" {...placement.leaderLine} />
                 <circle className="wheel-placement-dot" cx={placement.anchorPoint.x} cy={placement.anchorPoint.y} r="1.8" />
@@ -127,19 +133,36 @@ export function ChartWheel({ chart }) {
           </g>
         ))}
       </svg>
+      {tooltip ? <ChartWheelTooltip tooltip={tooltip} /> : null}
 
       <figcaption className="chart-wheel-caption">
         <span>内圈：{wheel.layers[0]?.title ?? "主体星盘"}</span>
         {wheel.layers[1] ? <span>外圈：{wheel.layers[1].title}</span> : null}
       </figcaption>
-      <div className="chart-wheel-aspect-legend" aria-label="相位颜色图例">
-        {ASPECT_LEGEND.map((item) => (
-          <span className={item.className} key={item.label}>
-            {item.label}
-          </span>
-        ))}
-      </div>
     </figure>
+  );
+}
+
+function ChartWheelTooltip({ tooltip }) {
+  return (
+    <aside
+      className="chart-wheel-tooltip"
+      style={{
+        left: `${(tooltip.point.x / VIEWBOX_SIZE) * 100}%`,
+        top: `${(tooltip.point.y / VIEWBOX_SIZE) * 100}%`,
+      }}
+    >
+      <p>{tooltip.kicker}</p>
+      <strong>{tooltip.title}</strong>
+      <dl>
+        {tooltip.rows.map((row) => (
+          <React.Fragment key={`${row.label}-${row.value}`}>
+            <dt>{row.label}</dt>
+            <dd>{row.value}</dd>
+          </React.Fragment>
+        ))}
+      </dl>
+    </aside>
   );
 }
 
@@ -177,6 +200,99 @@ function conjunctionArcPath(from, to) {
   };
 
   return `M ${from.x} ${from.y} Q ${control.x} ${control.y} ${to.x} ${to.y}`;
+}
+
+function zodiacTooltip(segment) {
+  return {
+    kicker: "星座区间",
+    title: `${segment.label} ${segment.name}`,
+    point: segment.labelPoint,
+    rows: [
+      { label: "起始", value: `${segment.startLongitude}°` },
+      { label: "结束", value: `${segment.endLongitude}°` },
+    ],
+  };
+}
+
+function placementTooltip(placement, layerTitle) {
+  return {
+    kicker: layerTitle,
+    title: placement.planet,
+    point: placement.labelPoint,
+    rows: [
+      { label: "星座", value: placement.sign ?? "-" },
+      { label: "度数", value: formatDegree(placement) },
+      { label: "宫位", value: placement.house && placement.house !== "-" ? `第 ${placement.house} 宫` : "宫位未定" },
+    ],
+  };
+}
+
+function aspectTooltip(aspect) {
+  return {
+    kicker: "相位信息",
+    title: `${aspect.from.planet} ${aspectLabel(aspect.type)} ${aspect.to.planet}`,
+    point: midpoint(aspect.from.anchorPoint, aspect.to.anchorPoint),
+    rows: [
+      { label: "相位类型", value: aspectLabel(aspect.type) },
+      { label: "容许度", value: aspect.orb ?? "-" },
+    ],
+  };
+}
+
+function houseTooltip(house, line, chart) {
+  const occupants = houseOccupants(house.house, chart);
+
+  return {
+    kicker: "宫位信息",
+    title: `第 ${house.house} 宫`,
+    point: line.labelPoint,
+    rows: [
+      { label: "宫头", value: zodiacPosition(house.longitude) },
+      { label: "宫内星体", value: occupants.length ? occupants.join("、") : "暂无星体" },
+    ],
+  };
+}
+
+function houseOccupants(houseNumber, chart) {
+  const placements = chart.placementGroups?.[0]?.placements ?? chart.placements ?? [];
+
+  return placements
+    .filter((placement) => Number(placement.house) === Number(houseNumber))
+    .map((placement) => placement.planet);
+}
+
+function midpoint(first, second) {
+  return {
+    x: (first.x + second.x) / 2,
+    y: (first.y + second.y) / 2,
+  };
+}
+
+function aspectLabel(type) {
+  const labels = {
+    conjunction: "合相",
+    opposition: "冲相",
+    square: "刑相",
+    trine: "拱相",
+    sextile: "六合",
+  };
+
+  return labels[type] ?? type;
+}
+
+function zodiacPosition(longitude) {
+  const signs = ["白羊", "金牛", "双子", "巨蟹", "狮子", "处女", "天秤", "天蝎", "射手", "摩羯", "水瓶", "双鱼"];
+  const normalized = ((Number(longitude) % 360) + 360) % 360;
+  const signIndex = Math.floor(normalized / 30);
+  const degree = Math.floor(normalized % 30);
+
+  return `${signs[signIndex]} ${degree}°`;
+}
+
+function formatDegree(placement) {
+  const minute = placement.minute ? `${placement.minute}'` : "";
+
+  return placement.degree || placement.degree === 0 ? `${placement.degree}°${minute}` : "-";
 }
 
 function housesFromChart(chart) {

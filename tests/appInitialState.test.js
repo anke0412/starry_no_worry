@@ -21,13 +21,13 @@ test("chart result panel renders a reusable chart wheel instead of the placehold
   assert.doesNotMatch(appSource, /planet-dot/);
 });
 
-test("chart wheel includes a compact aspect legend", () => {
+test("chart wheel hides visual aspect lines and keeps hoverable aspect information", () => {
   const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
 
-  assert.match(chartWheelSource, /chart-wheel-aspect-legend/);
-  assert.match(chartWheelSource, /label: "合相"/);
-  assert.match(chartWheelSource, /label: "刑冲"/);
-  assert.match(chartWheelSource, /label: "和谐相位"/);
+  assert.doesNotMatch(chartWheelSource, /chart-wheel-aspect-legend/);
+  assert.doesNotMatch(chartWheelSource, /wheel-aspect-line/);
+  assert.match(chartWheelSource, /wheel-aspect-hitbox/);
+  assert.match(chartWheelSource, /aspectTooltip/);
 });
 
 test("chart wheel uses astrology glyphs and angle markers instead of text initials", () => {
@@ -73,6 +73,21 @@ test("chart wheel uses symbolic zodiac labels and a larger aspect field", () => 
   assert.match(chartWheelSource, /line\.labelPoint/);
   assert.doesNotMatch(chartWheelSource, /HOUSE_LABEL_RADIUS/);
   assert.match(stylesSource, /fill: rgba\(86, 116, 82, 0\.96\)/);
+});
+
+test("chart wheel has themed hover tooltips and softer MC IC axis lines", () => {
+  const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
+  const geometrySource = readFileSync(new URL("../src/lib/chartWheelGeometry.js", import.meta.url), "utf8");
+  const stylesSource = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
+
+  assert.match(chartWheelSource, /chart-wheel-tooltip/);
+  assert.match(chartWheelSource, /placementTooltip/);
+  assert.match(chartWheelSource, /houseTooltip/);
+  assert.match(stylesSource, /\.chart-wheel-tooltip/);
+  assert.match(stylesSource, /--wheel-symbol-fill/);
+  assert.match(stylesSource, /stroke: rgba\(97, 125, 85, 0\.16\)/);
+  assert.match(geometrySource, /radius: 122/);
+  assert.match(geometrySource, /radius: 158/);
 });
 
 test("natal result page uses stacked interpretation layout and tables", () => {

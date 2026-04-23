@@ -378,6 +378,9 @@ select:focus {
 }
 
 .chart-wheel-frame {
+  --wheel-symbol-fill: rgba(86, 116, 82, 0.96);
+  --wheel-symbol-stroke: rgba(255, 248, 234, 0.86);
+  position: relative;
   width: min(520px, 100%);
   margin: 18px auto 34px;
 }
@@ -477,10 +480,13 @@ select:focus {
 }
 
 .wheel-zodiac-label {
-  fill: rgba(86, 116, 82, 0.86);
+  fill: var(--wheel-symbol-fill);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 18px;
   font-weight: 800;
+  paint-order: stroke;
+  stroke: var(--wheel-symbol-stroke);
+  stroke-width: 2px;
 }
 
 .wheel-house-label {
@@ -489,8 +495,9 @@ select:focus {
 }
 
 .wheel-axis line {
-  stroke: rgba(34, 51, 38, 0.58);
-  stroke-width: 1.7;
+  stroke: rgba(97, 125, 85, 0.16);
+  stroke-linecap: round;
+  stroke-width: 0.85;
 }
 
 .wheel-axis-asc line,
@@ -511,6 +518,15 @@ select:focus {
   stroke-width: 1.35;
 }
 
+.wheel-aspect-hitbox {
+  fill: none;
+  opacity: 0;
+  pointer-events: stroke;
+  stroke: transparent;
+  stroke-linecap: round;
+  stroke-width: 14;
+}
+
 .wheel-aspect-square,
 .wheel-aspect-opposition {
   stroke-width: 1.9;
@@ -524,18 +540,18 @@ select:focus {
 }
 
 .wheel-placement-dot {
-  fill: rgba(86, 116, 82, 0.96);
+  fill: var(--wheel-symbol-fill);
   stroke: rgba(255, 250, 240, 0.86);
   stroke-width: 0.75;
 }
 
 .wheel-placement text {
-  fill: rgba(86, 116, 82, 0.96);
+  fill: var(--wheel-symbol-fill);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 17px;
   font-weight: 800;
   paint-order: stroke;
-  stroke: rgba(255, 248, 234, 0.86);
+  stroke: var(--wheel-symbol-stroke);
   stroke-width: 2.2px;
 }
 
@@ -545,12 +561,65 @@ select:focus {
 }
 
 .wheel-angle-marker text {
-  fill: rgba(86, 116, 82, 0.96);
+  fill: var(--wheel-symbol-fill);
   font-size: 6.8px;
   letter-spacing: 0.02em;
   paint-order: stroke;
   stroke: rgba(255, 250, 240, 0.8);
   stroke-width: 1.8px;
+}
+
+.chart-wheel-tooltip {
+  position: absolute;
+  z-index: 3;
+  min-width: 178px;
+  max-width: 230px;
+  padding: 12px 14px;
+  border: 1px solid rgba(97, 125, 85, 0.16);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(255, 250, 240, 0.96), rgba(220, 236, 207, 0.92)),
+    var(--cream);
+  box-shadow: 0 18px 38px rgba(76, 94, 63, 0.18);
+  color: var(--ink);
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 14px));
+}
+
+.chart-wheel-tooltip p {
+  margin: 0 0 4px;
+  color: rgba(86, 116, 82, 0.78);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.chart-wheel-tooltip strong {
+  display: block;
+  margin-bottom: 8px;
+  color: rgba(34, 51, 38, 0.94);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1rem;
+}
+
+.chart-wheel-tooltip dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 5px 10px;
+  margin: 0;
+  font-size: 0.78rem;
+}
+
+.chart-wheel-tooltip dt {
+  color: rgba(97, 125, 85, 0.76);
+  font-weight: 900;
+}
+
+.chart-wheel-tooltip dd {
+  margin: 0;
+  color: rgba(34, 51, 38, 0.78);
+  text-align: right;
 }
 
 .wheel-placement,

@@ -237,9 +237,9 @@ function axisModel(label, longitude, placement, ascendantLongitude, center) {
     label,
     placement,
     longitude: normalizeLongitude(longitude),
-    inner: pointOnWheel({ longitude, ascendantLongitude, radius: 34, center }),
-    outer: pointOnWheel({ longitude, ascendantLongitude, radius: 177, center }),
-    labelPoint: pointOnWheel({ longitude, ascendantLongitude, radius: 190, center }),
+    inner: pointOnWheel({ longitude, ascendantLongitude, radius: 122, center }),
+    outer: pointOnWheel({ longitude, ascendantLongitude, radius: 158, center }),
+    labelPoint: pointOnWheel({ longitude, ascendantLongitude, radius: 168, center }),
   };
 }
 
