@@ -46,7 +46,32 @@ test("builds zodiac segments and layered wheel placements from chart data", () =
   assert.equal(wheel.layers[0].placements[0].radius, 126);
   assert.equal(wheel.layers[1].placements[0].radius, 154);
   assert.equal(wheel.axes.ascendant.label, "ASC");
+  assert.equal(wheel.axes.descendant.label, "DSC");
   assert.equal(wheel.axes.midheaven.label, "MC");
+  assert.equal(wheel.axes.imumCoeli.label, "IC");
   assert.equal(wheel.aspectLines[0].from.planet, "太阳");
   assert.equal(wheel.aspectLines[0].to.planet, "月亮");
+});
+
+test("staggers clustered placements so dense signs stay readable", () => {
+  const wheel = buildChartWheelModel({
+    placementGroups: [
+      {
+        id: "primary",
+        title: "Luna 的本命星体",
+        placements: [
+          { planet: "太阳", longitude: 280, sign: "摩羯", degree: 10, minute: 0, house: 12 },
+          { planet: "水星", longitude: 282, sign: "摩羯", degree: 12, minute: 0, house: 12 },
+          { planet: "火星", longitude: 284, sign: "摩羯", degree: 14, minute: 0, house: 12 },
+          { planet: "上升点", longitude: 304, sign: "水瓶", degree: 4, minute: 0, house: 1 },
+          { planet: "天顶", longitude: 231, sign: "天蝎", degree: 21, minute: 0, house: 10 },
+        ],
+      },
+    ],
+    aspects: [],
+  });
+
+  const radii = wheel.layers[0].placements.slice(0, 3).map((placement) => placement.radius);
+
+  assert.deepEqual(radii, [126, 138, 114]);
 });

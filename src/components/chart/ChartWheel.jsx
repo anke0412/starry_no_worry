@@ -6,6 +6,11 @@ const VIEWBOX_SIZE = 400;
 const CENTER = 200;
 const HOUSE_LINE_RADIUS = 170;
 const HOUSE_LABEL_RADIUS = 103;
+const ASPECT_LEGEND = [
+  { label: "合相", className: "legend-conjunction" },
+  { label: "刑冲", className: "legend-hard" },
+  { label: "和谐相位", className: "legend-soft" },
+];
 
 export function ChartWheel({ chart }) {
   const wheel = buildChartWheelModel(chart, { center: CENTER });
@@ -28,15 +33,10 @@ export function ChartWheel({ chart }) {
         <circle className="wheel-house-band" cx={CENTER} cy={CENTER} r="142" />
         <circle className="wheel-aspect-field" cx={CENTER} cy={CENTER} r="86" />
 
-        {wheel.zodiac.map((segment) => (
-          <g key={segment.id}>
-            <line
-              className="wheel-zodiac-tick"
-              x1={pointOnWheel({ longitude: segment.startLongitude, ascendantLongitude: wheel.ascendantLongitude, radius: 164, center: CENTER }).x}
-              y1={pointOnWheel({ longitude: segment.startLongitude, ascendantLongitude: wheel.ascendantLongitude, radius: 164, center: CENTER }).y}
-              x2={pointOnWheel({ longitude: segment.startLongitude, ascendantLongitude: wheel.ascendantLongitude, radius: 190, center: CENTER }).x}
-              y2={pointOnWheel({ longitude: segment.startLongitude, ascendantLongitude: wheel.ascendantLongitude, radius: 190, center: CENTER }).y}
-            />
+        {wheel.zodiac.map((segment, index) => (
+          <g className={`wheel-zodiac-sector wheel-zodiac-sector-${index % 4}`} key={segment.id}>
+            <path d={ringSegmentPath(segment.startLongitude, segment.endLongitude, wheel.ascendantLongitude)} />
+            <line className="wheel-zodiac-tick" {...linePoints(segment.startLongitude, wheel.ascendantLongitude, 160, 190)} />
             <text className="wheel-zodiac-label" x={segment.labelPoint.x} y={segment.labelPoint.y}>
               {segment.label}
             </text>
@@ -87,7 +87,7 @@ export function ChartWheel({ chart }) {
 
         {Object.values(wheel.axes).map((axis) =>
           axis ? (
-            <g className="wheel-axis" key={axis.label}>
+            <g className={`wheel-axis wheel-axis-${axis.label.toLowerCase()}`} key={axis.label}>
               <line x1={axis.inner.x} y1={axis.inner.y} x2={axis.outer.x} y2={axis.outer.y} />
               <text x={axis.labelPoint.x} y={axis.labelPoint.y}>
                 {axis.label}
@@ -100,6 +100,7 @@ export function ChartWheel({ chart }) {
           <g className={`wheel-layer wheel-layer-${layerIndex + 1}`} key={layer.id}>
             {layer.placements.map((placement, index) => (
               <g className="wheel-placement" key={`${layer.id}-${placement.planet}-${index}`}>
+                <title>{placementTitle(placement, layer.title)}</title>
                 <circle cx={placement.point.x} cy={placement.point.y} r={layerIndex === 0 ? 11 : 9} />
                 <text x={placement.point.x} y={placement.point.y}>
                   {planetShortLabel(placement.planet)}
@@ -114,8 +115,42 @@ export function ChartWheel({ chart }) {
         <span>内圈：{wheel.layers[0]?.title ?? "主体星盘"}</span>
         {wheel.layers[1] ? <span>外圈：{wheel.layers[1].title}</span> : null}
       </figcaption>
+      <div className="chart-wheel-aspect-legend" aria-label="相位颜色图例">
+        {ASPECT_LEGEND.map((item) => (
+          <span className={item.className} key={item.label}>
+            {item.label}
+          </span>
+        ))}
+      </div>
     </figure>
   );
+}
+
+function linePoints(longitude, ascendantLongitude, innerRadius, outerRadius) {
+  const inner = pointOnWheel({ longitude, ascendantLongitude, radius: innerRadius, center: CENTER });
+  const outer = pointOnWheel({ longitude, ascendantLongitude, radius: outerRadius, center: CENTER });
+
+  return {
+    x1: inner.x,
+    y1: inner.y,
+    x2: outer.x,
+    y2: outer.y,
+  };
+}
+
+function ringSegmentPath(startLongitude, endLongitude, ascendantLongitude) {
+  const outerStart = pointOnWheel({ longitude: startLongitude, ascendantLongitude, radius: 192, center: CENTER });
+  const outerEnd = pointOnWheel({ longitude: endLongitude, ascendantLongitude, radius: 192, center: CENTER });
+  const innerEnd = pointOnWheel({ longitude: endLongitude, ascendantLongitude, radius: 164, center: CENTER });
+  const innerStart = pointOnWheel({ longitude: startLongitude, ascendantLongitude, radius: 164, center: CENTER });
+
+  return [
+    `M ${outerStart.x} ${outerStart.y}`,
+    `A 192 192 0 0 1 ${outerEnd.x} ${outerEnd.y}`,
+    `L ${innerEnd.x} ${innerEnd.y}`,
+    `A 164 164 0 0 0 ${innerStart.x} ${innerStart.y}`,
+    "Z",
+  ].join(" ");
 }
 
 function housesFromChart(chart) {
@@ -155,4 +190,11 @@ function planetShortLabel(planet) {
   };
 
   return labels[planet] ?? planet.slice(0, 1);
+}
+
+function placementTitle(placement, layerTitle) {
+  const minute = placement.minute ? `${placement.minute}'` : "";
+  const house = placement.house && placement.house !== "-" ? `第 ${placement.house} 宫` : "宫位未定";
+
+  return `${layerTitle}：${placement.planet} ${placement.sign} ${placement.degree}°${minute} ${house}`;
 }

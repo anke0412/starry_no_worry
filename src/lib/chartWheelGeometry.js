@@ -22,6 +22,7 @@ const ASPECT_COLORS = {
 };
 
 const AXIS_NAMES = new Set(["上升点", "天顶", "Ascendant", "Midheaven"]);
+const CLUSTER_RADIUS_OFFSETS = [0, 12, -12, 24, -24];
 
 export function normalizeLongitude(longitude) {
   return ((Number(longitude) % 360) + 360) % 360;
@@ -73,15 +74,20 @@ export function buildChartWheelModel(chart, { center = 200 } = {}) {
   const ascendantLongitude = validLongitude(ascendant?.longitude) ? ascendant.longitude : 0;
 
   const layers = groups.map((group, index) => {
-    const radius = index === 0 ? 126 : 154;
+    const baseRadius = index === 0 ? 126 : 154;
+    const visiblePlacements = (group.placements ?? []).filter(
+      (placement) => validLongitude(placement.longitude) && !AXIS_NAMES.has(placement.planet),
+    );
 
     return {
       id: group.id ?? `layer-${index}`,
       title: group.title,
-      radius,
-      placements: (group.placements ?? [])
-        .filter((placement) => validLongitude(placement.longitude) && !AXIS_NAMES.has(placement.planet))
-        .map((placement) => ({
+      radius: baseRadius,
+      placements: visiblePlacements
+        .map((placement, placementIndex) => {
+          const radius = baseRadius + clusterOffset(placement, visiblePlacements, placementIndex);
+
+          return {
           ...placement,
           radius,
           point: pointOnWheel({
@@ -90,7 +96,8 @@ export function buildChartWheelModel(chart, { center = 200 } = {}) {
             radius,
             center,
           }),
-        })),
+          };
+        }),
     };
   });
 
@@ -107,8 +114,10 @@ export function buildChartWheelModel(chart, { center = 200 } = {}) {
     zodiac: zodiacSegments(ascendantLongitude, center),
     layers,
     axes: {
-      ascendant: axisModel("ASC", ascendant, ascendantLongitude, center),
-      midheaven: axisModel("MC", midheaven, ascendantLongitude, center),
+      ascendant: axisModel("ASC", ascendant?.longitude, ascendant, ascendantLongitude, center),
+      descendant: axisModel("DSC", ascendant ? ascendant.longitude + 180 : null, null, ascendantLongitude, center),
+      midheaven: axisModel("MC", midheaven?.longitude, midheaven, ascendantLongitude, center),
+      imumCoeli: axisModel("IC", midheaven ? midheaven.longitude + 180 : null, null, ascendantLongitude, center),
     },
     aspectLines: (chart.aspects ?? [])
       .map((aspect) => aspectLineModel(aspect, placementIndex))
@@ -116,18 +125,33 @@ export function buildChartWheelModel(chart, { center = 200 } = {}) {
   };
 }
 
-function axisModel(label, placement, ascendantLongitude, center) {
-  if (!placement || !validLongitude(placement.longitude)) {
+function axisModel(label, longitude, placement, ascendantLongitude, center) {
+  if (!validLongitude(longitude)) {
     return null;
   }
 
   return {
     label,
     placement,
-    inner: pointOnWheel({ longitude: placement.longitude, ascendantLongitude, radius: 34, center }),
-    outer: pointOnWheel({ longitude: placement.longitude, ascendantLongitude, radius: 177, center }),
-    labelPoint: pointOnWheel({ longitude: placement.longitude, ascendantLongitude, radius: 190, center }),
+    longitude: normalizeLongitude(longitude),
+    inner: pointOnWheel({ longitude, ascendantLongitude, radius: 34, center }),
+    outer: pointOnWheel({ longitude, ascendantLongitude, radius: 177, center }),
+    labelPoint: pointOnWheel({ longitude, ascendantLongitude, radius: 190, center }),
   };
+}
+
+function clusterOffset(placement, placements, placementIndex) {
+  const clusterPosition = placements
+    .slice(0, placementIndex + 1)
+    .filter((candidate) => longitudeDistance(candidate.longitude, placement.longitude) <= 6).length - 1;
+
+  return CLUSTER_RADIUS_OFFSETS[clusterPosition % CLUSTER_RADIUS_OFFSETS.length];
+}
+
+function longitudeDistance(first, second) {
+  const difference = Math.abs(normalizeLongitude(first) - normalizeLongitude(second));
+
+  return Math.min(difference, 360 - difference);
 }
 
 function aspectLineModel(aspect, placements) {

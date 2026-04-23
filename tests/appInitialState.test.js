@@ -21,6 +21,15 @@ test("chart result panel renders a reusable chart wheel instead of the placehold
   assert.doesNotMatch(appSource, /planet-dot/);
 });
 
+test("chart wheel includes a compact aspect legend", () => {
+  const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
+
+  assert.match(chartWheelSource, /chart-wheel-aspect-legend/);
+  assert.match(chartWheelSource, /label: "合相"/);
+  assert.match(chartWheelSource, /label: "刑冲"/);
+  assert.match(chartWheelSource, /label: "和谐相位"/);
+});
+
 test("natal result page uses stacked interpretation layout and tables", () => {
   assert.match(appSource, /className="result-stack"/);
   assert.match(appSource, /result\.chart\.placementGroups\.map/);

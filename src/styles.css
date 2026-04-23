@@ -405,7 +405,7 @@ select:focus {
 
 .wheel-zodiac-band {
   stroke-width: 28;
-  stroke: rgba(255, 220, 227, 0.46);
+  stroke: rgba(255, 220, 227, 0.22);
 }
 
 .wheel-house-band {
@@ -421,6 +421,27 @@ select:focus {
 .wheel-house-line {
   stroke: rgba(34, 51, 38, 0.2);
   stroke-width: 1;
+}
+
+.wheel-zodiac-sector path {
+  stroke: rgba(34, 51, 38, 0.04);
+  stroke-width: 1;
+}
+
+.wheel-zodiac-sector-0 path {
+  fill: rgba(255, 220, 227, 0.34);
+}
+
+.wheel-zodiac-sector-1 path {
+  fill: rgba(220, 236, 207, 0.42);
+}
+
+.wheel-zodiac-sector-2 path {
+  fill: rgba(248, 198, 168, 0.26);
+}
+
+.wheel-zodiac-sector-3 path {
+  fill: rgba(255, 248, 234, 0.5);
 }
 
 .wheel-zodiac-label,
@@ -448,6 +469,11 @@ select:focus {
   stroke-width: 1.7;
 }
 
+.wheel-axis-asc line,
+.wheel-axis-mc line {
+  stroke-width: 2.1;
+}
+
 .wheel-axis text {
   fill: var(--ink);
   font-size: 12px;
@@ -455,9 +481,9 @@ select:focus {
 }
 
 .wheel-aspect-line {
-  opacity: 0.64;
+  opacity: 0.52;
   stroke-linecap: round;
-  stroke-width: 1.5;
+  stroke-width: 1.35;
 }
 
 .wheel-aspect-square,
@@ -481,6 +507,16 @@ select:focus {
   font-size: 10px;
 }
 
+.wheel-placement {
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.wheel-placement:hover {
+  opacity: 0.78;
+}
+
 .chart-wheel-caption {
   display: flex;
   flex-wrap: wrap;
@@ -497,6 +533,43 @@ select:focus {
   border-radius: 999px;
   background: rgba(255, 250, 240, 0.58);
   padding: 7px 11px;
+}
+
+.chart-wheel-aspect-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  color: rgba(34, 51, 38, 0.68);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.chart-wheel-aspect-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.chart-wheel-aspect-legend span::before {
+  display: inline-block;
+  width: 24px;
+  height: 3px;
+  border-radius: 999px;
+  content: "";
+}
+
+.legend-conjunction::before {
+  background: #d7a84f;
+}
+
+.legend-hard::before {
+  background: #c56b67;
+}
+
+.legend-soft::before {
+  background: #6f9f6a;
 }
 
 .chart-data {
