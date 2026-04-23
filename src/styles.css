@@ -469,7 +469,6 @@ select:focus {
   fill: rgba(255, 248, 234, 0.5);
 }
 
-.wheel-zodiac-label,
 .wheel-house-label,
 .wheel-axis text,
 .wheel-angle-marker text,
@@ -480,13 +479,21 @@ select:focus {
 }
 
 .wheel-zodiac-label {
-  fill: var(--wheel-symbol-fill);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 18px;
-  font-weight: 800;
-  paint-order: stroke;
-  stroke: var(--wheel-symbol-stroke);
-  stroke-width: 2px;
+  color: var(--wheel-symbol-fill);
+}
+
+.wheel-zodiac-glyph {
+  fill: none;
+  pointer-events: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.wheel-zodiac-glyph circle {
+  fill: rgba(255, 248, 234, 0.34);
+  stroke: currentColor;
 }
 
 .wheel-house-label {
@@ -509,27 +516,6 @@ select:focus {
   fill: var(--ink);
   font-size: 12px;
   letter-spacing: 0.1em;
-}
-
-.wheel-aspect-line {
-  fill: none;
-  opacity: 0.52;
-  stroke-linecap: round;
-  stroke-width: 1.35;
-}
-
-.wheel-aspect-hitbox {
-  fill: none;
-  opacity: 0;
-  pointer-events: stroke;
-  stroke: transparent;
-  stroke-linecap: round;
-  stroke-width: 14;
-}
-
-.wheel-aspect-square,
-.wheel-aspect-opposition {
-  stroke-width: 1.9;
 }
 
 .wheel-placement-leader {
@@ -572,54 +558,37 @@ select:focus {
 .chart-wheel-tooltip {
   position: absolute;
   z-index: 3;
-  min-width: 178px;
-  max-width: 230px;
-  padding: 12px 14px;
+  min-width: 156px;
+  max-width: 236px;
+  padding: 9px 11px;
   border: 1px solid rgba(97, 125, 85, 0.16);
-  border-radius: 18px;
+  border-radius: 14px;
   background:
     linear-gradient(145deg, rgba(255, 250, 240, 0.96), rgba(220, 236, 207, 0.92)),
     var(--cream);
-  box-shadow: 0 18px 38px rgba(76, 94, 63, 0.18);
+  box-shadow: 0 14px 28px rgba(76, 94, 63, 0.16);
   color: var(--ink);
   pointer-events: none;
-  transform: translate(-50%, calc(-100% - 14px));
+  transform: translate(-50%, 8px);
 }
 
 .chart-wheel-tooltip p {
-  margin: 0 0 4px;
-  color: rgba(86, 116, 82, 0.78);
-  font-size: 0.7rem;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.chart-wheel-tooltip strong {
-  display: block;
-  margin-bottom: 8px;
-  color: rgba(34, 51, 38, 0.94);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 1rem;
-}
-
-.chart-wheel-tooltip dl {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 5px 10px;
   margin: 0;
-  font-size: 0.78rem;
+  color: rgba(34, 51, 38, 0.72);
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1.42;
+  white-space: nowrap;
 }
 
-.chart-wheel-tooltip dt {
-  color: rgba(97, 125, 85, 0.76);
-  font-weight: 900;
+.chart-wheel-tooltip p + p {
+  margin-top: 3px;
 }
 
-.chart-wheel-tooltip dd {
-  margin: 0;
-  color: rgba(34, 51, 38, 0.78);
-  text-align: right;
+.chart-wheel-tooltip-primary {
+  color: rgba(34, 51, 38, 0.92) !important;
+  font-size: 0.8rem !important;
+  font-weight: 950 !important;
 }
 
 .wheel-placement,
@@ -650,43 +619,6 @@ select:focus {
   border-radius: 999px;
   background: rgba(255, 250, 240, 0.58);
   padding: 7px 11px;
-}
-
-.chart-wheel-aspect-legend {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 10px;
-  color: rgba(34, 51, 38, 0.68);
-  font-size: 0.8rem;
-  font-weight: 800;
-}
-
-.chart-wheel-aspect-legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.chart-wheel-aspect-legend span::before {
-  display: inline-block;
-  width: 24px;
-  height: 3px;
-  border-radius: 999px;
-  content: "";
-}
-
-.legend-conjunction::before {
-  background: #d7a84f;
-}
-
-.legend-hard::before {
-  background: #c56b67;
-}
-
-.legend-soft::before {
-  background: #6f9f6a;
 }
 
 .chart-data {

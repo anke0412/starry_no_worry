@@ -1,16 +1,16 @@
 const ZODIAC_SIGNS = [
-  { name: "白羊", symbol: "♈" },
-  { name: "金牛", symbol: "♉" },
-  { name: "双子", symbol: "♊" },
-  { name: "巨蟹", symbol: "♋" },
-  { name: "狮子", symbol: "♌" },
-  { name: "处女", symbol: "♍" },
-  { name: "天秤", symbol: "♎" },
-  { name: "天蝎", symbol: "♏" },
-  { name: "射手", symbol: "♐" },
-  { name: "摩羯", symbol: "♑" },
-  { name: "水瓶", symbol: "♒" },
-  { name: "双鱼", symbol: "♓" },
+  { id: "aries", name: "白羊" },
+  { id: "taurus", name: "金牛" },
+  { id: "gemini", name: "双子" },
+  { id: "cancer", name: "巨蟹" },
+  { id: "leo", name: "狮子" },
+  { id: "virgo", name: "处女" },
+  { id: "libra", name: "天秤" },
+  { id: "scorpio", name: "天蝎" },
+  { id: "sagittarius", name: "射手" },
+  { id: "capricorn", name: "摩羯" },
+  { id: "aquarius", name: "水瓶" },
+  { id: "pisces", name: "双鱼" },
 ];
 
 const ASPECT_COLORS = {
@@ -61,10 +61,9 @@ export function zodiacSegments(ascendantLongitude = 0, center = 200) {
     });
 
     return {
-      id: sign.name,
+      id: sign.id,
       name: sign.name,
-      symbol: sign.symbol,
-      label: sign.symbol,
+      symbolId: sign.id,
       startLongitude,
       endLongitude,
       startAngle: angleForLongitude(startLongitude, ascendantLongitude),
@@ -99,6 +98,7 @@ export function buildChartWheelModel(chart, { center = 200 } = {}) {
     return {
       id: group.id ?? `layer-${index}`,
       title: group.title,
+      index,
       anchorRadius: baseAnchorRadius,
       labelRadius: baseLabelRadius,
       placements: visiblePlacements
@@ -109,6 +109,9 @@ export function buildChartWheelModel(chart, { center = 200 } = {}) {
             ...placement,
             anchorRadius: baseAnchorRadius,
             labelRadius,
+            layerId: group.id ?? `layer-${index}`,
+            layerTitle: group.title,
+            layerIndex: index,
             ...placementPointModel(placement.longitude, ascendantLongitude, baseAnchorRadius, labelRadius, center),
           };
         }),
@@ -120,6 +123,8 @@ export function buildChartWheelModel(chart, { center = 200 } = {}) {
       layer.placements.map((placement) => ({
         ...placement,
         layerId: layer.id,
+        layerTitle: layer.title,
+        layerIndex: layer.index,
       })),
     ),
     ...Object.values(angleMarkers).filter(Boolean),
@@ -258,8 +263,13 @@ function longitudeDistance(first, second) {
 }
 
 function aspectLineModel(aspect, placements) {
-  const from = placements.find((placement) => placement.planet === aspect.from);
-  const to = placements.find((placement) => placement.planet === aspect.to && placement !== from);
+  const fromCandidates = placements.filter((placement) => placement.planet === aspect.from);
+  const toCandidates = placements.filter((placement) => placement.planet === aspect.to);
+  const from = fromCandidates[0];
+  const to =
+    placements.some((placement) => placement.layerIndex === 1) && toCandidates.some((placement) => placement.layerIndex === 1)
+      ? toCandidates.find((placement) => placement.layerIndex === 1)
+      : toCandidates.find((placement) => placement !== from);
 
   if (!from || !to) {
     return null;

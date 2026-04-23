@@ -1,6 +1,7 @@
 import React from "react";
 
 import { buildChartWheelModel, buildHouseLineModel, pointOnWheel } from "../../lib/chartWheelGeometry.js";
+import { ZodiacGlyph } from "./ZodiacGlyph.jsx";
 
 const VIEWBOX_SIZE = 400;
 const CENTER = 200;
@@ -34,13 +35,10 @@ export function ChartWheel({ chart }) {
           <g
             className={`wheel-zodiac-sector wheel-zodiac-sector-${index % 4}`}
             key={segment.id}
-            onMouseEnter={() => showTooltip(zodiacTooltip(segment))}
           >
             <path d={ringSegmentPath(segment.startLongitude, segment.endLongitude, wheel.ascendantLongitude)} />
             <line className="wheel-zodiac-tick" {...linePoints(segment.startLongitude, wheel.ascendantLongitude, 160, 190)} />
-            <text className="wheel-zodiac-label" x={segment.labelPoint.x} y={segment.labelPoint.y}>
-              {segment.label}
-            </text>
+            <ZodiacGlyph id={segment.symbolId} x={segment.labelPoint.x} y={segment.labelPoint.y} />
           </g>
         ))}
 
@@ -53,7 +51,7 @@ export function ChartWheel({ chart }) {
           });
 
           return (
-            <g key={house.house} onMouseEnter={() => showTooltip(houseTooltip(house, line, chart))}>
+            <g key={house.house}>
               <line
                 className={`wheel-house-axis wheel-house-axis-${house.house}`}
                 x1={line.axisInner.x}
@@ -69,30 +67,13 @@ export function ChartWheel({ chart }) {
           );
         })}
 
-        {wheel.aspectLines.map((aspect, index) =>
-          aspect.type === "conjunction" ? (
-            <path
-              className="wheel-aspect-hitbox"
-              d={conjunctionArcPath(aspect.from.anchorPoint, aspect.to.anchorPoint)}
-              key={`${aspect.from.planet}-${aspect.to.planet}-${index}`}
-              onMouseEnter={() => showTooltip(aspectTooltip(aspect))}
-            />
-          ) : (
-            <line
-              className="wheel-aspect-hitbox"
-              key={`${aspect.from.planet}-${aspect.to.planet}-${index}`}
-              x1={aspect.from.anchorPoint.x}
-              y1={aspect.from.anchorPoint.y}
-              x2={aspect.to.anchorPoint.x}
-              y2={aspect.to.anchorPoint.y}
-              onMouseEnter={() => showTooltip(aspectTooltip(aspect))}
-            />
-          ),
-        )}
-
         {Object.values(wheel.angleMarkers).map((marker) =>
           marker ? (
-            <g className="wheel-angle-marker" key={marker.label} onMouseEnter={() => showTooltip(placementTooltip(marker, "四轴点"))}>
+            <g
+              className="wheel-angle-marker"
+              key={marker.label}
+              onMouseEnter={() => showTooltip(placementTooltip(marker, "四轴点", wheel.aspectLines))}
+            >
               <title>{placementTitle(marker, "四轴点")}</title>
               <line className="wheel-placement-leader" {...marker.leaderLine} />
               <circle className="wheel-placement-dot" cx={marker.anchorPoint.x} cy={marker.anchorPoint.y} r="1.8" />
@@ -120,7 +101,7 @@ export function ChartWheel({ chart }) {
               <g
                 className="wheel-placement"
                 key={`${layer.id}-${placement.planet}-${index}`}
-                onMouseEnter={() => showTooltip(placementTooltip(placement, layer.title))}
+                onMouseEnter={() => showTooltip(placementTooltip(placement, layer.title, wheel.aspectLines))}
               >
                 <title>{placementTitle(placement, layer.title)}</title>
                 <line className="wheel-placement-leader" {...placement.leaderLine} />
@@ -152,16 +133,11 @@ function ChartWheelTooltip({ tooltip }) {
         top: `${(tooltip.point.y / VIEWBOX_SIZE) * 100}%`,
       }}
     >
-      <p>{tooltip.kicker}</p>
-      <strong>{tooltip.title}</strong>
-      <dl>
-        {tooltip.rows.map((row) => (
-          <React.Fragment key={`${row.label}-${row.value}`}>
-            <dt>{row.label}</dt>
-            <dd>{row.value}</dd>
-          </React.Fragment>
-        ))}
-      </dl>
+      {tooltip.lines.map((line, index) => (
+        <p className={index === 0 ? "chart-wheel-tooltip-primary" : undefined} key={`${line}-${index}`}>
+          {line}
+        </p>
+      ))}
     </aside>
   );
 }
@@ -193,78 +169,16 @@ function ringSegmentPath(startLongitude, endLongitude, ascendantLongitude) {
   ].join(" ");
 }
 
-function conjunctionArcPath(from, to) {
-  const control = {
-    x: (from.x + to.x) / 2 + (CENTER - (from.x + to.x) / 2) * 0.08,
-    y: (from.y + to.y) / 2 + (CENTER - (from.y + to.y) / 2) * 0.08,
-  };
-
-  return `M ${from.x} ${from.y} Q ${control.x} ${control.y} ${to.x} ${to.y}`;
-}
-
-function zodiacTooltip(segment) {
+function placementTooltip(placement, layerTitle, aspectLines) {
   return {
-    kicker: "星座区间",
-    title: `${segment.label} ${segment.name}`,
-    point: segment.labelPoint,
-    rows: [
-      { label: "起始", value: `${segment.startLongitude}°` },
-      { label: "结束", value: `${segment.endLongitude}°` },
+    point: {
+      x: placement.labelPoint.x,
+      y: placement.labelPoint.y + 8,
+    },
+    lines: [
+      `${planetGlyph(placement.planet)} ${placement.planet} · ${compactPlacementInfo(placement)}`,
+      ...relatedAspectLines(placement, aspectLines, layerTitle),
     ],
-  };
-}
-
-function placementTooltip(placement, layerTitle) {
-  return {
-    kicker: layerTitle,
-    title: placement.planet,
-    point: placement.labelPoint,
-    rows: [
-      { label: "星座", value: placement.sign ?? "-" },
-      { label: "度数", value: formatDegree(placement) },
-      { label: "宫位", value: placement.house && placement.house !== "-" ? `第 ${placement.house} 宫` : "宫位未定" },
-    ],
-  };
-}
-
-function aspectTooltip(aspect) {
-  return {
-    kicker: "相位信息",
-    title: `${aspect.from.planet} ${aspectLabel(aspect.type)} ${aspect.to.planet}`,
-    point: midpoint(aspect.from.anchorPoint, aspect.to.anchorPoint),
-    rows: [
-      { label: "相位类型", value: aspectLabel(aspect.type) },
-      { label: "容许度", value: aspect.orb ?? "-" },
-    ],
-  };
-}
-
-function houseTooltip(house, line, chart) {
-  const occupants = houseOccupants(house.house, chart);
-
-  return {
-    kicker: "宫位信息",
-    title: `第 ${house.house} 宫`,
-    point: line.labelPoint,
-    rows: [
-      { label: "宫头", value: zodiacPosition(house.longitude) },
-      { label: "宫内星体", value: occupants.length ? occupants.join("、") : "暂无星体" },
-    ],
-  };
-}
-
-function houseOccupants(houseNumber, chart) {
-  const placements = chart.placementGroups?.[0]?.placements ?? chart.placements ?? [];
-
-  return placements
-    .filter((placement) => Number(placement.house) === Number(houseNumber))
-    .map((placement) => placement.planet);
-}
-
-function midpoint(first, second) {
-  return {
-    x: (first.x + second.x) / 2,
-    y: (first.y + second.y) / 2,
   };
 }
 
@@ -280,13 +194,32 @@ function aspectLabel(type) {
   return labels[type] ?? type;
 }
 
-function zodiacPosition(longitude) {
-  const signs = ["白羊", "金牛", "双子", "巨蟹", "狮子", "处女", "天秤", "天蝎", "射手", "摩羯", "水瓶", "双鱼"];
-  const normalized = ((Number(longitude) % 360) + 360) % 360;
-  const signIndex = Math.floor(normalized / 30);
-  const degree = Math.floor(normalized % 30);
+function compactPlacementInfo(placement) {
+  const sign = placement.sign ?? "-";
+  const house = placement.house && placement.house !== "-" ? `第${placement.house}宫` : "宫位未定";
 
-  return `${signs[signIndex]} ${degree}°`;
+  return `${sign} ${formatDegree(placement)} · ${house}`;
+}
+
+function relatedAspectLines(placement, aspectLines, layerTitle) {
+  const lines = aspectLines
+    .filter((aspect) => aspect.from === placement || aspect.to === placement)
+    .map((aspect) => {
+      const other = aspect.from === placement ? aspect.to : aspect.from;
+      const otherName = compactLayerTitle(other.layerTitle, layerTitle);
+
+      return `与 ${otherName}${other.planet} ${aspectLabel(aspect.type)} · ${aspect.orb ?? "-"}`;
+    });
+
+  return lines.length ? lines : ["暂无主要相位"];
+}
+
+function compactLayerTitle(otherLayerTitle, currentLayerTitle) {
+  if (!otherLayerTitle || otherLayerTitle === currentLayerTitle) {
+    return "";
+  }
+
+  return `${otherLayerTitle.replace(/ 的(本命星体|星体落点)$/, "")}的`;
 }
 
 function formatDegree(placement) {

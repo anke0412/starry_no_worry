@@ -41,12 +41,13 @@ test("builds zodiac segments and layered wheel placements from chart data", () =
   });
 
   assert.equal(zodiacSegments().length, 12);
-  assert.equal(zodiacSegments()[0].label, "♈");
-  assert.equal(zodiacSegments()[11].label, "♓");
+  assert.equal(zodiacSegments()[0].symbolId, "aries");
+  assert.equal(zodiacSegments()[11].symbolId, "pisces");
   assert.equal(zodiacSegments()[0].name, "白羊");
   assert.equal(wheel.ascendantLongitude, 88.2);
   assert.equal(wheel.layers.length, 2);
   assert.equal(wheel.layers[0].placements[0].planet, "太阳");
+  assert.equal(wheel.layers[0].placements[0].layerTitle, "Luna 的本命星体");
   assert.equal(wheel.layers[0].placements[0].anchorRadius, 104);
   assert.equal(wheel.layers[0].placements[0].labelRadius, 126);
   assert.equal(wheel.layers[1].placements[0].anchorRadius, 128);
@@ -60,6 +61,7 @@ test("builds zodiac segments and layered wheel placements from chart data", () =
   assert.equal(wheel.axes.imumCoeli.label, "IC");
   assert.equal(wheel.aspectLines[0].from.planet, "太阳");
   assert.equal(wheel.aspectLines[0].to.planet, "月亮");
+  assert.equal(wheel.aspectLines[0].to.layerTitle, "Sol 的本命星体");
   assert.deepEqual(wheel.aspectLines[0].from.point, wheel.layers[0].placements[0].anchorPoint);
 });
 
