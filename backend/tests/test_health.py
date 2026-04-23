@@ -30,15 +30,16 @@ def test_unknown_route_returns_structured_error():
     }
 
 
-def test_local_vite_origins_can_preflight_chart_requests():
-    response = client.options(
-        "/api/charts/natal",
-        headers={
-            "Origin": "http://127.0.0.1:5173",
-            "Access-Control-Request-Method": "POST",
-            "Access-Control-Request-Headers": "content-type",
-        },
-    )
+def test_local_browser_origins_can_preflight_chart_requests():
+    for origin in ["http://127.0.0.1:5173", "http://localhost:62374"]:
+        response = client.options(
+            "/api/charts/natal",
+            headers={
+                "Origin": origin,
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
 
-    assert response.status_code == 200
-    assert response.headers["access-control-allow-origin"] == "http://127.0.0.1:5173"
+        assert response.status_code == 200
+        assert response.headers["access-control-allow-origin"] == origin
