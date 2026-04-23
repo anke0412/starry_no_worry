@@ -1,5 +1,6 @@
 import React, { useState, useTransition } from "react";
 
+import { ChartWheel } from "./components/chart/ChartWheel.jsx";
 import { categoriesForMode, readingModes } from "./data/chartCatalog.js";
 import { calculateChart } from "./lib/api/chartApi.js";
 import { createChartRequest } from "./lib/chartEngine.js";
@@ -294,22 +295,7 @@ function ChartPanel({ result }) {
         <h2>{result.chart.title}</h2>
       </div>
 
-      <div className="chart-visual" aria-label="星盘图占位">
-        {result.chart.placements.map((placement, index) => (
-          <span
-            className="planet-dot"
-            key={`${placement.planet}-${index}`}
-            style={{
-              "--angle": `${index * 58 + 18}deg`,
-              "--distance": `${38 + (index % 3) * 13}%`,
-            }}
-            title={`${placement.planet} ${placement.sign}`}
-          >
-            {placement.planet.slice(0, 1)}
-          </span>
-        ))}
-        <div className="zodiac-ring" />
-      </div>
+      <ChartWheel chart={result.chart} />
 
       <div className="chart-data">
         <div>

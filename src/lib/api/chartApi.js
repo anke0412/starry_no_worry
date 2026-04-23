@@ -189,6 +189,7 @@ function mapPlacement(placement) {
   return {
     planet: localizeBody(placement.body),
     sign: localizeSign(placement.sign),
+    longitude: placement.longitude,
     house: placement.house ?? "-",
     degree: placement.degree,
     minute: placement.minute,
@@ -235,6 +236,7 @@ function mapOverlays(relatedCharts) {
       placements: overlay.placements.map((placement) => ({
         planet: localizeBody(placement.body),
         sign: localizeSign(placement.sign),
+        longitude: placement.longitude,
         degree: placement.degree,
         minute: placement.minute,
         sourceHouse: placement.sourceHouse ?? "-",
