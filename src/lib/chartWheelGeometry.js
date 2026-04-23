@@ -1,16 +1,16 @@
 const ZODIAC_SIGNS = [
-  "白羊",
-  "金牛",
-  "双子",
-  "巨蟹",
-  "狮子",
-  "处女",
-  "天秤",
-  "天蝎",
-  "射手",
-  "摩羯",
-  "水瓶",
-  "双鱼",
+  { name: "白羊", symbol: "♈" },
+  { name: "金牛", symbol: "♉" },
+  { name: "双子", symbol: "♊" },
+  { name: "巨蟹", symbol: "♋" },
+  { name: "狮子", symbol: "♌" },
+  { name: "处女", symbol: "♍" },
+  { name: "天秤", symbol: "♎" },
+  { name: "天蝎", symbol: "♏" },
+  { name: "射手", symbol: "♐" },
+  { name: "摩羯", symbol: "♑" },
+  { name: "水瓶", symbol: "♒" },
+  { name: "双鱼", symbol: "♓" },
 ];
 
 const ASPECT_COLORS = {
@@ -29,6 +29,7 @@ const OUTER_ANCHOR_RADIUS = 128;
 const OUTER_LABEL_RADIUS = 150;
 const HOUSE_LINE_INNER_RADIUS = 146;
 const HOUSE_LINE_OUTER_RADIUS = 164;
+const HOUSE_LABEL_RADIUS = 155;
 const HOUSE_AXIS_OUTER_RADIUS = INNER_ANCHOR_RADIUS;
 
 export function normalizeLongitude(longitude) {
@@ -49,7 +50,7 @@ export function pointOnWheel({ longitude, ascendantLongitude = 0, radius, center
 }
 
 export function zodiacSegments(ascendantLongitude = 0, center = 200) {
-  return ZODIAC_SIGNS.map((label, index) => {
+  return ZODIAC_SIGNS.map((sign, index) => {
     const startLongitude = index * 30;
     const endLongitude = startLongitude + 30;
     const labelPoint = pointOnWheel({
@@ -60,8 +61,10 @@ export function zodiacSegments(ascendantLongitude = 0, center = 200) {
     });
 
     return {
-      id: label,
-      label,
+      id: sign.name,
+      name: sign.name,
+      symbol: sign.symbol,
+      label: sign.symbol,
       startLongitude,
       endLongitude,
       startAngle: angleForLongitude(startLongitude, ascendantLongitude),
@@ -158,15 +161,23 @@ export function buildHouseLineModel({ house, longitude, ascendantLongitude, cent
     radius: HOUSE_AXIS_OUTER_RADIUS,
     center,
   });
+  const labelPoint = pointOnWheel({
+    longitude: longitude + 15,
+    ascendantLongitude,
+    radius: HOUSE_LABEL_RADIUS,
+    center,
+  });
 
   return {
     house,
     longitude,
     innerRadius: HOUSE_LINE_INNER_RADIUS,
     outerRadius: HOUSE_LINE_OUTER_RADIUS,
+    labelRadius: HOUSE_LABEL_RADIUS,
     axisOuterRadius: HOUSE_AXIS_OUTER_RADIUS,
     inner,
     outer,
+    labelPoint,
     axisInner,
     axisOuter,
   };

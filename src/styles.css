@@ -477,14 +477,15 @@ select:focus {
 }
 
 .wheel-zodiac-label {
-  fill: rgba(34, 51, 38, 0.68);
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  fill: rgba(86, 116, 82, 0.86);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  font-weight: 800;
 }
 
 .wheel-house-label {
   fill: rgba(97, 125, 85, 0.72);
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .wheel-axis line {
@@ -523,28 +524,28 @@ select:focus {
 }
 
 .wheel-placement-dot {
-  fill: var(--ink);
+  fill: rgba(86, 116, 82, 0.96);
   stroke: rgba(255, 250, 240, 0.86);
   stroke-width: 0.75;
 }
 
 .wheel-placement text {
-  fill: var(--ink);
+  fill: rgba(86, 116, 82, 0.96);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 17px;
   font-weight: 800;
   paint-order: stroke;
-  stroke: rgba(255, 250, 240, 0.78);
+  stroke: rgba(255, 248, 234, 0.86);
   stroke-width: 2.2px;
 }
 
 .wheel-layer-2 .wheel-placement text {
-  fill: rgba(120, 76, 70, 0.96);
+  fill: rgba(190, 111, 101, 0.96);
   stroke: rgba(255, 248, 234, 0.82);
 }
 
 .wheel-angle-marker text {
-  fill: rgba(34, 51, 38, 0.92);
+  fill: rgba(86, 116, 82, 0.96);
   font-size: 6.8px;
   letter-spacing: 0.02em;
   paint-order: stroke;

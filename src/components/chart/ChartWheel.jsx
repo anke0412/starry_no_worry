@@ -4,7 +4,6 @@ import { buildChartWheelModel, buildHouseLineModel, pointOnWheel } from "../../l
 
 const VIEWBOX_SIZE = 400;
 const CENTER = 200;
-const HOUSE_LABEL_RADIUS = 147;
 const ASPECT_LEGEND = [
   { label: "合相", className: "legend-conjunction" },
   { label: "刑冲", className: "legend-hard" },
@@ -31,7 +30,7 @@ export function ChartWheel({ chart }) {
         <circle className="wheel-zodiac-band" cx={CENTER} cy={CENTER} r="181" />
         <circle className="wheel-house-outer" cx={CENTER} cy={CENTER} r="164" />
         <circle className="wheel-house-band" cx={CENTER} cy={CENTER} r="146" />
-        <circle className="wheel-aspect-field" cx={CENTER} cy={CENTER} r="104" />
+        <circle className="wheel-aspect-field" cx={CENTER} cy={CENTER} r="122" />
 
         {wheel.zodiac.map((segment, index) => (
           <g className={`wheel-zodiac-sector wheel-zodiac-sector-${index % 4}`} key={segment.id}>
@@ -50,12 +49,6 @@ export function ChartWheel({ chart }) {
             ascendantLongitude: wheel.ascendantLongitude,
             center: CENTER,
           });
-          const label = pointOnWheel({
-            longitude: house.longitude + 15,
-            ascendantLongitude: wheel.ascendantLongitude,
-            radius: HOUSE_LABEL_RADIUS,
-            center: CENTER,
-          });
 
           return (
             <g key={house.house}>
@@ -67,7 +60,7 @@ export function ChartWheel({ chart }) {
                 y2={line.axisOuter.y}
               />
               <line className="wheel-house-line" x1={line.inner.x} y1={line.inner.y} x2={line.outer.x} y2={line.outer.y} />
-              <text className="wheel-house-label" x={label.x} y={label.y}>
+              <text className="wheel-house-label" x={line.labelPoint.x} y={line.labelPoint.y}>
                 {house.house}
               </text>
             </g>

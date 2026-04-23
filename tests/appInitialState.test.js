@@ -63,6 +63,18 @@ test("chart wheel follows a professional point leader layout", () => {
   assert.match(stylesSource, /\.wheel-house-axis/);
 });
 
+test("chart wheel uses symbolic zodiac labels and a larger aspect field", () => {
+  const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
+  const geometrySource = readFileSync(new URL("../src/lib/chartWheelGeometry.js", import.meta.url), "utf8");
+  const stylesSource = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
+
+  assert.match(geometrySource, /symbol: "♈"/);
+  assert.match(chartWheelSource, /r="122"/);
+  assert.match(chartWheelSource, /line\.labelPoint/);
+  assert.doesNotMatch(chartWheelSource, /HOUSE_LABEL_RADIUS/);
+  assert.match(stylesSource, /fill: rgba\(86, 116, 82, 0\.96\)/);
+});
+
 test("natal result page uses stacked interpretation layout and tables", () => {
   assert.match(appSource, /className="result-stack"/);
   assert.match(appSource, /result\.chart\.placementGroups\.map/);

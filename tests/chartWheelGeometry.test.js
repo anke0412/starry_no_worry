@@ -41,6 +41,9 @@ test("builds zodiac segments and layered wheel placements from chart data", () =
   });
 
   assert.equal(zodiacSegments().length, 12);
+  assert.equal(zodiacSegments()[0].label, "♈");
+  assert.equal(zodiacSegments()[11].label, "♓");
+  assert.equal(zodiacSegments()[0].name, "白羊");
   assert.equal(wheel.ascendantLongitude, 88.2);
   assert.equal(wheel.layers.length, 2);
   assert.equal(wheel.layers[0].placements[0].planet, "太阳");
@@ -58,6 +61,18 @@ test("builds zodiac segments and layered wheel placements from chart data", () =
   assert.equal(wheel.aspectLines[0].from.planet, "太阳");
   assert.equal(wheel.aspectLines[0].to.planet, "月亮");
   assert.deepEqual(wheel.aspectLines[0].from.point, wheel.layers[0].placements[0].anchorPoint);
+});
+
+test("places house labels inside the professional house ring", () => {
+  const line = buildHouseLineModel({
+    house: 1,
+    longitude: 88.2,
+    ascendantLongitude: 88.2,
+    center: 200,
+  });
+
+  assert.equal(line.labelRadius, 155);
+  assert.equal(Math.round(line.labelPoint.x), 50);
 });
 
 test("staggers clustered placements so dense signs stay readable", () => {
