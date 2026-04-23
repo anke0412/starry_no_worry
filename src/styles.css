@@ -492,17 +492,6 @@ select:focus {
   stroke-width: 1.9;
 }
 
-.wheel-placement circle {
-  fill: rgba(255, 250, 240, 0.96);
-  stroke: rgba(97, 125, 85, 0.86);
-  stroke-width: 1.4;
-}
-
-.wheel-layer-2 .wheel-placement circle {
-  fill: rgba(255, 220, 227, 0.94);
-  stroke: rgba(97, 125, 85, 0.88);
-}
-
 .wheel-angle-marker circle {
   fill: rgba(220, 236, 207, 0.96);
   stroke: rgba(34, 51, 38, 0.72);
@@ -518,8 +507,16 @@ select:focus {
 .wheel-placement text {
   fill: var(--ink);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 800;
+  paint-order: stroke;
+  stroke: rgba(255, 250, 240, 0.78);
+  stroke-width: 2.2px;
+}
+
+.wheel-layer-2 .wheel-placement text {
+  fill: rgba(120, 76, 70, 0.96);
+  stroke: rgba(255, 248, 234, 0.82);
 }
 
 .wheel-placement,

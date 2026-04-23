@@ -42,6 +42,15 @@ test("chart wheel uses astrology glyphs and angle markers instead of text initia
   assert.doesNotMatch(chartWheelSource, /wheel-axis-dsc/);
 });
 
+test("chart wheel renders planet glyphs without extra bubble circles", () => {
+  const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
+  const stylesSource = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
+
+  assert.doesNotMatch(chartWheelSource, /<circle cx=\{placement\.point\.x\}/);
+  assert.doesNotMatch(stylesSource, /\.wheel-placement circle/);
+  assert.match(chartWheelSource, /<text x=\{placement\.point\.x\} y=\{placement\.point\.y\}>/);
+});
+
 test("natal result page uses stacked interpretation layout and tables", () => {
   assert.match(appSource, /className="result-stack"/);
   assert.match(appSource, /result\.chart\.placementGroups\.map/);

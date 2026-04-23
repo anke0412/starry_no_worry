@@ -106,7 +106,6 @@ export function ChartWheel({ chart }) {
             {layer.placements.map((placement, index) => (
               <g className="wheel-placement" key={`${layer.id}-${placement.planet}-${index}`}>
                 <title>{placementTitle(placement, layer.title)}</title>
-                <circle cx={placement.point.x} cy={placement.point.y} r={layerIndex === 0 ? 11 : 9} />
                 <text x={placement.point.x} y={placement.point.y}>
                   {planetGlyph(placement.planet)}
                 </text>
