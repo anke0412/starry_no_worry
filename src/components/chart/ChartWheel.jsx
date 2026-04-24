@@ -36,7 +36,10 @@ export function ChartWheel({ chart }) {
             className={`wheel-zodiac-sector wheel-zodiac-sector-${index % 4}`}
             key={segment.id}
           >
-            <path d={ringSegmentPath(segment.startLongitude, segment.endLongitude, wheel.ascendantLongitude)} />
+            <path
+              className="wheel-zodiac-sector-shape"
+              d={ringSegmentPath(segment.startLongitude, segment.endLongitude, wheel.ascendantLongitude)}
+            />
             <line className="wheel-zodiac-tick" {...linePoints(segment.startLongitude, wheel.ascendantLongitude, 160, 190)} />
             <ZodiacGlyph id={segment.symbolId} x={segment.labelPoint.x} y={segment.labelPoint.y} />
           </g>

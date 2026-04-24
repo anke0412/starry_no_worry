@@ -448,24 +448,24 @@ select:focus {
   stroke-width: 1.05;
 }
 
-.wheel-zodiac-sector path {
+.wheel-zodiac-sector-shape {
   stroke: rgba(34, 51, 38, 0.04);
   stroke-width: 1;
 }
 
-.wheel-zodiac-sector-0 path {
+.wheel-zodiac-sector-0 .wheel-zodiac-sector-shape {
   fill: rgba(255, 220, 227, 0.34);
 }
 
-.wheel-zodiac-sector-1 path {
+.wheel-zodiac-sector-1 .wheel-zodiac-sector-shape {
   fill: rgba(220, 236, 207, 0.42);
 }
 
-.wheel-zodiac-sector-2 path {
+.wheel-zodiac-sector-2 .wheel-zodiac-sector-shape {
   fill: rgba(248, 198, 168, 0.26);
 }
 
-.wheel-zodiac-sector-3 path {
+.wheel-zodiac-sector-3 .wheel-zodiac-sector-shape {
   fill: rgba(255, 248, 234, 0.5);
 }
 
