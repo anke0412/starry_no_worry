@@ -479,7 +479,7 @@ select:focus {
 }
 
 .wheel-zodiac-label {
-  color: rgba(36, 58, 45, 0.98);
+  color: rgba(28, 49, 37, 0.98);
 }
 
 .wheel-zodiac-glyph {
@@ -490,15 +490,14 @@ select:focus {
 }
 
 .wheel-zodiac-glyph-halo {
-  fill: rgba(255, 249, 240, 0.44);
-  stroke: rgba(255, 247, 236, 0.64);
-  stroke-width: 0.55;
+  fill: rgba(255, 249, 240, 0.16);
+  stroke: rgba(255, 247, 236, 0.28);
+  stroke-width: 0.4;
 }
 
 .wheel-zodiac-glyph-foreground {
   stroke: currentColor;
   stroke-width: 1.5;
-  filter: drop-shadow(0 1px 1px rgba(255, 248, 234, 0.22));
 }
 
 .wheel-house-label {
