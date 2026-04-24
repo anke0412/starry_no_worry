@@ -555,6 +555,11 @@ select:focus {
   stroke: rgba(255, 248, 234, 0.82);
 }
 
+.wheel-layer-2 .wheel-placement-dot {
+  fill: rgba(190, 111, 101, 0.96);
+  stroke: rgba(255, 248, 234, 0.82);
+}
+
 .wheel-angle-marker text {
   fill: var(--wheel-symbol-fill);
   font-size: 6.8px;
@@ -598,6 +603,18 @@ select:focus {
   color: rgba(34, 51, 38, 0.92) !important;
   font-size: 0.8rem !important;
   font-weight: 950 !important;
+}
+
+.chart-wheel-tooltip-harmonious {
+  color: #3f7d55 !important;
+}
+
+.chart-wheel-tooltip-challenging {
+  color: #a24f69 !important;
+}
+
+.chart-wheel-tooltip-neutral {
+  color: rgba(34, 51, 38, 0.72) !important;
 }
 
 .wheel-placement,
@@ -670,6 +687,31 @@ select:focus {
   color: var(--ink);
   font-size: 0.78rem;
   letter-spacing: 0.08em;
+}
+
+.aspect-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 900;
+  line-height: 1;
+  padding: 6px 10px;
+}
+
+.aspect-chip-harmonious {
+  background: rgba(205, 231, 210, 0.58);
+  color: #3f7d55;
+}
+
+.aspect-chip-challenging {
+  background: rgba(246, 214, 221, 0.72);
+  color: #a24f69;
+}
+
+.aspect-chip-neutral {
+  background: rgba(255, 248, 234, 0.72);
+  color: rgba(34, 51, 38, 0.76);
 }
 
 .data-table tr:last-child td {

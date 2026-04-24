@@ -348,7 +348,9 @@ function ChartPanel({ result }) {
                   <tr key={`${aspect.from}-${aspect.to}-${index}`}>
                     <td>{aspect.from}</td>
                     <td>{aspect.to}</td>
-                    <td>{aspect.type}</td>
+                    <td>
+                      <span className={`aspect-chip aspect-chip-${aspect.tone ?? "neutral"}`}>{aspect.label ?? aspect.type}</span>
+                    </td>
                     <td>{aspect.orb}</td>
                   </tr>
                 ))}

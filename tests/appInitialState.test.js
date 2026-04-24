@@ -13,6 +13,7 @@ test("workspace does not initialize with a generated placeholder chart", () => {
 test("chart result panel renders an aspect list", () => {
   assert.match(appSource, />主要相位</);
   assert.match(appSource, /result\.chart\.aspects\.map/);
+  assert.match(appSource, /aspect-chip/);
 });
 
 test("chart result panel renders a reusable chart wheel instead of the placeholder visual", () => {
@@ -73,6 +74,7 @@ test("chart wheel uses themed zodiac glyph assets and a larger aspect field", ()
   assert.match(geometrySource, /symbolId: sign\.id/);
   assert.match(zodiacGlyphSource, /aries/);
   assert.match(zodiacGlyphSource, /aquarius/);
+  assert.match(chartWheelSource, /zodiacTooltip/);
   assert.match(chartWheelSource, /r="122"/);
   assert.match(chartWheelSource, /line\.labelPoint/);
   assert.doesNotMatch(chartWheelSource, /HOUSE_LABEL_RADIUS/);
@@ -87,9 +89,13 @@ test("chart wheel has compact placement hover tooltips and softer MC IC axis lin
   assert.match(chartWheelSource, /chart-wheel-tooltip/);
   assert.match(chartWheelSource, /placementTooltip/);
   assert.match(chartWheelSource, /compactPlacementInfo/);
+  assert.match(chartWheelSource, /samePlacement/);
+  assert.match(chartWheelSource, /aspectTone/);
   assert.doesNotMatch(chartWheelSource, /houseTooltip/);
   assert.doesNotMatch(chartWheelSource, /<dl>/);
   assert.match(stylesSource, /\.chart-wheel-tooltip/);
+  assert.match(stylesSource, /\.chart-wheel-tooltip-harmonious/);
+  assert.match(stylesSource, /\.chart-wheel-tooltip-challenging/);
   assert.match(stylesSource, /--wheel-symbol-fill/);
   assert.match(stylesSource, /transform: translate\(-50%, 8px\)/);
   assert.match(stylesSource, /stroke: rgba\(97, 125, 85, 0\.16\)/);

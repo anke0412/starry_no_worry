@@ -25,8 +25,12 @@ const AXIS_NAMES = new Set(["上升点", "下降点", "天顶", "天底", "Ascen
 const CLUSTER_RADIUS_OFFSETS = [0, 12, -12, 24, -24];
 const INNER_ANCHOR_RADIUS = 104;
 const INNER_LABEL_RADIUS = 126;
+const COMPACT_INNER_ANCHOR_RADIUS = 85;
+const COMPACT_INNER_LABEL_RADIUS = 100;
 const OUTER_ANCHOR_RADIUS = 128;
 const OUTER_LABEL_RADIUS = 150;
+const COMPACT_OUTER_ANCHOR_RADIUS = 120;
+const COMPACT_OUTER_LABEL_RADIUS = 135;
 const HOUSE_LINE_INNER_RADIUS = 146;
 const HOUSE_LINE_OUTER_RADIUS = 164;
 const HOUSE_LABEL_RADIUS = 155;
@@ -77,20 +81,21 @@ export function buildChartWheelModel(chart, { center = 200 } = {}) {
   const groups = chart.placementGroups?.length
     ? chart.placementGroups
     : [{ id: "placements", title: chart.title, placements: chart.placements ?? [] }];
+  const usesDualRings = groups.length > 1;
   const allPlacements = groups.flatMap((group) => group.placements ?? []);
   const ascendant = findPlacement(allPlacements, "上升点");
   const midheaven = findPlacement(allPlacements, "天顶");
   const ascendantLongitude = validLongitude(ascendant?.longitude) ? ascendant.longitude : 0;
   const angleMarkers = {
-    ascendant: angleMarkerModel("上升点", "ASC", ascendant?.longitude, ascendant, ascendantLongitude, center),
-    descendant: angleMarkerModel("下降点", "DSC", ascendant ? ascendant.longitude + 180 : null, null, ascendantLongitude, center),
-    midheaven: angleMarkerModel("天顶", "MC", midheaven?.longitude, midheaven, ascendantLongitude, center),
-    imumCoeli: angleMarkerModel("天底", "IC", midheaven ? midheaven.longitude + 180 : null, null, ascendantLongitude, center),
+    ascendant: angleMarkerModel("上升点", "ASC", ascendant?.longitude, ascendant, ascendantLongitude, center, usesDualRings),
+    descendant: angleMarkerModel("下降点", "DSC", ascendant ? ascendant.longitude + 180 : null, null, ascendantLongitude, center, usesDualRings),
+    midheaven: angleMarkerModel("天顶", "MC", midheaven?.longitude, midheaven, ascendantLongitude, center, usesDualRings),
+    imumCoeli: angleMarkerModel("天底", "IC", midheaven ? midheaven.longitude + 180 : null, null, ascendantLongitude, center, usesDualRings),
   };
 
   const layers = groups.map((group, index) => {
-    const baseAnchorRadius = index === 0 ? INNER_ANCHOR_RADIUS : OUTER_ANCHOR_RADIUS;
-    const baseLabelRadius = index === 0 ? INNER_LABEL_RADIUS : OUTER_LABEL_RADIUS;
+    const baseAnchorRadius = index === 0 ? innerAnchorRadius(usesDualRings) : outerAnchorRadius(usesDualRings);
+    const baseLabelRadius = index === 0 ? innerLabelRadius(usesDualRings) : outerLabelRadius(usesDualRings);
     const visiblePlacements = (group.placements ?? []).filter(
       (placement) => validLongitude(placement.longitude) && !AXIS_NAMES.has(placement.planet),
     );
@@ -188,22 +193,40 @@ export function buildHouseLineModel({ house, longitude, ascendantLongitude, cent
   };
 }
 
-function angleMarkerModel(planet, label, longitude, placement, ascendantLongitude, center) {
+function angleMarkerModel(planet, label, longitude, placement, ascendantLongitude, center, usesDualRings = false) {
   if (!validLongitude(longitude)) {
     return null;
   }
 
   const normalizedLongitude = normalizeLongitude(longitude);
+  const anchorRadius = innerAnchorRadius(usesDualRings);
+  const labelRadius = innerLabelRadius(usesDualRings);
 
   return {
     ...(placement ?? {}),
     planet,
     label,
     longitude: normalizedLongitude,
-    anchorRadius: INNER_ANCHOR_RADIUS,
-    labelRadius: INNER_LABEL_RADIUS,
-    ...placementPointModel(normalizedLongitude, ascendantLongitude, INNER_ANCHOR_RADIUS, INNER_LABEL_RADIUS, center),
+    anchorRadius,
+    labelRadius,
+    ...placementPointModel(normalizedLongitude, ascendantLongitude, anchorRadius, labelRadius, center),
   };
+}
+
+function innerAnchorRadius(usesDualRings) {
+  return usesDualRings ? COMPACT_INNER_ANCHOR_RADIUS : INNER_ANCHOR_RADIUS;
+}
+
+function innerLabelRadius(usesDualRings) {
+  return usesDualRings ? COMPACT_INNER_LABEL_RADIUS : INNER_LABEL_RADIUS;
+}
+
+function outerAnchorRadius(usesDualRings) {
+  return usesDualRings ? COMPACT_OUTER_ANCHOR_RADIUS : OUTER_ANCHOR_RADIUS;
+}
+
+function outerLabelRadius(usesDualRings) {
+  return usesDualRings ? COMPACT_OUTER_LABEL_RADIUS : OUTER_LABEL_RADIUS;
 }
 
 function placementPointModel(longitude, ascendantLongitude, anchorRadius, labelRadius, center) {

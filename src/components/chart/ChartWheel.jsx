@@ -35,6 +35,7 @@ export function ChartWheel({ chart }) {
           <g
             className={`wheel-zodiac-sector wheel-zodiac-sector-${index % 4}`}
             key={segment.id}
+            onMouseEnter={() => showTooltip(zodiacTooltip(segment))}
           >
             <path
               className="wheel-zodiac-sector-shape"
@@ -137,8 +138,16 @@ function ChartWheelTooltip({ tooltip }) {
       }}
     >
       {tooltip.lines.map((line, index) => (
-        <p className={index === 0 ? "chart-wheel-tooltip-primary" : undefined} key={`${line}-${index}`}>
-          {line}
+        <p
+          className={[
+            index === 0 ? "chart-wheel-tooltip-primary" : "",
+            line.tone ? `chart-wheel-tooltip-${line.tone}` : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          key={`${line.text}-${index}`}
+        >
+          {line.text}
         </p>
       ))}
     </aside>
@@ -179,9 +188,19 @@ function placementTooltip(placement, layerTitle, aspectLines) {
       y: placement.labelPoint.y + 8,
     },
     lines: [
-      `${planetGlyph(placement.planet)} ${placement.planet} · ${compactPlacementInfo(placement)}`,
+      { text: `${planetGlyph(placement.planet)} ${placement.planet} · ${compactPlacementInfo(placement)}` },
       ...relatedAspectLines(placement, aspectLines, layerTitle),
     ],
+  };
+}
+
+function zodiacTooltip(segment) {
+  return {
+    point: {
+      x: segment.labelPoint.x,
+      y: segment.labelPoint.y + 8,
+    },
+    lines: [{ text: `${segment.name}座` }],
   };
 }
 
@@ -206,15 +225,30 @@ function compactPlacementInfo(placement) {
 
 function relatedAspectLines(placement, aspectLines, layerTitle) {
   const lines = aspectLines
-    .filter((aspect) => aspect.from === placement || aspect.to === placement)
+    .filter((aspect) => samePlacement(aspect.from, placement) || samePlacement(aspect.to, placement))
     .map((aspect) => {
-      const other = aspect.from === placement ? aspect.to : aspect.from;
+      const other = samePlacement(aspect.from, placement) ? aspect.to : aspect.from;
       const otherName = compactLayerTitle(other.layerTitle, layerTitle);
 
-      return `与 ${otherName}${other.planet} ${aspectLabel(aspect.type)} · ${aspect.orb ?? "-"}`;
+      return {
+        text: `与 ${otherName}${other.planet} ${aspectLabel(aspect.type)} · ${aspect.orb ?? "-"}`,
+        tone: aspectTone(aspect.type),
+      };
     });
 
-  return lines.length ? lines : ["暂无主要相位"];
+  return lines.length ? lines : [{ text: "暂无主要相位" }];
+}
+
+function samePlacement(first, second) {
+  if (!first || !second) {
+    return false;
+  }
+
+  return (
+    first.planet === second.planet &&
+    Number(first.longitude) === Number(second.longitude) &&
+    (first.layerId ?? first.layerTitle ?? first.label ?? "") === (second.layerId ?? second.layerTitle ?? second.label ?? "")
+  );
 }
 
 function compactLayerTitle(otherLayerTitle, currentLayerTitle) {
@@ -223,6 +257,18 @@ function compactLayerTitle(otherLayerTitle, currentLayerTitle) {
   }
 
   return `${otherLayerTitle.replace(/ 的(本命星体|星体落点)$/, "")}的`;
+}
+
+function aspectTone(type) {
+  if (["conjunction", "sextile", "trine"].includes(type)) {
+    return "harmonious";
+  }
+
+  if (["square", "opposition"].includes(type)) {
+    return "challenging";
+  }
+
+  return "neutral";
 }
 
 function formatDegree(placement) {

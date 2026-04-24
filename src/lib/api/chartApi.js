@@ -252,7 +252,9 @@ function mapAspect(aspect) {
     from: localizeBody(aspect.from),
     to: localizeBody(aspect.to),
     type: aspect.type,
-    orb: `${aspect.orb}°`,
+    label: aspectTypeLabel(aspect.type),
+    tone: aspectTone(aspect.type),
+    orb: formatAspectOrb(aspect.orb),
   };
 }
 
@@ -305,4 +307,38 @@ function localizeBody(body) {
 
 function localizeSign(sign) {
   return SIGN_LABELS[sign] ?? sign;
+}
+
+function aspectTypeLabel(type) {
+  const labels = {
+    conjunction: "合相",
+    sextile: "六合",
+    trine: "拱相",
+    square: "刑相",
+    opposition: "冲相",
+  };
+
+  return labels[type] ?? type;
+}
+
+function aspectTone(type) {
+  if (["conjunction", "sextile", "trine"].includes(type)) {
+    return "harmonious";
+  }
+
+  if (["square", "opposition"].includes(type)) {
+    return "challenging";
+  }
+
+  return "neutral";
+}
+
+function formatAspectOrb(orb) {
+  const value = Number(orb);
+
+  if (!Number.isFinite(value)) {
+    return "-";
+  }
+
+  return `${value.toFixed(2)}°`;
 }

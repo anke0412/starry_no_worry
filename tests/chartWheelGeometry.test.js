@@ -48,15 +48,15 @@ test("builds zodiac segments and layered wheel placements from chart data", () =
   assert.equal(wheel.layers.length, 2);
   assert.equal(wheel.layers[0].placements[0].planet, "太阳");
   assert.equal(wheel.layers[0].placements[0].layerTitle, "Luna 的本命星体");
-  assert.equal(wheel.layers[0].placements[0].anchorRadius, 104);
-  assert.equal(wheel.layers[0].placements[0].labelRadius, 126);
-  assert.equal(wheel.layers[1].placements[0].anchorRadius, 128);
-  assert.equal(wheel.layers[1].placements[0].labelRadius, 150);
+  assert.equal(wheel.layers[0].placements[0].anchorRadius, 74);
+  assert.equal(wheel.layers[0].placements[0].labelRadius, 84);
+  assert.equal(wheel.layers[1].placements[0].anchorRadius, 95);
+  assert.equal(wheel.layers[1].placements[0].labelRadius, 105);
   assert.ok(wheel.layers[0].placements[0].leaderLine);
   assert.equal(wheel.angleMarkers.ascendant.planet, "上升点");
   assert.equal(wheel.angleMarkers.descendant.planet, "下降点");
-  assert.equal(wheel.angleMarkers.ascendant.anchorRadius, 104);
-  assert.equal(wheel.angleMarkers.descendant.labelRadius, 126);
+  assert.equal(wheel.angleMarkers.ascendant.anchorRadius, 74);
+  assert.equal(wheel.angleMarkers.descendant.labelRadius, 84);
   assert.equal(wheel.axes.midheaven.label, "MC");
   assert.equal(wheel.axes.imumCoeli.label, "IC");
   assert.equal(wheel.aspectLines[0].from.planet, "太阳");
@@ -98,6 +98,34 @@ test("staggers clustered placements so dense signs stay readable", () => {
   const radii = wheel.layers[0].placements.slice(0, 3).map((placement) => placement.labelRadius);
 
   assert.deepEqual(radii, [126, 138, 114]);
+});
+
+test("pulls the inner layer closer to center for dual-ring charts", () => {
+  const wheel = buildChartWheelModel({
+    placementGroups: [
+      {
+        id: "primary",
+        title: "Luna 的本命星体",
+        placements: [
+          { planet: "太阳", longitude: 22.4, sign: "白羊", degree: 22, minute: 24, house: 1 },
+          { planet: "上升点", longitude: 88.2, sign: "双子", degree: 28, minute: 12, house: 1 },
+          { planet: "天顶", longitude: 331.5, sign: "双鱼", degree: 1, minute: 30, house: 10 },
+        ],
+      },
+      {
+        id: "outer",
+        title: "Sol 的本命星体",
+        placements: [{ planet: "月亮", longitude: 70, sign: "双子", degree: 10, minute: 0, house: 7 }],
+      },
+    ],
+    aspects: [],
+  });
+
+  assert.equal(wheel.layers[0].anchorRadius, 74);
+  assert.equal(wheel.layers[0].labelRadius, 84);
+  assert.equal(wheel.layers[1].anchorRadius, 95);
+  assert.equal(wheel.layers[1].labelRadius, 105);
+  assert.equal(wheel.angleMarkers.ascendant.anchorRadius, 74);
 });
 
 test("builds professional house dividers with outer segments and inner axis lines", () => {
