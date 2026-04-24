@@ -41,19 +41,40 @@ test("builds zodiac segments and layered wheel placements from chart data", () =
   });
 
   assert.equal(zodiacSegments().length, 12);
+  assert.equal(zodiacSegments()[0].symbolId, "aries");
+  assert.equal(zodiacSegments()[11].symbolId, "pisces");
+  assert.equal(zodiacSegments()[0].name, "白羊");
   assert.equal(wheel.ascendantLongitude, 88.2);
   assert.equal(wheel.layers.length, 2);
   assert.equal(wheel.layers[0].placements[0].planet, "太阳");
-  assert.equal(wheel.layers[0].placements[0].radius, 126);
-  assert.equal(wheel.layers[1].placements[0].radius, 154);
+  assert.equal(wheel.layers[0].placements[0].layerTitle, "Luna 的本命星体");
+  assert.equal(wheel.layers[0].placements[0].anchorRadius, 104);
+  assert.equal(wheel.layers[0].placements[0].labelRadius, 126);
+  assert.equal(wheel.layers[1].placements[0].anchorRadius, 128);
+  assert.equal(wheel.layers[1].placements[0].labelRadius, 150);
+  assert.ok(wheel.layers[0].placements[0].leaderLine);
   assert.equal(wheel.angleMarkers.ascendant.planet, "上升点");
   assert.equal(wheel.angleMarkers.descendant.planet, "下降点");
-  assert.equal(wheel.angleMarkers.ascendant.radius, 126);
-  assert.equal(wheel.angleMarkers.descendant.radius, 126);
+  assert.equal(wheel.angleMarkers.ascendant.anchorRadius, 104);
+  assert.equal(wheel.angleMarkers.descendant.labelRadius, 126);
   assert.equal(wheel.axes.midheaven.label, "MC");
   assert.equal(wheel.axes.imumCoeli.label, "IC");
   assert.equal(wheel.aspectLines[0].from.planet, "太阳");
   assert.equal(wheel.aspectLines[0].to.planet, "月亮");
+  assert.equal(wheel.aspectLines[0].to.layerTitle, "Sol 的本命星体");
+  assert.deepEqual(wheel.aspectLines[0].from.point, wheel.layers[0].placements[0].anchorPoint);
+});
+
+test("places house labels inside the professional house ring", () => {
+  const line = buildHouseLineModel({
+    house: 1,
+    longitude: 88.2,
+    ascendantLongitude: 88.2,
+    center: 200,
+  });
+
+  assert.equal(line.labelRadius, 155);
+  assert.equal(Math.round(line.labelPoint.x), 50);
 });
 
 test("staggers clustered placements so dense signs stay readable", () => {
@@ -74,12 +95,12 @@ test("staggers clustered placements so dense signs stay readable", () => {
     aspects: [],
   });
 
-  const radii = wheel.layers[0].placements.slice(0, 3).map((placement) => placement.radius);
+  const radii = wheel.layers[0].placements.slice(0, 3).map((placement) => placement.labelRadius);
 
   assert.deepEqual(radii, [126, 138, 114]);
 });
 
-test("keeps house divider lines short and inside the zodiac band", () => {
+test("builds professional house dividers with outer segments and inner axis lines", () => {
   const line = buildHouseLineModel({
     house: 1,
     longitude: 88.2,
@@ -87,8 +108,11 @@ test("keeps house divider lines short and inside the zodiac band", () => {
     center: 200,
   });
 
-  assert.equal(line.innerRadius, 136);
-  assert.equal(line.outerRadius, 158);
-  assert.equal(Math.round(line.inner.x), 64);
-  assert.equal(Math.round(line.outer.x), 42);
+  assert.equal(line.innerRadius, 146);
+  assert.equal(line.outerRadius, 164);
+  assert.equal(line.axisOuterRadius, 104);
+  assert.equal(Math.round(line.inner.x), 54);
+  assert.equal(Math.round(line.outer.x), 36);
+  assert.equal(Math.round(line.axisInner.x), 200);
+  assert.equal(Math.round(line.axisOuter.x), 96);
 });

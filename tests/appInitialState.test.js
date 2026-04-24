@@ -21,13 +21,14 @@ test("chart result panel renders a reusable chart wheel instead of the placehold
   assert.doesNotMatch(appSource, /planet-dot/);
 });
 
-test("chart wheel includes a compact aspect legend", () => {
+test("chart wheel hides visual aspect lines and folds aspect information into planet tooltips", () => {
   const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
 
-  assert.match(chartWheelSource, /chart-wheel-aspect-legend/);
-  assert.match(chartWheelSource, /label: "合相"/);
-  assert.match(chartWheelSource, /label: "刑冲"/);
-  assert.match(chartWheelSource, /label: "和谐相位"/);
+  assert.doesNotMatch(chartWheelSource, /chart-wheel-aspect-legend/);
+  assert.doesNotMatch(chartWheelSource, /wheel-aspect-line/);
+  assert.doesNotMatch(chartWheelSource, /wheel-aspect-hitbox/);
+  assert.doesNotMatch(chartWheelSource, /aspectTooltip/);
+  assert.match(chartWheelSource, /relatedAspectLines/);
 });
 
 test("chart wheel uses astrology glyphs and angle markers instead of text initials", () => {
@@ -40,6 +41,60 @@ test("chart wheel uses astrology glyphs and angle markers instead of text initia
   assert.doesNotMatch(chartWheelSource, /planetShortLabel/);
   assert.doesNotMatch(chartWheelSource, /wheel-axis-asc/);
   assert.doesNotMatch(chartWheelSource, /wheel-axis-dsc/);
+});
+
+test("chart wheel renders planet glyphs without extra bubble circles", () => {
+  const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
+  const stylesSource = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
+
+  assert.doesNotMatch(chartWheelSource, /<circle cx=\{placement\.point\.x\}/);
+  assert.doesNotMatch(stylesSource, /\.wheel-placement circle/);
+  assert.match(chartWheelSource, /<text x=\{placement\.labelPoint\.x\} y=\{placement\.labelPoint\.y\}>/);
+});
+
+test("chart wheel follows a professional point leader layout", () => {
+  const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
+  const stylesSource = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
+
+  assert.match(chartWheelSource, /wheel-placement-leader/);
+  assert.match(chartWheelSource, /wheel-placement-dot/);
+  assert.match(chartWheelSource, /wheel-house-axis/);
+  assert.match(chartWheelSource, /ZodiacGlyph/);
+  assert.match(stylesSource, /\.wheel-placement-leader/);
+  assert.match(stylesSource, /\.wheel-house-axis/);
+});
+
+test("chart wheel uses themed zodiac glyph assets and a larger aspect field", () => {
+  const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
+  const zodiacGlyphSource = readFileSync(new URL("../src/components/chart/ZodiacGlyph.jsx", import.meta.url), "utf8");
+  const geometrySource = readFileSync(new URL("../src/lib/chartWheelGeometry.js", import.meta.url), "utf8");
+  const stylesSource = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
+
+  assert.match(geometrySource, /symbolId: sign\.id/);
+  assert.match(zodiacGlyphSource, /aries/);
+  assert.match(zodiacGlyphSource, /aquarius/);
+  assert.match(chartWheelSource, /r="122"/);
+  assert.match(chartWheelSource, /line\.labelPoint/);
+  assert.doesNotMatch(chartWheelSource, /HOUSE_LABEL_RADIUS/);
+  assert.match(stylesSource, /\.wheel-zodiac-glyph/);
+});
+
+test("chart wheel has compact placement hover tooltips and softer MC IC axis lines", () => {
+  const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
+  const geometrySource = readFileSync(new URL("../src/lib/chartWheelGeometry.js", import.meta.url), "utf8");
+  const stylesSource = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
+
+  assert.match(chartWheelSource, /chart-wheel-tooltip/);
+  assert.match(chartWheelSource, /placementTooltip/);
+  assert.match(chartWheelSource, /compactPlacementInfo/);
+  assert.doesNotMatch(chartWheelSource, /houseTooltip/);
+  assert.doesNotMatch(chartWheelSource, /<dl>/);
+  assert.match(stylesSource, /\.chart-wheel-tooltip/);
+  assert.match(stylesSource, /--wheel-symbol-fill/);
+  assert.match(stylesSource, /transform: translate\(-50%, 8px\)/);
+  assert.match(stylesSource, /stroke: rgba\(97, 125, 85, 0\.16\)/);
+  assert.match(geometrySource, /radius: 122/);
+  assert.match(geometrySource, /radius: 158/);
 });
 
 test("natal result page uses stacked interpretation layout and tables", () => {

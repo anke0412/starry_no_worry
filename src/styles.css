@@ -378,6 +378,9 @@ select:focus {
 }
 
 .chart-wheel-frame {
+  --wheel-symbol-fill: rgba(86, 116, 82, 0.96);
+  --wheel-symbol-stroke: rgba(255, 248, 234, 0.86);
+  position: relative;
   width: min(520px, 100%);
   margin: 18px auto 34px;
 }
@@ -397,6 +400,7 @@ select:focus {
 }
 
 .wheel-zodiac-band,
+.wheel-house-outer,
 .wheel-house-band,
 .wheel-aspect-field {
   fill: none;
@@ -408,7 +412,13 @@ select:focus {
   stroke: rgba(255, 220, 227, 0.22);
 }
 
+.wheel-house-outer {
+  stroke: rgba(97, 125, 85, 0.28);
+  stroke-width: 1.2;
+}
+
 .wheel-house-band {
+  stroke: rgba(97, 125, 85, 0.22);
   stroke-width: 1;
 }
 
@@ -423,28 +433,42 @@ select:focus {
   stroke-width: 1;
 }
 
-.wheel-zodiac-sector path {
+.wheel-house-axis {
+  stroke: rgba(34, 51, 38, 0.14);
+  stroke-dasharray: 2 3;
+  stroke-linecap: round;
+  stroke-width: 0.75;
+}
+
+.wheel-house-axis-1,
+.wheel-house-axis-4,
+.wheel-house-axis-7,
+.wheel-house-axis-10 {
+  stroke: rgba(34, 51, 38, 0.26);
+  stroke-width: 1.05;
+}
+
+.wheel-zodiac-sector-shape {
   stroke: rgba(34, 51, 38, 0.04);
   stroke-width: 1;
 }
 
-.wheel-zodiac-sector-0 path {
+.wheel-zodiac-sector-0 .wheel-zodiac-sector-shape {
   fill: rgba(255, 220, 227, 0.34);
 }
 
-.wheel-zodiac-sector-1 path {
+.wheel-zodiac-sector-1 .wheel-zodiac-sector-shape {
   fill: rgba(220, 236, 207, 0.42);
 }
 
-.wheel-zodiac-sector-2 path {
+.wheel-zodiac-sector-2 .wheel-zodiac-sector-shape {
   fill: rgba(248, 198, 168, 0.26);
 }
 
-.wheel-zodiac-sector-3 path {
+.wheel-zodiac-sector-3 .wheel-zodiac-sector-shape {
   fill: rgba(255, 248, 234, 0.5);
 }
 
-.wheel-zodiac-label,
 .wheel-house-label,
 .wheel-axis text,
 .wheel-angle-marker text,
@@ -455,19 +479,41 @@ select:focus {
 }
 
 .wheel-zodiac-label {
-  fill: rgba(34, 51, 38, 0.68);
-  font-size: 11px;
-  letter-spacing: 0.04em;
+  color: rgba(28, 49, 37, 0.98);
+}
+
+.wheel-zodiac-glyph {
+  fill: none;
+  pointer-events: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.wheel-zodiac-glyph-halo {
+  fill: none;
+  stroke: rgba(255, 247, 236, 0.22);
+  stroke-width: 0.75;
+}
+
+.wheel-zodiac-glyph-backdrop {
+  stroke: rgba(255, 247, 236, 0.88);
+  stroke-width: 2.7;
+}
+
+.wheel-zodiac-glyph-foreground {
+  stroke: currentColor;
+  stroke-width: 1.35;
 }
 
 .wheel-house-label {
   fill: rgba(97, 125, 85, 0.72);
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .wheel-axis line {
-  stroke: rgba(34, 51, 38, 0.58);
-  stroke-width: 1.7;
+  stroke: rgba(97, 125, 85, 0.16);
+  stroke-linecap: round;
+  stroke-width: 0.85;
 }
 
 .wheel-axis-asc line,
@@ -481,45 +527,77 @@ select:focus {
   letter-spacing: 0.1em;
 }
 
-.wheel-aspect-line {
-  opacity: 0.52;
+.wheel-placement-leader {
+  stroke: rgba(34, 51, 38, 0.32);
+  stroke-dasharray: 1 2;
   stroke-linecap: round;
-  stroke-width: 1.35;
+  stroke-width: 0.9;
 }
 
-.wheel-aspect-square,
-.wheel-aspect-opposition {
-  stroke-width: 1.9;
-}
-
-.wheel-placement circle {
-  fill: rgba(255, 250, 240, 0.96);
-  stroke: rgba(97, 125, 85, 0.86);
-  stroke-width: 1.4;
-}
-
-.wheel-layer-2 .wheel-placement circle {
-  fill: rgba(255, 220, 227, 0.94);
-  stroke: rgba(97, 125, 85, 0.88);
-}
-
-.wheel-angle-marker circle {
-  fill: rgba(220, 236, 207, 0.96);
-  stroke: rgba(34, 51, 38, 0.72);
-  stroke-width: 1.3;
-}
-
-.wheel-angle-marker text {
-  fill: var(--ink);
-  font-size: 6.6px;
-  letter-spacing: 0.02em;
+.wheel-placement-dot {
+  fill: var(--wheel-symbol-fill);
+  stroke: rgba(255, 250, 240, 0.86);
+  stroke-width: 0.75;
 }
 
 .wheel-placement text {
-  fill: var(--ink);
+  fill: var(--wheel-symbol-fill);
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 800;
+  paint-order: stroke;
+  stroke: var(--wheel-symbol-stroke);
+  stroke-width: 2.2px;
+}
+
+.wheel-layer-2 .wheel-placement text {
+  fill: rgba(190, 111, 101, 0.96);
+  stroke: rgba(255, 248, 234, 0.82);
+}
+
+.wheel-angle-marker text {
+  fill: var(--wheel-symbol-fill);
+  font-size: 6.8px;
+  letter-spacing: 0.02em;
+  paint-order: stroke;
+  stroke: rgba(255, 250, 240, 0.8);
+  stroke-width: 1.8px;
+}
+
+.chart-wheel-tooltip {
+  position: absolute;
+  z-index: 3;
+  min-width: 156px;
+  max-width: 236px;
+  padding: 9px 11px;
+  border: 1px solid rgba(97, 125, 85, 0.16);
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgba(255, 250, 240, 0.96), rgba(220, 236, 207, 0.92)),
+    var(--cream);
+  box-shadow: 0 14px 28px rgba(76, 94, 63, 0.16);
+  color: var(--ink);
+  pointer-events: none;
+  transform: translate(-50%, 8px);
+}
+
+.chart-wheel-tooltip p {
+  margin: 0;
+  color: rgba(34, 51, 38, 0.72);
+  font-size: 0.74rem;
+  font-weight: 800;
+  line-height: 1.42;
+  white-space: nowrap;
+}
+
+.chart-wheel-tooltip p + p {
+  margin-top: 3px;
+}
+
+.chart-wheel-tooltip-primary {
+  color: rgba(34, 51, 38, 0.92) !important;
+  font-size: 0.8rem !important;
+  font-weight: 950 !important;
 }
 
 .wheel-placement,
@@ -550,43 +628,6 @@ select:focus {
   border-radius: 999px;
   background: rgba(255, 250, 240, 0.58);
   padding: 7px 11px;
-}
-
-.chart-wheel-aspect-legend {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 10px;
-  color: rgba(34, 51, 38, 0.68);
-  font-size: 0.8rem;
-  font-weight: 800;
-}
-
-.chart-wheel-aspect-legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.chart-wheel-aspect-legend span::before {
-  display: inline-block;
-  width: 24px;
-  height: 3px;
-  border-radius: 999px;
-  content: "";
-}
-
-.legend-conjunction::before {
-  background: #d7a84f;
-}
-
-.legend-hard::before {
-  background: #c56b67;
-}
-
-.legend-soft::before {
-  background: #6f9f6a;
 }
 
 .chart-data {
