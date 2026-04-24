@@ -479,20 +479,29 @@ select:focus {
 }
 
 .wheel-zodiac-label {
-  color: var(--wheel-symbol-fill);
+  color: rgba(48, 68, 52, 0.98);
 }
 
 .wheel-zodiac-glyph {
   fill: none;
   pointer-events: none;
-  stroke: currentColor;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 2;
+}
+
+.wheel-zodiac-glyph-backdrop {
+  stroke: rgba(255, 248, 234, 0.96);
+  stroke-width: 4.8;
+}
+
+.wheel-zodiac-glyph-foreground {
+  stroke: currentColor;
+  stroke-width: 2.2;
+  filter: drop-shadow(0 1px 1px rgba(255, 248, 234, 0.35));
 }
 
 .wheel-zodiac-glyph circle {
-  fill: rgba(255, 248, 234, 0.34);
+  fill: rgba(255, 248, 234, 0.68);
   stroke: currentColor;
 }
 

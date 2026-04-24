@@ -88,9 +88,12 @@ const GLYPHS = {
 };
 
 export function ZodiacGlyph({ id, x, y }) {
+  const glyph = GLYPHS[id] ?? null;
+
   return (
     <g className="wheel-zodiac-label wheel-zodiac-glyph" transform={`translate(${x} ${y})`}>
-      {GLYPHS[id] ?? null}
+      <g className="wheel-zodiac-glyph-backdrop">{glyph}</g>
+      <g className="wheel-zodiac-glyph-foreground">{glyph}</g>
     </g>
   );
 }
