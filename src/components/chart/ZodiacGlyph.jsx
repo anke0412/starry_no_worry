@@ -93,6 +93,7 @@ export function ZodiacGlyph({ id, x, y }) {
   return (
     <g className="wheel-zodiac-label wheel-zodiac-glyph" transform={`translate(${x} ${y})`}>
       <circle className="wheel-zodiac-glyph-halo" cx="0" cy="0" r="11.6" />
+      <g className="wheel-zodiac-glyph-backdrop">{glyph}</g>
       <g className="wheel-zodiac-glyph-foreground">{glyph}</g>
     </g>
   );
