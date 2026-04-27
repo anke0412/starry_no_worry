@@ -183,6 +183,77 @@ test("calls the transit chart API with forecast date and time", async () => {
   assert.equal(requestBody.settings.orbProfile, "tight");
 });
 
+test("routes solar return requests to the solar return endpoint", async () => {
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "forecast",
+      category: "solar-return",
+      people: [primary],
+      primary,
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
+      solarReturnAnchorDate: "2026-04-27",
+      solarReturnAnchorTime: "18:00",
+      solarReturnLocation: {
+        locationName: "Tokyo",
+        latitude: "35.6762",
+        longitude: "139.6503",
+        timezone: "Asia/Tokyo",
+      },
+    },
+    async (url, options) => {
+      assert.equal(url, "http://localhost:8000/api/charts/solar-return");
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "solar-return-luna",
+            chartType: "solarReturn",
+            title: "Luna Solar Return Chart",
+            placements: [],
+            aspects: [],
+            relatedCharts: {
+              primaryNatal: {
+                profiles: [{ name: "Luna" }],
+                placements: [],
+                houses: [],
+                chartType: "natal",
+              },
+              solarReturn: {
+                profiles: [{ name: "Luna Solar Return" }],
+                placements: [],
+                houses: [],
+                chartType: "solarReturn",
+              },
+              solarReturnOverlay: {
+                overlayId: "solar-return-in-natal",
+                label: "Solar Return in Luna houses",
+                referenceName: "Luna",
+                overlayName: "Luna Solar Return",
+                houses: [],
+                placements: [],
+                aspects: [],
+              },
+            },
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(requestBody.anchorDate, "2026-04-27");
+  assert.equal(requestBody.anchorTime, "18:00");
+  assert.equal(requestBody.returnLocation.locationName, "Tokyo");
+  assert.equal(requestBody.settings.houseSystem, "whole-sign");
+});
+
 test("maps overlay house placements for synastry and transit results", async () => {
   const synastryChart = await calculateChart(
     {

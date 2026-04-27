@@ -46,6 +46,16 @@ export function buildTransitChartPayload(primary, transit, settings = defaultCha
   };
 }
 
+export function buildSolarReturnChartPayload(primary, solarReturn, settings = defaultChartSettings) {
+  return {
+    primary: normalizeBirthProfile(primary),
+    anchorDate: solarReturn.anchorDate,
+    anchorTime: solarReturn.anchorTime,
+    returnLocation: normalizeReturnLocation(solarReturn.returnLocation),
+    settings: normalizeSettings(settings),
+  };
+}
+
 function normalizeSettings(settings) {
   return {
     ...defaultChartSettings,
@@ -63,6 +73,15 @@ function normalizeBirthProfile(profile) {
     latitude: normalizeCoordinate(profile.latitude),
     longitude: normalizeCoordinate(profile.longitude),
     timezone: profile.timezone,
+  });
+}
+
+function normalizeReturnLocation(location) {
+  return compactObject({
+    locationName: location.locationName,
+    latitude: normalizeCoordinate(location.latitude),
+    longitude: normalizeCoordinate(location.longitude),
+    timezone: location.timezone,
   });
 }
 

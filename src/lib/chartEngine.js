@@ -23,6 +23,8 @@ export function createChartRequest(input) {
     throw new Error("This chart requires a forecast date.");
   }
 
+  const solarReturnLocation = input.solarReturnLocation ? normalizeSolarReturnLocation(input.solarReturnLocation) : null;
+
   return {
     mode: input.mode,
     category: input.category,
@@ -30,8 +32,9 @@ export function createChartRequest(input) {
     primary: normalizePerson(input.primary),
     secondary: input.secondary ? normalizePerson(input.secondary) : null,
     people: [normalizePerson(input.primary), input.secondary ? normalizePerson(input.secondary) : null].filter(Boolean),
-    forecastDate: input.forecastDate || "",
-    forecastTime: input.forecastTime || "12:00",
+    forecastDate: input.category === "solar-return" ? input.solarReturnAnchorDate || "" : input.forecastDate || "",
+    forecastTime: input.category === "solar-return" ? input.solarReturnAnchorTime || "12:00" : input.forecastTime || "12:00",
+    solarReturnLocation,
     categoryMeta: category,
     createdAt: new Date().toISOString(),
   };
@@ -79,6 +82,15 @@ function normalizePerson(person) {
     latitude: person.latitude,
     longitude: person.longitude,
     timezone: person.timezone,
+  };
+}
+
+function normalizeSolarReturnLocation(location) {
+  return {
+    locationName: location.locationName?.trim() || "",
+    latitude: location.latitude,
+    longitude: location.longitude,
+    timezone: location.timezone,
   };
 }
 

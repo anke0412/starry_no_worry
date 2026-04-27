@@ -19,6 +19,14 @@ test("workspace exposes chart settings controls for house system and aspect calc
   assert.match(appSource, /容许度/);
 });
 
+test("workspace exposes solar return anchor and location fields", () => {
+  assert.match(appSource, /solarReturnAnchorDate/);
+  assert.match(appSource, /solarReturnAnchorTime/);
+  assert.match(appSource, /solarReturnLocation/);
+  assert.match(appSource, /日返参考时间/);
+  assert.match(appSource, /日返发生地/);
+});
+
 test("chart result panel renders an aspect list", () => {
   assert.match(appSource, />主要相位</);
   assert.match(appSource, /result\.chart\.aspects\.map/);

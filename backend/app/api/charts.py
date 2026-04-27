@@ -1,7 +1,14 @@
 from fastapi import APIRouter, HTTPException, status
 
-from app.models.chart import ChartResult, NatalChartRequest, SynastryChartRequest, TransitChartRequest
+from app.models.chart import (
+    ChartResult,
+    NatalChartRequest,
+    SolarReturnChartRequest,
+    SynastryChartRequest,
+    TransitChartRequest,
+)
 from app.services.natal import NatalChartService
+from app.services.solar_return import SolarReturnChartService
 from app.services.synastry import SynastryChartService
 from app.services.transit import TransitChartService
 
@@ -40,6 +47,20 @@ def create_synastry_chart(request: SynastryChartRequest) -> ChartResult:
 def create_transit_chart(request: TransitChartRequest) -> ChartResult:
     try:
         return TransitChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
+@router.post("/solar-return", response_model=ChartResult, response_model_by_alias=True)
+def create_solar_return_chart(request: SolarReturnChartRequest) -> ChartResult:
+    try:
+        return SolarReturnChartService().calculate(request)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
