@@ -40,6 +40,14 @@ export default function App() {
   const [settings, setSettings] = useState(defaultChartSettings);
   const [forecastDate, setForecastDate] = useState("2026-05-01");
   const [forecastTime, setForecastTime] = useState("12:00");
+  const [solarReturnAnchorDate, setSolarReturnAnchorDate] = useState("2026-04-27");
+  const [solarReturnAnchorTime, setSolarReturnAnchorTime] = useState("18:00");
+  const [solarReturnLocation, setSolarReturnLocation] = useState({
+    locationName: "东京",
+    latitude: "35.6762",
+    longitude: "139.6503",
+    timezone: "Asia/Tokyo",
+  });
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
   const [currentView, setCurrentView] = useState("workspace");
@@ -71,6 +79,9 @@ export default function App() {
         settings,
         forecastDate,
         forecastTime,
+        solarReturnAnchorDate,
+        solarReturnAnchorTime,
+        solarReturnLocation,
       });
       const chart = await calculateChart(request);
       const report = createInterpretationReport(buildInterpretationContext(chart));
@@ -100,6 +111,13 @@ export default function App() {
 
   function updateSettings(field, value) {
     setSettings((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  function updateSolarReturnLocation(field, value) {
+    setSolarReturnLocation((current) => ({
       ...current,
       [field]: value,
     }));
@@ -263,7 +281,32 @@ export default function App() {
               <PersonFields person={people.secondary} role="secondary" title="对方资料" onChange={updatePerson} />
             ) : null}
 
-            {needsForecastDate ? (
+            {activeCategory === "solar-return" ? (
+              <>
+                <fieldset className="person-fields">
+                  <legend>日返参考时间</legend>
+                  <label>
+                    参考日期
+                    <input
+                      type="date"
+                      value={solarReturnAnchorDate}
+                      onChange={(event) => setSolarReturnAnchorDate(event.target.value)}
+                    />
+                  </label>
+                  <label>
+                    参考时间
+                    <input
+                      type="time"
+                      value={solarReturnAnchorTime}
+                      onChange={(event) => setSolarReturnAnchorTime(event.target.value)}
+                    />
+                  </label>
+                </fieldset>
+                <ReturnLocationFields location={solarReturnLocation} onChange={updateSolarReturnLocation} />
+              </>
+            ) : null}
+
+            {needsForecastDate && activeCategory !== "solar-return" ? (
               <div className="date-time-row">
                 <div className="field-group">
                   <label htmlFor="forecastDate">推运日期</label>
@@ -342,6 +385,40 @@ function PersonFields({ person, role, title, onChange }) {
       <label>
         时区
         <input value={person.timezone} onChange={(event) => onChange(role, "timezone", event.target.value)} />
+      </label>
+    </fieldset>
+  );
+}
+
+function ReturnLocationFields({ location, onChange }) {
+  return (
+    <fieldset className="person-fields">
+      <legend>日返发生地</legend>
+      <label>
+        地点
+        <input value={location.locationName} onChange={(event) => onChange("locationName", event.target.value)} />
+      </label>
+      <label>
+        纬度
+        <input
+          type="number"
+          step="0.0001"
+          value={location.latitude}
+          onChange={(event) => onChange("latitude", event.target.value)}
+        />
+      </label>
+      <label>
+        经度
+        <input
+          type="number"
+          step="0.0001"
+          value={location.longitude}
+          onChange={(event) => onChange("longitude", event.target.value)}
+        />
+      </label>
+      <label>
+        时区
+        <input value={location.timezone} onChange={(event) => onChange("timezone", event.target.value)} />
       </label>
     </fieldset>
   );

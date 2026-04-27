@@ -56,6 +56,16 @@ def normalize_birth_datetime(profile: BirthProfile) -> datetime:
     return local_datetime.astimezone(UTC)
 
 
+def normalize_local_datetime(date: str, time: str, timezone_name: str) -> datetime:
+    try:
+        timezone = ZoneInfo(timezone_name)
+    except ZoneInfoNotFoundError as error:
+        raise ValueError(f"Unknown timezone: {timezone_name}") from error
+
+    local_datetime = datetime.fromisoformat(f"{date}T{time}").replace(tzinfo=timezone)
+    return local_datetime.astimezone(UTC)
+
+
 def zodiac_position(longitude: float) -> ZodiacPosition:
     normalized = longitude % 360
     sign_index = int(normalized // 30)
@@ -76,6 +86,9 @@ class EphemerisService:
 
     def normalize_profile_datetime(self, profile: BirthProfile) -> datetime:
         return normalize_birth_datetime(profile)
+
+    def normalize_local_datetime(self, date: str, time: str, timezone_name: str) -> datetime:
+        return normalize_local_datetime(date, time, timezone_name)
 
     def calculate_profile_placements(
         self,
@@ -106,3 +119,6 @@ class EphemerisService:
             degree=position.degree,
             minute=position.minute,
         )
+
+    def body_longitude(self, utc_datetime: datetime, body: str) -> float:
+        return self.calculate_body(utc_datetime, body).longitude

@@ -47,6 +47,22 @@ class TransitChartRequest(BaseChartRequest):
     transit_time: str = Field(alias="transitTime")
 
 
+class ReturnLocation(BaseModel):
+    location_name: str = Field(alias="locationName")
+    latitude: float | None = None
+    longitude: float | None = None
+    timezone: str | None = None
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class SolarReturnChartRequest(BaseChartRequest):
+    chart_type: Literal["solarReturn"] = Field(default="solarReturn", alias="chartType")
+    anchor_date: str = Field(alias="anchorDate")
+    anchor_time: str = Field(alias="anchorTime")
+    return_location: ReturnLocation = Field(alias="returnLocation")
+
+
 class CalculationMetadata(BaseModel):
     engine: str
     engine_version: str = Field(alias="engineVersion")

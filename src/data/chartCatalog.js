@@ -57,6 +57,15 @@ export const chartCategories = [
     focus: ["近期机会", "压力来源", "行动窗口", "身心节奏"],
   },
   {
+    id: "solar-return",
+    mode: "forecast",
+    label: "日返盘",
+    outputTitle: "日返推运盘",
+    requiresSecondPerson: false,
+    requiresForecastDate: false,
+    focus: ["年度主题", "自我更新", "关系焦点", "行动窗口"],
+  },
+  {
     id: "progression",
     mode: "forecast",
     label: "次限盘",

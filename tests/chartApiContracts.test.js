@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   aspectSetOptions,
   buildNatalChartPayload,
+  buildSolarReturnChartPayload,
   buildSynastryChartPayload,
   buildTransitChartPayload,
   houseSystemOptions,
@@ -66,6 +67,24 @@ test("builds a transit chart API payload with transit target time", () => {
 
   assert.equal(payload.transitDate, "2026-05-01");
   assert.equal(payload.transitTime, "12:00");
+});
+
+test("builds a solar return chart API payload with anchor and return location", () => {
+  const payload = buildSolarReturnChartPayload(primary, {
+    anchorDate: "2026-04-27",
+    anchorTime: "18:00",
+    returnLocation: {
+      locationName: "Tokyo",
+      latitude: "35.6762",
+      longitude: "139.6503",
+      timezone: "Asia/Tokyo",
+    },
+  });
+
+  assert.equal(payload.anchorDate, "2026-04-27");
+  assert.equal(payload.anchorTime, "18:00");
+  assert.equal(payload.returnLocation.locationName, "Tokyo");
+  assert.equal(payload.returnLocation.latitude, 35.6762);
 });
 
 test("merges custom settings into payloads", () => {

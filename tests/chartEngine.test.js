@@ -64,3 +64,32 @@ test("generates a deterministic chart snapshot for the workspace", () => {
   assert.equal(snapshot.placements.length, 6);
   assert.equal(snapshot.aspects.length, 4);
 });
+
+test("creates a solar return request with anchor datetime and return location", () => {
+  const request = createChartRequest({
+    mode: "forecast",
+    category: "solar-return",
+    primary: {
+      name: "Luna",
+      date: "1996-04-12",
+      time: "08:30",
+      location: "Shanghai",
+      latitude: "31.2304",
+      longitude: "121.4737",
+      timezone: "Asia/Shanghai",
+    },
+    solarReturnAnchorDate: "2026-04-27",
+    solarReturnAnchorTime: "18:00",
+    solarReturnLocation: {
+      locationName: "Tokyo",
+      latitude: "35.6762",
+      longitude: "139.6503",
+      timezone: "Asia/Tokyo",
+    },
+  });
+
+  assert.equal(request.category, "solar-return");
+  assert.equal(request.forecastDate, "2026-04-27");
+  assert.equal(request.forecastTime, "18:00");
+  assert.equal(request.solarReturnLocation.locationName, "Tokyo");
+});

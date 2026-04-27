@@ -202,6 +202,52 @@ The transit response includes the primary natal planetary placements, transit-sk
 
 `primaryNatal` includes houses, Ascendant, and Midheaven. `transitSky` remains a sky snapshot without houses.
 
+### POST /api/charts/solar-return
+
+Request:
+
+```json
+{
+  "primary": {
+    "name": "Luna",
+    "date": "1996-04-12",
+    "time": "08:30",
+    "locationName": "Shanghai",
+    "latitude": 31.2304,
+    "longitude": 121.4737,
+    "timezone": "Asia/Shanghai"
+  },
+  "anchorDate": "2026-04-27",
+  "anchorTime": "18:00",
+  "returnLocation": {
+    "locationName": "Tokyo",
+    "latitude": 35.6762,
+    "longitude": 139.6503,
+    "timezone": "Asia/Tokyo"
+  },
+  "settings": {
+    "houseSystem": "placidus",
+    "zodiac": "tropical",
+    "aspectSet": "major",
+    "orbProfile": "default"
+  }
+}
+```
+
+Response: `ChartResult`.
+
+The solar return response includes the primary natal placements, solar return placements calculated for the exact return moment near the requested anchor, and inter-chart aspects between the solar return and natal placements.
+
+`relatedCharts` includes:
+
+- `primaryNatal`
+- `solarReturn`
+- `solarReturnOverlay`
+
+`anchorDate` and `anchorTime` are interpreted in `returnLocation.timezone`, then used as a search anchor for the exact solar return instant.
+
+`solarReturn` includes its own houses, Ascendant, and Midheaven. `solarReturnOverlay` describes solar return placements flying into natal houses.
+
 ## Temporary Not Implemented Response
 
 There are no Phase 1 chart endpoints using the temporary not implemented response. Future placeholder chart endpoints should use:

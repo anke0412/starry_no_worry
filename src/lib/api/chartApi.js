@@ -1,6 +1,7 @@
 import { findCategory } from "../../data/chartCatalog.js";
 import {
   buildNatalChartPayload,
+  buildSolarReturnChartPayload,
   buildSynastryChartPayload,
   buildTransitChartPayload,
 } from "./chartContracts.js";
@@ -12,6 +13,7 @@ const SUPPORTED_ENDPOINTS = {
   natal: "/api/charts/natal",
   synastry: "/api/charts/synastry",
   transit: "/api/charts/transit",
+  "solar-return": "/api/charts/solar-return",
 };
 
 const BODY_LABELS = {
@@ -125,6 +127,18 @@ function buildPayload(input) {
     return buildSynastryChartPayload(input.primary, input.secondary, input.settings);
   }
 
+  if (input.category === "solar-return") {
+    return buildSolarReturnChartPayload(
+      input.primary,
+      {
+        anchorDate: input.forecastDate || input.solarReturnAnchorDate,
+        anchorTime: input.forecastTime || input.solarReturnAnchorTime,
+        returnLocation: input.solarReturnLocation,
+      },
+      input.settings,
+    );
+  }
+
   return buildTransitChartPayload(
     input.primary,
     {
@@ -180,6 +194,13 @@ function mapPlacementGroups(result, input) {
     ];
   }
 
+  if (input.category === "solar-return" && relatedCharts?.primaryNatal && relatedCharts?.solarReturn) {
+    return [
+      mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
+      mapPlacementGroup(relatedCharts.solarReturn, "日返星体"),
+    ];
+  }
+
   return [
     {
       id: result.chartId,
@@ -225,6 +246,13 @@ function mapAspectOwners(result, input) {
     };
   }
 
+  if (relatedCharts?.solarReturnOverlay) {
+    return {
+      from: relatedCharts.solarReturnOverlay.referenceName,
+      to: "日返",
+    };
+  }
+
   return {
     from: input.primary.name,
     to: input.primary.name,
@@ -236,7 +264,7 @@ function mapOverlays(relatedCharts) {
     return [];
   }
 
-  return ["primaryOverlay", "secondaryOverlay", "transitOverlay"]
+  return ["primaryOverlay", "secondaryOverlay", "transitOverlay", "solarReturnOverlay"]
     .map((key) => relatedCharts[key])
     .filter(Boolean)
     .map((overlay) => ({
@@ -300,7 +328,15 @@ function chartProfileName(chart, fallback) {
 }
 
 function overlayDisplayName(name) {
-  return name === "Transit Sky" ? "流年星体" : name;
+  if (name === "Transit Sky") {
+    return "流年星体";
+  }
+
+  if (typeof name === "string" && name.endsWith(" Solar Return")) {
+    return "日返星体";
+  }
+
+  return name;
 }
 
 function houseRuler(houses, houseNumber) {
