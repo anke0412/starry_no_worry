@@ -2,9 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  aspectSetOptions,
   buildNatalChartPayload,
   buildSynastryChartPayload,
   buildTransitChartPayload,
+  houseSystemOptions,
+  orbProfileOptions,
 } from "../src/lib/api/chartContracts.js";
 
 const primary = {
@@ -63,4 +66,25 @@ test("builds a transit chart API payload with transit target time", () => {
 
   assert.equal(payload.transitDate, "2026-05-01");
   assert.equal(payload.transitTime, "12:00");
+});
+
+test("merges custom settings into payloads", () => {
+  const payload = buildNatalChartPayload(primary, {
+    houseSystem: "equal",
+    aspectSet: "major_extended",
+    orbProfile: "wide",
+  });
+
+  assert.deepEqual(payload.settings, {
+    houseSystem: "equal",
+    zodiac: "tropical",
+    aspectSet: "major_extended",
+    orbProfile: "wide",
+  });
+});
+
+test("exports selectable settings options for the form", () => {
+  assert.equal(houseSystemOptions.length, 3);
+  assert.equal(aspectSetOptions.length, 2);
+  assert.equal(orbProfileOptions.length, 3);
 });

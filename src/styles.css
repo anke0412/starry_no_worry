@@ -287,9 +287,41 @@ h1 {
 }
 
 .field-group,
-.person-fields {
+.person-fields,
+.settings-fields {
   display: grid;
   gap: 10px;
+}
+
+.advanced-settings {
+  border: 1px solid rgba(34, 51, 38, 0.12);
+  border-radius: 24px;
+  background: rgba(255, 250, 240, 0.34);
+  overflow: hidden;
+}
+
+.advanced-settings summary {
+  cursor: pointer;
+  list-style: none;
+  color: rgba(34, 51, 38, 0.76);
+  font-size: 0.92rem;
+  font-weight: 800;
+  padding: 16px 18px;
+}
+
+.advanced-settings summary::-webkit-details-marker {
+  display: none;
+}
+
+.advanced-settings summary::after {
+  content: "+";
+  float: right;
+  color: rgba(97, 125, 85, 0.92);
+  font-size: 1rem;
+}
+
+.advanced-settings[open] summary::after {
+  content: "-";
 }
 
 .date-time-row {
@@ -314,13 +346,25 @@ h1 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.person-fields legend {
-  grid-column: 1 / -1;
+.settings-fields {
+  margin: 0;
+  padding: 18px;
+  border-top: 1px solid rgba(34, 51, 38, 0.08);
+  grid-template-columns: 1fr;
 }
 
 .person-fields label {
   display: grid;
   gap: 7px;
+}
+
+.settings-fields label {
+  display: grid;
+  gap: 7px;
+}
+
+.person-fields legend {
+  grid-column: 1 / -1;
 }
 
 input,
@@ -548,6 +592,12 @@ select:focus {
   paint-order: stroke;
   stroke: var(--wheel-symbol-stroke);
   stroke-width: 2.2px;
+}
+
+.wheel-placement .wheel-placement-glyph-vertex {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .wheel-layer-2 .wheel-placement text {
@@ -813,6 +863,7 @@ select:focus {
   }
 
   .person-fields,
+  .settings-fields,
   .date-time-row {
     grid-template-columns: 1fr;
   }

@@ -149,6 +149,11 @@ test("calls the transit chart API with forecast date and time", async () => {
       category: "transit",
       people: [primary],
       primary,
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
       forecastDate: "2026-05-01",
       forecastTime: "12:00",
     },
@@ -173,6 +178,9 @@ test("calls the transit chart API with forecast date and time", async () => {
 
   assert.equal(requestBody.transitDate, "2026-05-01");
   assert.equal(requestBody.transitTime, "12:00");
+  assert.equal(requestBody.settings.houseSystem, "whole-sign");
+  assert.equal(requestBody.settings.aspectSet, "major_extended");
+  assert.equal(requestBody.settings.orbProfile, "tight");
 });
 
 test("maps overlay house placements for synastry and transit results", async () => {

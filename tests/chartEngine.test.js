@@ -7,6 +7,11 @@ test("creates a single natal chart request with one person", () => {
   const request = createChartRequest({
     mode: "single",
     category: "natal",
+    settings: {
+      houseSystem: "equal",
+      aspectSet: "major_extended",
+      orbProfile: "wide",
+    },
     primary: {
       name: "Luna",
       date: "1996-04-12",
@@ -17,6 +22,7 @@ test("creates a single natal chart request with one person", () => {
 
   assert.equal(request.mode, "single");
   assert.equal(request.category, "natal");
+  assert.equal(request.settings.houseSystem, "equal");
   assert.equal(request.people.length, 1);
   assert.equal(request.people[0].name, "Luna");
 });

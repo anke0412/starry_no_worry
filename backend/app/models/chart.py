@@ -19,8 +19,8 @@ class BirthProfile(BaseModel):
 class ChartSettings(BaseModel):
     house_system: str = Field(default="placidus", alias="houseSystem")
     zodiac: Literal["tropical"] = "tropical"
-    aspect_set: Literal["major"] = Field(default="major", alias="aspectSet")
-    orb_profile: Literal["default"] = Field(default="default", alias="orbProfile")
+    aspect_set: str = Field(default="major", alias="aspectSet")
+    orb_profile: str = Field(default="default", alias="orbProfile")
 
     model_config = ConfigDict(populate_by_name=True)
 
@@ -76,7 +76,7 @@ class HouseCusp(BaseModel):
 class Aspect(BaseModel):
     from_body: str = Field(alias="from")
     to_body: str = Field(alias="to")
-    type: Literal["conjunction", "sextile", "square", "trine", "opposition"]
+    type: Literal["conjunction", "sextile", "square", "trine", "opposition", "quincunx"]
     angle: float
     orb: float
     applying: bool | None = None

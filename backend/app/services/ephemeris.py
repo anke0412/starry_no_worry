@@ -5,6 +5,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 import ephem
 
 from app.models.chart import BirthProfile, Placement
+from app.services.point_registry import DEFAULT_PLANET_BODIES
 
 SIGNS = (
     "Aries",
@@ -19,19 +20,6 @@ SIGNS = (
     "Capricorn",
     "Aquarius",
     "Pisces",
-)
-
-DEFAULT_BODIES = (
-    "Sun",
-    "Moon",
-    "Mercury",
-    "Venus",
-    "Mars",
-    "Jupiter",
-    "Saturn",
-    "Uranus",
-    "Neptune",
-    "Pluto",
 )
 
 BODY_CLASSES = {
@@ -89,7 +77,11 @@ class EphemerisService:
     def normalize_profile_datetime(self, profile: BirthProfile) -> datetime:
         return normalize_birth_datetime(profile)
 
-    def calculate_profile_placements(self, profile: BirthProfile, bodies: tuple[str, ...] = DEFAULT_BODIES) -> list[Placement]:
+    def calculate_profile_placements(
+        self,
+        profile: BirthProfile,
+        bodies: tuple[str, ...] = DEFAULT_PLANET_BODIES,
+    ) -> list[Placement]:
         utc_datetime = self.normalize_profile_datetime(profile)
         return [self.calculate_body(utc_datetime, body) for body in bodies]
 

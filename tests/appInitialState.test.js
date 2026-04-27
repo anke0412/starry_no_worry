@@ -10,6 +10,15 @@ test("workspace does not initialize with a generated placeholder chart", () => {
   assert.doesNotMatch(appSource, /function EmptyChartState/);
 });
 
+test("workspace exposes chart settings controls for house system and aspect calculation", () => {
+  assert.match(appSource, /const \[settings, setSettings\] = useState\(defaultChartSettings\)/);
+  assert.match(appSource, /<details className="advanced-settings">/);
+  assert.match(appSource, /高级设置/);
+  assert.match(appSource, /宫位系统/);
+  assert.match(appSource, /相位集合/);
+  assert.match(appSource, /容许度/);
+});
+
 test("chart result panel renders an aspect list", () => {
   assert.match(appSource, />主要相位</);
   assert.match(appSource, /result\.chart\.aspects\.map/);
@@ -50,7 +59,9 @@ test("chart wheel renders planet glyphs without extra bubble circles", () => {
 
   assert.doesNotMatch(chartWheelSource, /<circle cx=\{placement\.point\.x\}/);
   assert.doesNotMatch(stylesSource, /\.wheel-placement circle/);
-  assert.match(chartWheelSource, /<text x=\{placement\.labelPoint\.x\} y=\{placement\.labelPoint\.y\}>/);
+  assert.match(chartWheelSource, /className=\{placement\.planet === "宿命点" \? "wheel-placement-glyph-vertex" : undefined\}/);
+  assert.match(chartWheelSource, /x=\{placement\.labelPoint\.x\}/);
+  assert.match(chartWheelSource, /y=\{placement\.labelPoint\.y\}/);
 });
 
 test("chart wheel follows a professional point leader layout", () => {

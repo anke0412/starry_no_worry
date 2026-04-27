@@ -5,10 +5,27 @@ export const defaultChartSettings = {
   orbProfile: "default",
 };
 
+export const houseSystemOptions = [
+  { value: "placidus", label: "普拉西德制" },
+  { value: "whole-sign", label: "整宫制" },
+  { value: "equal", label: "等宫制" },
+];
+
+export const aspectSetOptions = [
+  { value: "major", label: "主要相位" },
+  { value: "major_extended", label: "主要相位 + 梅花相" },
+];
+
+export const orbProfileOptions = [
+  { value: "tight", label: "严格容许度" },
+  { value: "default", label: "标准容许度" },
+  { value: "wide", label: "宽松容许度" },
+];
+
 export function buildNatalChartPayload(primary, settings = defaultChartSettings) {
   return {
     primary: normalizeBirthProfile(primary),
-    settings,
+    settings: normalizeSettings(settings),
   };
 }
 
@@ -16,7 +33,7 @@ export function buildSynastryChartPayload(primary, secondary, settings = default
   return {
     primary: normalizeBirthProfile(primary),
     secondary: normalizeBirthProfile(secondary),
-    settings,
+    settings: normalizeSettings(settings),
   };
 }
 
@@ -25,7 +42,14 @@ export function buildTransitChartPayload(primary, transit, settings = defaultCha
     primary: normalizeBirthProfile(primary),
     transitDate: transit.transitDate,
     transitTime: transit.transitTime,
-    settings,
+    settings: normalizeSettings(settings),
+  };
+}
+
+function normalizeSettings(settings) {
+  return {
+    ...defaultChartSettings,
+    ...settings,
   };
 }
 

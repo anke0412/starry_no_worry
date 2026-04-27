@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 import re
 
 from app.models.chart import Aspect, CalculationMetadata, ChartResult, Placement, SynastryChartRequest
-from app.services.aspects import angular_distance, closest_major_aspect
+from app.services.aspects import angular_distance, closest_aspect, resolve_aspect_set, resolve_orb_limit
 from app.services.ephemeris import EphemerisService
 from app.services.natal import NatalChartService
 from app.services.overlay import ChartOverlayService
@@ -15,8 +15,8 @@ class SynastryChartService:
         self.overlay = ChartOverlayService()
 
     def calculate(self, request: SynastryChartRequest) -> ChartResult:
-        primary_natal = self.natal.calculate_from_profile(request.primary, request.settings.house_system)
-        secondary_natal = self.natal.calculate_from_profile(request.secondary, request.settings.house_system)
+        primary_natal = self.natal.calculate_from_profile(request.primary, request.settings)
+        secondary_natal = self.natal.calculate_from_profile(request.secondary, request.settings)
         primary_planets = planetary_placements(primary_natal.placements)
         secondary_planets = planetary_placements(secondary_natal.placements)
         primary_overlay = self.overlay.build(
@@ -24,12 +24,16 @@ class SynastryChartService:
             label=f"{request.secondary.name} in {request.primary.name} houses",
             reference_chart=primary_natal,
             overlay_chart=secondary_natal,
+            aspect_set=request.settings.aspect_set,
+            orb_profile=request.settings.orb_profile,
         )
         secondary_overlay = self.overlay.build(
             overlay_id="primary-in-secondary",
             label=f"{request.primary.name} in {request.secondary.name} houses",
             reference_chart=secondary_natal,
             overlay_chart=primary_natal,
+            aspect_set=request.settings.aspect_set,
+            orb_profile=request.settings.orb_profile,
         )
 
         return ChartResult(
@@ -58,21 +62,24 @@ def planetary_placements(placements: list[Placement]) -> list[Placement]:
     return [
         placement
         for placement in placements
-        if placement.body not in {"North Node", "South Node", "Ascendant", "Midheaven"}
+        if placement.body not in {"Ascendant", "Midheaven"}
     ]
 
 
 def calculate_inter_chart_aspects(
     primary_placements: list[Placement],
     secondary_placements: list[Placement],
-    orb_limit: float = 6.0,
+    aspect_set: str = "major",
+    orb_profile: str = "default",
 ) -> list[Aspect]:
     aspects: list[Aspect] = []
+    definitions = resolve_aspect_set(aspect_set)
+    orb_limit = resolve_orb_limit(orb_profile)
 
     for primary in primary_placements:
         for secondary in secondary_placements:
             angle = angular_distance(primary.longitude, secondary.longitude)
-            aspect = closest_major_aspect(angle, orb_limit)
+            aspect = closest_aspect(angle, definitions, orb_limit)
 
             if aspect is None:
                 continue

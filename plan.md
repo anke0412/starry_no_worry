@@ -83,7 +83,14 @@ Additions:
 - Planet and point visibility toggles
 - Element, modality, polarity, and hemisphere statistics
 - Chart wheel interactions: hover, selected aspect highlighting, placement list linking, and filtered overlays
-- Composite chart
+- Expanded chart families for relationship and predictive work:
+  - Composite chart
+  - Davison relationship chart
+  - Midpoint composite workflows
+  - Solar return chart
+  - Lunar return chart
+  - Solar arc directions
+  - Tertiary progression variants, including solar-arc-style and composite timing extensions as selected by product scope
 - Progressed chart
 - Relationship transit chart
 - Full AI interpretation agent with chart-aware prompts, report sections, and follow-up questions
@@ -92,6 +99,7 @@ Phase 2 success criteria:
 
 - Users can customize chart settings and regenerate charts predictably.
 - Users can inspect chart details through linked visual and tabular views.
+- Users can generate and read multiple advanced relationship and predictive chart types from the same calculation platform.
 - The AI agent receives real chart data and produces category-specific interpretation reports.
 - The app still keeps calculation and interpretation boundaries separate.
 

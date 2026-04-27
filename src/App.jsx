@@ -3,6 +3,12 @@ import React, { useState, useTransition } from "react";
 import { ChartWheel } from "./components/chart/ChartWheel.jsx";
 import { categoriesForMode, readingModes } from "./data/chartCatalog.js";
 import { calculateChart } from "./lib/api/chartApi.js";
+import {
+  aspectSetOptions,
+  defaultChartSettings,
+  houseSystemOptions,
+  orbProfileOptions,
+} from "./lib/api/chartContracts.js";
 import { createChartRequest } from "./lib/chartEngine.js";
 import { buildInterpretationContext, createInterpretationReport } from "./lib/interpretationAgent.js";
 
@@ -31,6 +37,7 @@ export default function App() {
   const [activeMode, setActiveMode] = useState("single");
   const [activeCategory, setActiveCategory] = useState("natal");
   const [people, setPeople] = useState(defaultPeople);
+  const [settings, setSettings] = useState(defaultChartSettings);
   const [forecastDate, setForecastDate] = useState("2026-05-01");
   const [forecastTime, setForecastTime] = useState("12:00");
   const [result, setResult] = useState(null);
@@ -61,6 +68,7 @@ export default function App() {
         category: activeCategory,
         primary: people.primary,
         secondary: people.secondary,
+        settings,
         forecastDate,
         forecastTime,
       });
@@ -87,6 +95,13 @@ export default function App() {
         ...current[role],
         [field]: value,
       },
+    }));
+  }
+
+  function updateSettings(field, value) {
+    setSettings((current) => ({
+      ...current,
+      [field]: value,
     }));
   }
 
@@ -196,6 +211,51 @@ export default function App() {
                 ))}
               </select>
             </div>
+
+            <details className="advanced-settings">
+              <summary>高级设置</summary>
+              <div className="settings-fields">
+                <label>
+                  宫位系统
+                  <select
+                    value={settings.houseSystem}
+                    onChange={(event) => updateSettings("houseSystem", event.target.value)}
+                  >
+                    {houseSystemOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  相位集合
+                  <select
+                    value={settings.aspectSet}
+                    onChange={(event) => updateSettings("aspectSet", event.target.value)}
+                  >
+                    {aspectSetOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  容许度
+                  <select
+                    value={settings.orbProfile}
+                    onChange={(event) => updateSettings("orbProfile", event.target.value)}
+                  >
+                    {orbProfileOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            </details>
 
             <PersonFields person={people.primary} role="primary" title="本人资料" onChange={updatePerson} />
 

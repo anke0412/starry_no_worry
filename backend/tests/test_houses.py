@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import pytest
 
 from app.models.chart import BirthProfile
-from app.services.houses import HouseCalculationService, assign_house
+from app.services.houses import EQUAL, PLACIDUS, WHOLE_SIGN, HouseCalculationService, assign_house
 
 
 def shanghai_profile() -> BirthProfile:
@@ -32,6 +32,40 @@ def test_calculates_placidus_houses_and_angles():
     assert result.ascendant.house == 1
     assert result.midheaven.body == "Midheaven"
     assert result.midheaven.house == 10
+    assert result.vertex.body == "Vertex"
+
+
+def test_calculates_whole_sign_houses_from_ascendant_sign():
+    service = HouseCalculationService()
+
+    result = service.calculate(
+        profile=shanghai_profile(),
+        utc_datetime=datetime(2000, 1, 1, 12, 0, tzinfo=timezone.utc),
+        house_system=WHOLE_SIGN,
+    )
+
+    assert len(result.houses) == 12
+    whole_sign_start = (int(result.ascendant.longitude // 30) * 30) % 360
+    assert result.houses[0].longitude == whole_sign_start
+    assert result.houses[1].longitude == pytest.approx((whole_sign_start + 30) % 360)
+    assert result.houses[-1].longitude == pytest.approx((whole_sign_start + 330) % 360)
+    assert result.ascendant.house == 1
+    assert result.midheaven.house == 10
+
+
+def test_calculates_equal_houses_from_ascendant_degree():
+    service = HouseCalculationService()
+
+    result = service.calculate(
+        profile=shanghai_profile(),
+        utc_datetime=datetime(2000, 1, 1, 12, 0, tzinfo=timezone.utc),
+        house_system=EQUAL,
+    )
+
+    assert len(result.houses) == 12
+    assert result.houses[0].longitude == pytest.approx(result.ascendant.longitude)
+    assert result.houses[1].longitude == pytest.approx((result.ascendant.longitude + 30) % 360)
+    assert result.houses[-1].longitude == pytest.approx((result.ascendant.longitude + 330) % 360)
 
 
 def test_assigns_longitude_to_wrapping_house_span():
@@ -73,3 +107,14 @@ def test_rejects_invalid_coordinates_for_house_calculation():
 
     with pytest.raises(ValueError, match="longitude must be between -180 and 180"):
         service.calculate(profile=profile, utc_datetime=datetime(2000, 1, 1, 12, 0, tzinfo=timezone.utc))
+
+
+def test_rejects_unsupported_house_system():
+    service = HouseCalculationService()
+
+    with pytest.raises(ValueError, match="Unsupported house system"):
+        service.calculate(
+            profile=shanghai_profile(),
+            utc_datetime=datetime(2000, 1, 1, 12, 0, tzinfo=timezone.utc),
+            house_system="koch",
+        )

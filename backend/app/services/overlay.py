@@ -1,5 +1,5 @@
 from app.models.chart import Aspect, ChartOverlay, ChartResult, OverlayPlacement, Placement
-from app.services.aspects import angular_distance, closest_major_aspect
+from app.services.aspects import angular_distance, closest_aspect, resolve_aspect_set, resolve_orb_limit
 from app.services.houses import assign_house
 
 
@@ -10,11 +10,14 @@ class ChartOverlayService:
         label: str,
         reference_chart: ChartResult,
         overlay_chart: ChartResult,
-        orb_limit: float = 6.0,
+        aspect_set: str = "major",
+        orb_profile: str = "default",
     ) -> ChartOverlay:
         reference_house_cusps = [house.longitude for house in reference_chart.houses]
         reference_placements = aspect_eligible_placements(reference_chart.placements)
         overlay_placements = aspect_eligible_placements(overlay_chart.placements)
+        definitions = resolve_aspect_set(aspect_set)
+        orb_limit = resolve_orb_limit(orb_profile)
 
         return ChartOverlay(
             overlayId=overlay_id,
@@ -28,7 +31,12 @@ class ChartOverlayService:
                 build_overlay_placement(placement, reference_house_cusps)
                 for placement in overlay_placements
             ],
-            aspects=calculate_inter_chart_aspects(reference_placements, overlay_placements, orb_limit),
+            aspects=calculate_inter_chart_aspects(
+                reference_placements,
+                overlay_placements,
+                definitions=definitions,
+                orb_limit=orb_limit,
+            ),
         )
 
 
@@ -56,14 +64,15 @@ def aspect_eligible_placements(placements: list[Placement]) -> list[Placement]:
 def calculate_inter_chart_aspects(
     reference_placements: list[Placement],
     overlay_placements: list[Placement],
-    orb_limit: float = 6.0,
+    definitions: dict[str, float],
+    orb_limit: float,
 ) -> list[Aspect]:
     aspects: list[Aspect] = []
 
     for reference in reference_placements:
         for overlay in overlay_placements:
             angle = angular_distance(reference.longitude, overlay.longitude)
-            aspect = closest_major_aspect(angle, orb_limit)
+            aspect = closest_aspect(angle, definitions, orb_limit)
 
             if aspect is None:
                 continue

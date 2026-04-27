@@ -61,7 +61,7 @@ def test_synastry_endpoint_returns_dual_natal_results_and_inter_chart_aspects():
     assert data["chartType"] == "synastry"
     assert data["title"] == "Luna × Sol Synastry Chart"
     assert len(data["profiles"]) == 2
-    assert len(data["placements"]) == 20
+    assert len(data["placements"]) == 32
     assert data["relatedCharts"]["primaryNatal"]["chartType"] == "natal"
     assert data["relatedCharts"]["secondaryNatal"]["chartType"] == "natal"
     assert data["relatedCharts"]["primaryOverlay"]["referenceName"] == "Luna"
@@ -75,6 +75,10 @@ def test_synastry_endpoint_returns_dual_natal_results_and_inter_chart_aspects():
     assert len(data["relatedCharts"]["secondaryOverlay"]["houses"]) == 12
     assert "North Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
     assert "South Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
+    assert "Chiron" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
+    assert "Lilith" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
+    assert "Part of Fortune" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
+    assert "Vertex" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
     assert {
         "from": "Moon",
         "to": "Venus",

@@ -48,15 +48,15 @@ test("builds zodiac segments and layered wheel placements from chart data", () =
   assert.equal(wheel.layers.length, 2);
   assert.equal(wheel.layers[0].placements[0].planet, "太阳");
   assert.equal(wheel.layers[0].placements[0].layerTitle, "Luna 的本命星体");
-  assert.equal(wheel.layers[0].placements[0].anchorRadius, 74);
-  assert.equal(wheel.layers[0].placements[0].labelRadius, 84);
-  assert.equal(wheel.layers[1].placements[0].anchorRadius, 95);
-  assert.equal(wheel.layers[1].placements[0].labelRadius, 105);
+  assert.equal(wheel.layers[0].placements[0].anchorRadius, 85);
+  assert.equal(wheel.layers[0].placements[0].labelRadius, 100);
+  assert.equal(wheel.layers[1].placements[0].anchorRadius, 120);
+  assert.equal(wheel.layers[1].placements[0].labelRadius, 135);
   assert.ok(wheel.layers[0].placements[0].leaderLine);
   assert.equal(wheel.angleMarkers.ascendant.planet, "上升点");
   assert.equal(wheel.angleMarkers.descendant.planet, "下降点");
-  assert.equal(wheel.angleMarkers.ascendant.anchorRadius, 74);
-  assert.equal(wheel.angleMarkers.descendant.labelRadius, 84);
+  assert.equal(wheel.angleMarkers.ascendant.anchorRadius, 85);
+  assert.equal(wheel.angleMarkers.descendant.labelRadius, 100);
   assert.equal(wheel.axes.midheaven.label, "MC");
   assert.equal(wheel.axes.imumCoeli.label, "IC");
   assert.equal(wheel.aspectLines[0].from.planet, "太阳");
@@ -121,11 +121,11 @@ test("pulls the inner layer closer to center for dual-ring charts", () => {
     aspects: [],
   });
 
-  assert.equal(wheel.layers[0].anchorRadius, 74);
-  assert.equal(wheel.layers[0].labelRadius, 84);
-  assert.equal(wheel.layers[1].anchorRadius, 95);
-  assert.equal(wheel.layers[1].labelRadius, 105);
-  assert.equal(wheel.angleMarkers.ascendant.anchorRadius, 74);
+  assert.equal(wheel.layers[0].anchorRadius, 85);
+  assert.equal(wheel.layers[0].labelRadius, 100);
+  assert.equal(wheel.layers[1].anchorRadius, 120);
+  assert.equal(wheel.layers[1].labelRadius, 135);
+  assert.equal(wheel.angleMarkers.ascendant.anchorRadius, 85);
 });
 
 test("builds professional house dividers with outer segments and inner axis lines", () => {

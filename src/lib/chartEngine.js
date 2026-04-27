@@ -26,6 +26,7 @@ export function createChartRequest(input) {
   return {
     mode: input.mode,
     category: input.category,
+    settings: input.settings ?? null,
     primary: normalizePerson(input.primary),
     secondary: input.secondary ? normalizePerson(input.secondary) : null,
     people: [normalizePerson(input.primary), input.secondary ? normalizePerson(input.secondary) : null].filter(Boolean),

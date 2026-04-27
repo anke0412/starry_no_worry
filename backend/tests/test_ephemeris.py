@@ -4,11 +4,11 @@ import pytest
 
 from app.models.chart import BirthProfile
 from app.services.ephemeris import (
-    DEFAULT_BODIES,
     EphemerisService,
     normalize_birth_datetime,
     zodiac_position,
 )
+from app.services.point_registry import DEFAULT_PLANET_BODIES
 
 
 def test_normalizes_birth_datetime_to_utc():
@@ -67,6 +67,6 @@ def test_calculates_default_planet_positions_from_birth_profile():
 
     placements = service.calculate_profile_placements(profile)
 
-    assert [placement.body for placement in placements] == list(DEFAULT_BODIES)
+    assert [placement.body for placement in placements] == list(DEFAULT_PLANET_BODIES)
     assert placements[0].body == "Sun"
     assert placements[0].sign == "Capricorn"

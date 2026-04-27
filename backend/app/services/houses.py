@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import math
 from datetime import UTC, datetime
 
 import swisseph as swe
@@ -7,8 +8,12 @@ from app.models.chart import BirthProfile, HouseCusp, Placement
 from app.services.ephemeris import zodiac_position
 
 PLACIDUS = "placidus"
+WHOLE_SIGN = "whole-sign"
+EQUAL = "equal"
 HOUSE_SYSTEM_CODES = {
     PLACIDUS: b"P",
+    WHOLE_SIGN: b"W",
+    EQUAL: b"E",
 }
 
 
@@ -17,6 +22,7 @@ class HouseCalculation:
     houses: list[HouseCusp]
     ascendant: Placement
     midheaven: Placement
+    vertex: Placement
 
 
 class HouseCalculationService:
@@ -39,26 +45,55 @@ class HouseCalculationService:
             utc_datetime.day,
             decimal_utc_hour(utc_datetime),
         )
-        cusps, angles = swe.houses_ex(
+        _, base_angles = swe.houses_ex(
             julian_day,
             profile.latitude,
             profile.longitude,
-            HOUSE_SYSTEM_CODES[house_system],
+            HOUSE_SYSTEM_CODES[PLACIDUS],
         )
 
-        house_longitudes = [normalize_longitude(cusp) for cusp in cusps[:12]]
+        ascendant_longitude = normalize_longitude(base_angles[0])
+        midheaven_longitude = normalize_longitude(base_angles[1])
+        house_longitudes = build_house_longitudes(julian_day, profile, house_system, ascendant_longitude)
         houses = [
             build_house_cusp(index + 1, longitude)
             for index, longitude in enumerate(house_longitudes)
         ]
-        ascendant = build_angle_placement("Ascendant", angles[0], house=1)
-        midheaven = build_angle_placement("Midheaven", angles[1], house=10)
+        ascendant = build_angle_placement("Ascendant", ascendant_longitude, house=1)
+        midheaven = build_angle_placement("Midheaven", midheaven_longitude, house=10)
+        vertex = build_angle_placement("Vertex", normalize_longitude(base_angles[3]), house=7)
 
         return HouseCalculation(
             houses=houses,
             ascendant=ascendant,
             midheaven=midheaven,
+            vertex=vertex,
         )
+
+
+def build_house_longitudes(
+    julian_day: float,
+    profile: BirthProfile,
+    house_system: str,
+    ascendant_longitude: float,
+) -> list[float]:
+    if house_system == PLACIDUS:
+        cusps, _ = swe.houses_ex(
+            julian_day,
+            profile.latitude,
+            profile.longitude,
+            HOUSE_SYSTEM_CODES[PLACIDUS],
+        )
+        return [normalize_longitude(cusp) for cusp in cusps[:12]]
+
+    if house_system == WHOLE_SIGN:
+        first_cusp = math.floor(ascendant_longitude / 30) * 30
+        return [normalize_longitude(first_cusp + index * 30) for index in range(12)]
+
+    if house_system == EQUAL:
+        return [normalize_longitude(ascendant_longitude + index * 30) for index in range(12)]
+
+    raise ValueError(f"Unsupported house system: {house_system}")
 
 
 def validate_birth_coordinates(profile: BirthProfile) -> None:

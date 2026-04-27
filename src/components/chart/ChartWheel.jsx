@@ -110,7 +110,11 @@ export function ChartWheel({ chart }) {
                 <title>{placementTitle(placement, layer.title)}</title>
                 <line className="wheel-placement-leader" {...placement.leaderLine} />
                 <circle className="wheel-placement-dot" cx={placement.anchorPoint.x} cy={placement.anchorPoint.y} r="1.8" />
-                <text x={placement.labelPoint.x} y={placement.labelPoint.y}>
+                <text
+                  className={placement.planet === "宿命点" ? "wheel-placement-glyph-vertex" : undefined}
+                  x={placement.labelPoint.x}
+                  y={placement.labelPoint.y}
+                >
                   {planetGlyph(placement.planet)}
                 </text>
               </g>
@@ -309,8 +313,12 @@ function planetGlyph(planet) {
     天王星: "♅",
     海王星: "♆",
     冥王星: "♇",
+    凯龙星: "⚷",
+    莉莉丝: "⚸",
     北交点: "☊",
     南交点: "☋",
+    福点: "⊗",
+    宿命点: "Vx",
     上升点: "ASC",
     下降点: "DSC",
   };

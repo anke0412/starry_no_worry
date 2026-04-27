@@ -32,11 +32,15 @@ def test_transit_endpoint_returns_natal_transit_sky_and_inter_chart_aspects():
     assert data["chartType"] == "transit"
     assert data["title"] == "Luna Transit Chart"
     assert len(data["profiles"]) == 1
-    assert len(data["placements"]) == 20
+    assert len(data["placements"]) == 32
     assert data["houses"] == []
     assert data["relatedCharts"]["primaryNatal"]["chartType"] == "natal"
     assert "North Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
     assert "South Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
+    assert "Chiron" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
+    assert "Lilith" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
+    assert "Part of Fortune" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
+    assert "Vertex" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
     assert data["relatedCharts"]["transitSky"]["chartType"] == "transitSky"
     assert data["relatedCharts"]["transitSky"]["profiles"][0]["date"] == "2026-05-01"
     assert data["relatedCharts"]["transitSky"]["profiles"][0]["time"] == "12:00"

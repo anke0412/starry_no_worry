@@ -15,7 +15,7 @@ class TransitChartService:
         self.overlay = ChartOverlayService()
 
     def calculate(self, request: TransitChartRequest) -> ChartResult:
-        primary_natal = self.natal.calculate_from_profile(request.primary, request.settings.house_system)
+        primary_natal = self.natal.calculate_from_profile(request.primary, request.settings)
         transit_sky = self.calculate_transit_sky(request)
         primary_planets = planetary_placements(primary_natal.placements)
         transit_planets = planetary_placements(transit_sky.placements)
@@ -24,6 +24,8 @@ class TransitChartService:
             label=f"Transit sky in {request.primary.name} houses",
             reference_chart=primary_natal,
             overlay_chart=transit_sky,
+            aspect_set=request.settings.aspect_set,
+            orb_profile=request.settings.orb_profile,
         )
 
         return ChartResult(
@@ -44,7 +46,7 @@ class TransitChartService:
 
     def calculate_transit_sky(self, request: TransitChartRequest) -> ChartResult:
         profile = build_transit_profile(request)
-        transit_sky = self.natal.calculate_from_profile(profile, request.settings.house_system)
+        transit_sky = self.natal.calculate_from_profile(profile, request.settings)
         transit_sky.chart_id = build_transit_sky_chart_id(request)
         transit_sky.chart_type = "transitSky"
         transit_sky.title = f"Transit Sky {request.transit_date} {request.transit_time}"

@@ -25,8 +25,12 @@ const BODY_LABELS = {
   Uranus: "天王星",
   Neptune: "海王星",
   Pluto: "冥王星",
+  Chiron: "凯龙星",
+  Lilith: "莉莉丝",
   "North Node": "北交点",
   "South Node": "南交点",
+  "Part of Fortune": "福点",
+  Vertex: "宿命点",
   Ascendant: "上升点",
   Midheaven: "天顶",
 };
@@ -42,8 +46,12 @@ const BODY_SORT_ORDER = [
   "Uranus",
   "Neptune",
   "Pluto",
+  "Chiron",
+  "Lilith",
   "North Node",
   "South Node",
+  "Part of Fortune",
+  "Vertex",
   "Ascendant",
   "Midheaven",
 ];
@@ -110,17 +118,21 @@ export async function calculateChart(input, fetcher = fetch) {
 
 function buildPayload(input) {
   if (input.category === "natal") {
-    return buildNatalChartPayload(input.primary);
+    return buildNatalChartPayload(input.primary, input.settings);
   }
 
   if (input.category === "synastry") {
-    return buildSynastryChartPayload(input.primary, input.secondary);
+    return buildSynastryChartPayload(input.primary, input.secondary, input.settings);
   }
 
-  return buildTransitChartPayload(input.primary, {
-    transitDate: input.forecastDate,
-    transitTime: input.forecastTime,
-  });
+  return buildTransitChartPayload(
+    input.primary,
+    {
+      transitDate: input.forecastDate,
+      transitTime: input.forecastTime,
+    },
+    input.settings,
+  );
 }
 
 export function mapChartResultToWorkspaceChart(result, input, category = findCategory(input.category)) {
@@ -135,7 +147,7 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
     people,
     forecastDate: input.forecastDate,
     focus: category.focus,
-    placements: result.placements.slice(0, 14).map((placement) => ({
+    placements: result.placements.map((placement) => ({
       ...mapPlacement(placement),
     })),
     placementGroups: mapPlacementGroups(result, input),
@@ -172,7 +184,7 @@ function mapPlacementGroups(result, input) {
     {
       id: result.chartId,
       title: `${input.primary.name} 的星体落点`,
-      placements: result.placements.slice(0, 14).map(mapPlacement),
+      placements: result.placements.map(mapPlacement),
     },
   ];
 }
@@ -181,7 +193,7 @@ function mapPlacementGroup(chart, title) {
   return {
     id: chart.chartId ?? title,
     title,
-    placements: (chart.placements ?? []).slice(0, 14).map(mapPlacement),
+    placements: (chart.placements ?? []).map(mapPlacement),
   };
 }
 
@@ -316,6 +328,7 @@ function aspectTypeLabel(type) {
     trine: "拱相",
     square: "刑相",
     opposition: "冲相",
+    quincunx: "梅花相",
   };
 
   return labels[type] ?? type;

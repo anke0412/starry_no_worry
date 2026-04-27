@@ -42,17 +42,30 @@ def test_natal_endpoint_returns_real_ephemeris_placements():
         "Uranus",
         "Neptune",
         "Pluto",
+        "Chiron",
+        "Lilith",
         "North Node",
         "South Node",
+        "Part of Fortune",
+        "Vertex",
         "Ascendant",
         "Midheaven",
     ]
+    assert len(data["placements"]) == 18
     north_node = next(placement for placement in data["placements"] if placement["body"] == "North Node")
     south_node = next(placement for placement in data["placements"] if placement["body"] == "South Node")
+    chiron = next(placement for placement in data["placements"] if placement["body"] == "Chiron")
+    lilith = next(placement for placement in data["placements"] if placement["body"] == "Lilith")
+    fortune = next(placement for placement in data["placements"] if placement["body"] == "Part of Fortune")
+    vertex = next(placement for placement in data["placements"] if placement["body"] == "Vertex")
     assert data["placements"][0]["sign"] == "Capricorn"
     assert data["placements"][0]["degree"] == 10
     assert data["placements"][0]["longitude"] == 280.378583
     assert abs(((north_node["longitude"] + 180) % 360) - south_node["longitude"]) < 0.000001
+    assert chiron["house"] is not None
+    assert lilith["house"] is not None
+    assert fortune["house"] is not None
+    assert vertex["house"] is not None
     assert north_node["house"] is not None
     assert south_node["house"] is not None
     assert len(data["houses"]) == 12
@@ -129,7 +142,7 @@ def test_natal_endpoint_rejects_invalid_birth_coordinates():
 def test_natal_endpoint_rejects_unsupported_house_system_with_structured_error():
     payload = natal_payload()
     payload["settings"] = {
-        "houseSystem": "whole-sign",
+        "houseSystem": "koch",
         "zodiac": "tropical",
         "aspectSet": "major",
         "orbProfile": "default",
@@ -141,6 +154,54 @@ def test_natal_endpoint_rejects_unsupported_house_system_with_structured_error()
     assert response.json() == {
         "error": {
             "code": "invalid_chart_request",
-            "message": "Unsupported house system: whole-sign",
+            "message": "Unsupported house system: koch",
         }
     }
+
+
+def test_natal_endpoint_supports_equal_house_system():
+    payload = natal_payload()
+    payload["settings"] = {
+        "houseSystem": "equal",
+        "zodiac": "tropical",
+        "aspectSet": "major",
+        "orbProfile": "default",
+    }
+
+    response = client.post("/api/charts/natal", json=payload)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["houses"][0]["longitude"] == data["placements"][-2]["longitude"]
+
+
+def test_natal_endpoint_supports_whole_sign_house_system():
+    payload = natal_payload()
+    payload["settings"] = {
+        "houseSystem": "whole-sign",
+        "zodiac": "tropical",
+        "aspectSet": "major",
+        "orbProfile": "default",
+    }
+
+    response = client.post("/api/charts/natal", json=payload)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["houses"][0]["longitude"] % 30 == 0
+
+
+def test_natal_endpoint_supports_extended_aspect_set():
+    payload = natal_payload()
+    payload["settings"] = {
+        "houseSystem": "placidus",
+        "zodiac": "tropical",
+        "aspectSet": "major_extended",
+        "orbProfile": "default",
+    }
+
+    response = client.post("/api/charts/natal", json=payload)
+
+    assert response.status_code == 200
+    data = response.json()
+    assert any(aspect["type"] == "quincunx" for aspect in data["aspects"])
