@@ -1,8 +1,8 @@
 from fastapi.testclient import TestClient
 
 from app.main import app
-from app.models.chart import Placement
-from app.services.synastry import calculate_inter_chart_aspects
+from app.models.chart import CalculationMetadata, ChartResult, Placement, SynastryChartRequest
+from app.services.synastry import SynastryChartService, calculate_inter_chart_aspects
 
 
 client = TestClient(app)
@@ -30,6 +30,45 @@ def placement(body: str, longitude: float) -> Placement:
     )
 
 
+def test_synastry_service_delegates_to_comparison_generator():
+    request = SynastryChartRequest(
+        primary=profile("Luna", "2000-01-01", "20:00"),
+        secondary=profile("Sol", "1993-09-07", "21:10", "Beijing"),
+    )
+    expected = ChartResult(
+        chartId="stub-synastry",
+        chartType="synastry",
+        title="Stub Synastry Chart",
+        profiles=[request.primary, request.secondary],
+        calculation=CalculationMetadata(
+            engine="stub",
+            engineVersion="0",
+            calculatedAt="2026-04-27T00:00:00+00:00",
+        ),
+        placements=[],
+        houses=[],
+        aspects=[],
+    )
+    service = object.__new__(SynastryChartService)
+    captured: dict[str, object] = {}
+
+    class StubGenerator:
+        def generate(self, primary, secondary, settings):
+            captured["primary"] = primary
+            captured["secondary"] = secondary
+            captured["settings"] = settings
+            return expected
+
+    service.generator = StubGenerator()
+
+    assert service.calculate(request) is expected
+    assert captured == {
+        "primary": request.primary,
+        "secondary": request.secondary,
+        "settings": request.settings,
+    }
+
+
 def test_calculates_inter_chart_aspects_between_two_placement_sets():
     aspects = calculate_inter_chart_aspects(
         [placement("Sun", 10), placement("Moon", 80)],
@@ -43,6 +82,17 @@ def test_calculates_inter_chart_aspects_between_two_placement_sets():
     assert aspects[1].from_body == "Sun"
     assert aspects[1].to_body == "Venus"
     assert aspects[1].type == "sextile"
+
+    wide_quincunx = calculate_inter_chart_aspects(
+        [placement("Sun", 10)],
+        [placement("Venus", 167)],
+        aspect_set="major_extended",
+        orb_profile="wide",
+    )
+
+    assert len(wide_quincunx) == 1
+    assert wide_quincunx[0].type == "quincunx"
+    assert wide_quincunx[0].orb == 7.0
 
 
 def test_synastry_endpoint_returns_dual_natal_results_and_inter_chart_aspects():
@@ -62,6 +112,12 @@ def test_synastry_endpoint_returns_dual_natal_results_and_inter_chart_aspects():
     assert data["title"] == "Luna × Sol Synastry Chart"
     assert len(data["profiles"]) == 2
     assert len(data["placements"]) == 32
+    assert set(data["relatedCharts"].keys()) == {
+        "primaryNatal",
+        "secondaryNatal",
+        "primaryOverlay",
+        "secondaryOverlay",
+    }
     assert data["relatedCharts"]["primaryNatal"]["chartType"] == "natal"
     assert data["relatedCharts"]["secondaryNatal"]["chartType"] == "natal"
     assert data["relatedCharts"]["primaryOverlay"]["referenceName"] == "Luna"

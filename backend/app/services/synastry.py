@@ -1,61 +1,55 @@
-from datetime import UTC, datetime
 import re
 
-from app.models.chart import Aspect, CalculationMetadata, ChartResult, Placement, SynastryChartRequest
-from app.services.aspects import angular_distance, closest_aspect, resolve_aspect_set, resolve_orb_limit
+from app.models.chart import Aspect, BirthProfile, ChartOverlay, ChartResult, ChartSettings, Placement, SynastryChartRequest
+from app.services.aspects import resolve_aspect_set, resolve_orb_limit
+from app.services.chart_generators import ChartGenerationContext, DualSubjectComparisonGenerator
 from app.services.ephemeris import EphemerisService
-from app.services.natal import NatalChartService
-from app.services.overlay import ChartOverlayService
+from app.services.overlay import calculate_inter_chart_aspects as calculate_overlay_inter_chart_aspects
 
 
-class SynastryChartService:
-    def __init__(self, ephemeris: EphemerisService | None = None) -> None:
-        self.ephemeris = ephemeris or EphemerisService()
-        self.natal = NatalChartService(self.ephemeris)
-        self.overlay = ChartOverlayService()
+class SynastryGenerator(DualSubjectComparisonGenerator):
+    primary_overlay_id = "secondary-in-primary"
+    secondary_overlay_id = "primary-in-secondary"
 
-    def calculate(self, request: SynastryChartRequest) -> ChartResult:
-        primary_natal = self.natal.calculate_from_profile(request.primary, request.settings)
-        secondary_natal = self.natal.calculate_from_profile(request.secondary, request.settings)
-        primary_planets = planetary_placements(primary_natal.placements)
-        secondary_planets = planetary_placements(secondary_natal.placements)
-        primary_overlay = self.overlay.build(
-            overlay_id="secondary-in-primary",
-            label=f"{request.secondary.name} in {request.primary.name} houses",
-            reference_chart=primary_natal,
-            overlay_chart=secondary_natal,
-            aspect_set=request.settings.aspect_set,
-            orb_profile=request.settings.orb_profile,
-        )
-        secondary_overlay = self.overlay.build(
-            overlay_id="primary-in-secondary",
-            label=f"{request.primary.name} in {request.secondary.name} houses",
-            reference_chart=secondary_natal,
-            overlay_chart=primary_natal,
-            aspect_set=request.settings.aspect_set,
-            orb_profile=request.settings.orb_profile,
-        )
+    def build_chart_result(
+        self,
+        *,
+        primary_chart: ChartResult,
+        secondary_chart: ChartResult,
+        primary_overlay: ChartOverlay,
+        secondary_overlay: ChartOverlay,
+        settings: ChartSettings,
+    ) -> ChartResult:
+        primary_profile = primary_chart.profiles[0]
+        secondary_profile = secondary_chart.profiles[0]
 
         return ChartResult(
-            chartId=build_synastry_chart_id(request),
+            chartId=build_synastry_chart_id_from_profiles(primary_profile, secondary_profile),
             chartType="synastry",
-            title=f"{request.primary.name} × {request.secondary.name} Synastry Chart",
-            profiles=[request.primary, request.secondary],
-            calculation=CalculationMetadata(
-                engine=self.ephemeris.engine_name,
-                engineVersion=self.ephemeris.engine_version,
-                calculatedAt=datetime.now(UTC).isoformat(),
-            ),
-            placements=[*primary_planets, *secondary_planets],
+            title=f"{primary_profile.name} × {secondary_profile.name} Synastry Chart",
+            profiles=[primary_profile, secondary_profile],
+            calculation=self.build_calculation_metadata(),
+            placements=[
+                *planetary_placements(primary_chart.placements),
+                *planetary_placements(secondary_chart.placements),
+            ],
             houses=[],
             aspects=primary_overlay.aspects,
             relatedCharts={
-                "primaryNatal": primary_natal.model_dump(by_alias=True),
-                "secondaryNatal": secondary_natal.model_dump(by_alias=True),
+                "primaryNatal": primary_chart.model_dump(by_alias=True),
+                "secondaryNatal": secondary_chart.model_dump(by_alias=True),
                 "primaryOverlay": primary_overlay.model_dump(by_alias=True),
                 "secondaryOverlay": secondary_overlay.model_dump(by_alias=True),
             },
         )
+
+
+class SynastryChartService:
+    def __init__(self, ephemeris: EphemerisService | None = None) -> None:
+        self.generator = SynastryGenerator(ChartGenerationContext.create(ephemeris))
+
+    def calculate(self, request: SynastryChartRequest) -> ChartResult:
+        return self.generator.generate(request.primary, request.secondary, request.settings)
 
 
 def planetary_placements(placements: list[Placement]) -> list[Placement]:
@@ -72,34 +66,24 @@ def calculate_inter_chart_aspects(
     aspect_set: str = "major",
     orb_profile: str = "default",
 ) -> list[Aspect]:
-    aspects: list[Aspect] = []
-    definitions = resolve_aspect_set(aspect_set)
-    orb_limit = resolve_orb_limit(orb_profile)
+    return calculate_overlay_inter_chart_aspects(
+        primary_placements,
+        secondary_placements,
+        definitions=resolve_aspect_set(aspect_set),
+        orb_limit=resolve_orb_limit(orb_profile),
+    )
 
-    for primary in primary_placements:
-        for secondary in secondary_placements:
-            angle = angular_distance(primary.longitude, secondary.longitude)
-            aspect = closest_aspect(angle, definitions, orb_limit)
 
-            if aspect is None:
-                continue
-
-            aspect_type, orb = aspect
-            aspects.append(
-                Aspect(
-                    **{
-                        "from": primary.body,
-                        "to": secondary.body,
-                        "type": aspect_type,
-                        "angle": round(angle, 6),
-                        "orb": round(orb, 6),
-                    }
-                )
-            )
-
-    return sorted(aspects, key=lambda item: item.orb)
+def build_synastry_chart_id_from_profiles(
+    primary_profile: BirthProfile,
+    secondary_profile: BirthProfile,
+) -> str:
+    raw = (
+        f"synastry-{primary_profile.name}-{secondary_profile.name}-"
+        f"{primary_profile.date}-{secondary_profile.date}"
+    )
+    return re.sub(r"[^a-z0-9]+", "-", raw.lower()).strip("-")
 
 
 def build_synastry_chart_id(request: SynastryChartRequest) -> str:
-    raw = f"synastry-{request.primary.name}-{request.secondary.name}-{request.primary.date}-{request.secondary.date}"
-    return re.sub(r"[^a-z0-9]+", "-", raw.lower()).strip("-")
+    return build_synastry_chart_id_from_profiles(request.primary, request.secondary)

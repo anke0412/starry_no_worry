@@ -76,6 +76,15 @@ Required for calculated natal charts, synastry source natal charts, and transit 
 
 The backend currently supports `placidus` houses, `tropical` zodiac, `major` aspects, and the default orb profile. Unsupported house systems return `422 invalid_chart_request`.
 
+## Shared Generation Layer
+
+Phase 2 introduces a shared backend generation framework for higher-order chart families.
+This is an internal orchestration change only.
+
+- `/api/charts/transit` response shape is unchanged
+- `/api/charts/synastry` response shape is unchanged
+- future derived and fusion chart families should reuse the same service layer
+
 ## Chart Endpoints
 
 ### POST /api/charts/natal
@@ -104,12 +113,16 @@ Request:
 
 Response: `ChartResult`.
 
-The natal response includes real planet placements, mean lunar nodes, major aspects, 12 Placidus house cusps, Ascendant, Midheaven, and the house number for each placement.
+The natal response includes real planet placements, supplemental calculated points, mean lunar nodes, major aspects, 12 Placidus house cusps, Ascendant, Midheaven, and the house number for each placement.
 
-`placements` includes the 10 default planets followed by:
+`placements` includes the core planets plus calculated points including:
 
+- `Chiron`
+- `Lilith`
 - `North Node`
 - `South Node`
+- `Part of Fortune`
+- `Vertex`
 - `Ascendant`
 - `Midheaven`
 

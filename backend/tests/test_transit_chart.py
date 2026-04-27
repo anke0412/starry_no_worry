@@ -1,6 +1,8 @@
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.models.chart import TransitChartRequest
+from app.services.transit import TransitChartService, TransitTargetContext
 
 
 client = TestClient(app)
@@ -22,6 +24,31 @@ def transit_payload() -> dict:
     }
 
 
+def test_transit_service_delegates_to_generator_with_transit_context(monkeypatch):
+    request = TransitChartRequest.model_validate(transit_payload())
+    service = TransitChartService()
+    delegated_result = object()
+    captured: dict[str, object] = {}
+
+    def fake_generate(primary, settings, target_context):
+        captured["primary"] = primary
+        captured["settings"] = settings
+        captured["target_context"] = target_context
+        return delegated_result
+
+    monkeypatch.setattr(service.generator, "generate", fake_generate)
+
+    result = service.calculate(request)
+
+    assert result is delegated_result
+    assert captured["primary"] == request.primary
+    assert captured["settings"] == request.settings
+    assert captured["target_context"] == TransitTargetContext(
+        transit_date=request.transit_date,
+        transit_time=request.transit_time,
+    )
+
+
 def test_transit_endpoint_returns_natal_transit_sky_and_inter_chart_aspects():
     response = client.post("/api/charts/transit", json=transit_payload())
 
@@ -34,6 +61,11 @@ def test_transit_endpoint_returns_natal_transit_sky_and_inter_chart_aspects():
     assert len(data["profiles"]) == 1
     assert len(data["placements"]) == 32
     assert data["houses"] == []
+    assert set(data["relatedCharts"].keys()) == {
+        "primaryNatal",
+        "transitSky",
+        "transitOverlay",
+    }
     assert data["relatedCharts"]["primaryNatal"]["chartType"] == "natal"
     assert "North Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
     assert "South Node" in [placement["body"] for placement in data["relatedCharts"]["primaryNatal"]["placements"]]
