@@ -78,7 +78,7 @@ function normalizeBirthProfile(profile) {
 
 function normalizeReturnLocation(location) {
   return compactObject({
-    locationName: location.locationName,
+    locationName: location.locationName ?? location.location,
     latitude: normalizeCoordinate(location.latitude),
     longitude: normalizeCoordinate(location.longitude),
     timezone: location.timezone,

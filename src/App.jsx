@@ -2,6 +2,14 @@ import React, { useState, useTransition } from "react";
 
 import { ChartWheel } from "./components/chart/ChartWheel.jsx";
 import { categoriesForMode, readingModes } from "./data/chartCatalog.js";
+import {
+  applyPresetToLocation,
+  cityOptions,
+  countryOptions,
+  defaultLocationState,
+  isCustomLocation,
+  locationSummary,
+} from "./data/locationCatalog.js";
 import { calculateChart } from "./lib/api/chartApi.js";
 import {
   aspectSetOptions,
@@ -17,19 +25,13 @@ const defaultPeople = {
     name: "古乐兽",
     date: "1996-01-01",
     time: "08:30",
-    location: "上海",
-    latitude: "31.2304",
-    longitude: "121.4737",
-    timezone: "Asia/Shanghai",
+    ...defaultLocationState("china", "shanghai"),
   },
   secondary: {
     name: "大耳兽",
     date: "2000-01-01",
     time: "21:10",
-    location: "北京",
-    latitude: "39.9042",
-    longitude: "116.4074",
-    timezone: "Asia/Shanghai",
+    ...defaultLocationState("china", "beijing"),
   },
 };
 
@@ -43,10 +45,7 @@ export default function App() {
   const [solarReturnAnchorDate, setSolarReturnAnchorDate] = useState("2026-04-27");
   const [solarReturnAnchorTime, setSolarReturnAnchorTime] = useState("18:00");
   const [solarReturnLocation, setSolarReturnLocation] = useState({
-    locationName: "东京",
-    latitude: "35.6762",
-    longitude: "139.6503",
-    timezone: "Asia/Tokyo",
+    ...defaultLocationState("china", "shanghai"),
   });
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
@@ -103,8 +102,7 @@ export default function App() {
     setPeople((current) => ({
       ...current,
       [role]: {
-        ...current[role],
-        [field]: value,
+        ...updateLocationField(current[role], field, value),
       },
     }));
   }
@@ -117,10 +115,7 @@ export default function App() {
   }
 
   function updateSolarReturnLocation(field, value) {
-    setSolarReturnLocation((current) => ({
-      ...current,
-      [field]: value,
-    }));
+    setSolarReturnLocation((current) => updateLocationField(current, field, value));
   }
 
   function handleGoHome() {
@@ -345,6 +340,8 @@ export default function App() {
 }
 
 function PersonFields({ person, role, title, onChange }) {
+  const cities = cityOptions(person.countryId);
+
   return (
     <fieldset className="person-fields">
       <legend>{title}</legend>
@@ -361,67 +358,136 @@ function PersonFields({ person, role, title, onChange }) {
         <input type="time" value={person.time} onChange={(event) => onChange(role, "time", event.target.value)} />
       </label>
       <label>
-        出生地
-        <input value={person.location} onChange={(event) => onChange(role, "location", event.target.value)} />
+        国家
+        <select value={person.countryId} onChange={(event) => onChange(role, "countryId", event.target.value)}>
+          {countryOptions().map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </label>
       <label>
-        纬度
-        <input
-          type="number"
-          step="0.0001"
-          value={person.latitude}
-          onChange={(event) => onChange(role, "latitude", event.target.value)}
-        />
+        地区 / 城市
+        <select value={person.cityId} onChange={(event) => onChange(role, "cityId", event.target.value)}>
+          {cities.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </label>
-      <label>
-        经度
-        <input
-          type="number"
-          step="0.0001"
-          value={person.longitude}
-          onChange={(event) => onChange(role, "longitude", event.target.value)}
-        />
-      </label>
-      <label>
-        时区
-        <input value={person.timezone} onChange={(event) => onChange(role, "timezone", event.target.value)} />
-      </label>
+      {isCustomLocation(person) ? (
+        <>
+          <label>
+            出生地名称
+            <input value={person.location} onChange={(event) => onChange(role, "location", event.target.value)} />
+          </label>
+          <label>
+            纬度
+            <input
+              type="number"
+              step="0.0001"
+              value={person.latitude}
+              onChange={(event) => onChange(role, "latitude", event.target.value)}
+            />
+          </label>
+          <label>
+            经度
+            <input
+              type="number"
+              step="0.0001"
+              value={person.longitude}
+              onChange={(event) => onChange(role, "longitude", event.target.value)}
+            />
+          </label>
+          <label>
+            时区
+            <input value={person.timezone} onChange={(event) => onChange(role, "timezone", event.target.value)} />
+          </label>
+        </>
+      ) : (
+        <p className="location-summary">自动坐标：{locationSummary(person)}</p>
+      )}
     </fieldset>
   );
 }
 
 function ReturnLocationFields({ location, onChange }) {
+  const cities = cityOptions(location.countryId);
+
   return (
     <fieldset className="person-fields">
       <legend>日返发生地</legend>
       <label>
-        地点
-        <input value={location.locationName} onChange={(event) => onChange("locationName", event.target.value)} />
+        国家
+        <select value={location.countryId} onChange={(event) => onChange("countryId", event.target.value)}>
+          {countryOptions().map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </label>
       <label>
-        纬度
-        <input
-          type="number"
-          step="0.0001"
-          value={location.latitude}
-          onChange={(event) => onChange("latitude", event.target.value)}
-        />
+        地区 / 城市
+        <select value={location.cityId} onChange={(event) => onChange("cityId", event.target.value)}>
+          {cities.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </label>
-      <label>
-        经度
-        <input
-          type="number"
-          step="0.0001"
-          value={location.longitude}
-          onChange={(event) => onChange("longitude", event.target.value)}
-        />
-      </label>
-      <label>
-        时区
-        <input value={location.timezone} onChange={(event) => onChange("timezone", event.target.value)} />
-      </label>
+      {isCustomLocation(location) ? (
+        <>
+          <label>
+            地点名称
+            <input value={location.location} onChange={(event) => onChange("location", event.target.value)} />
+          </label>
+          <label>
+            纬度
+            <input
+              type="number"
+              step="0.0001"
+              value={location.latitude}
+              onChange={(event) => onChange("latitude", event.target.value)}
+            />
+          </label>
+          <label>
+            经度
+            <input
+              type="number"
+              step="0.0001"
+              value={location.longitude}
+              onChange={(event) => onChange("longitude", event.target.value)}
+            />
+          </label>
+          <label>
+            时区
+            <input value={location.timezone} onChange={(event) => onChange("timezone", event.target.value)} />
+          </label>
+        </>
+      ) : (
+        <p className="location-summary">自动坐标：{locationSummary(location)}</p>
+      )}
     </fieldset>
   );
+}
+
+function updateLocationField(current, field, value) {
+  if (field === "countryId") {
+    return applyPresetToLocation(current, value, value === "custom" ? "custom" : cityOptions(value)[0].value);
+  }
+
+  if (field === "cityId") {
+    return applyPresetToLocation(current, current.countryId, value);
+  }
+
+  return {
+    ...current,
+    [field]: value,
+  };
 }
 
 function ChartPanel({ result }) {

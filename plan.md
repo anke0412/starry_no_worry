@@ -54,6 +54,7 @@ Core capabilities:
 - FastAPI backend calculation service
 - Accurate planet positions from a professional ephemeris library
 - Birth datetime, timezone, and location normalization
+- Built-in location presets for China and the United States, with custom location fallback for manual coordinates and timezone entry
 - Ascendant, Midheaven, twelve houses, and major aspects
 - Clear readable chart wheel
 - Chart data tables for placements, houses, and aspects
@@ -115,6 +116,7 @@ Additions:
 - Midpoint charts
 - Advanced relationship techniques
 - Additional timing systems such as profections, zodiacal releasing, firdaria, or other selected systems
+- Expanded built-in location coverage for additional commonly used countries and cities beyond the Phase 1 China and United States presets
 - User accounts
 - Cloud-saved birth profiles, chart history, and generated reports
 - Shareable chart and report links
