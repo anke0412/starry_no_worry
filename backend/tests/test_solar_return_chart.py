@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from fastapi.testclient import TestClient
 
@@ -43,6 +44,18 @@ def build_profile() -> BirthProfile:
         date="1996-04-12",
         time="08:30",
         locationName="Shanghai",
+        latitude=31.2304,
+        longitude=121.4737,
+        timezone="Asia/Shanghai",
+    )
+
+
+def build_january_profile() -> BirthProfile:
+    return BirthProfile(
+        name="古乐兽",
+        date="1996-01-01",
+        time="08:30",
+        locationName="上海",
         latitude=31.2304,
         longitude=121.4737,
         timezone="Asia/Shanghai",
@@ -94,6 +107,22 @@ def test_find_solar_return_datetime_uses_anchor_timezone():
 
     assert result.tzinfo is not None
     assert result.isoformat().endswith("+00:00")
+
+
+def test_find_solar_return_datetime_finds_return_within_anchor_year_even_if_anchor_is_months_late():
+    result = find_solar_return_datetime(
+        SolarReturnSearchInput(
+            natal_profile=build_january_profile(),
+            anchor_date="2026-04-23",
+            anchor_time="18:00",
+            anchor_timezone="Asia/Shanghai",
+        )
+    )
+
+    local_result = result.astimezone(ZoneInfo("Asia/Shanghai"))
+
+    assert local_result.year == 2026
+    assert local_result.month == 1
 
 
 def test_solar_return_service_delegates_to_generator(monkeypatch):
