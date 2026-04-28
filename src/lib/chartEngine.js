@@ -87,7 +87,7 @@ function normalizePerson(person) {
 
 function normalizeSolarReturnLocation(location) {
   return {
-    locationName: location.locationName?.trim() || "",
+    locationName: location.location?.trim() || location.locationName?.trim() || "",
     latitude: location.latitude,
     longitude: location.longitude,
     timezone: location.timezone,

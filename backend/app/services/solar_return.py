@@ -17,7 +17,6 @@ from app.services.chart_generators import ChartGenerationContext, SingleSubjectD
 from app.services.ephemeris import EphemerisService
 from app.services.synastry import planetary_placements
 
-SEARCH_WINDOW_HOURS = 24 * 40
 COARSE_STEP_MINUTES = 30
 BISECTION_TOLERANCE_SECONDS = 1
 BISECTION_ITERATIONS = 32
@@ -58,23 +57,24 @@ def find_solar_return_datetime(
         raise ValueError("Solar return location timezone is required.")
 
     service = ephemeris or EphemerisService()
-    anchor = service.normalize_local_datetime(
-        search_input.anchor_date,
-        search_input.anchor_time,
-        search_input.anchor_timezone,
-    )
+    anchor_timezone = ZoneInfo(search_input.anchor_timezone)
+    anchor_local = datetime.fromisoformat(
+        f"{search_input.anchor_date}T{search_input.anchor_time}"
+    ).replace(tzinfo=anchor_timezone)
+    anchor = anchor_local.astimezone(UTC)
     natal_sun_longitude = natal_sun_longitude_for_profile(search_input.natal_profile, service)
-    lower, upper = bracket_solar_return(anchor, natal_sun_longitude, service)
+    lower, upper = bracket_solar_return(anchor_local.year, search_input.anchor_timezone, natal_sun_longitude, service)
     return bisect_solar_return(lower, upper, natal_sun_longitude, service)
 
 
 def bracket_solar_return(
-    anchor: datetime,
+    anchor_year: int,
+    anchor_timezone: str,
     natal_sun_longitude: float,
     ephemeris: EphemerisService,
 ) -> tuple[datetime, datetime]:
-    start = anchor - timedelta(hours=SEARCH_WINDOW_HOURS)
-    end = anchor + timedelta(hours=SEARCH_WINDOW_HOURS)
+    start = ephemeris.normalize_local_datetime(f"{anchor_year}-01-01", "00:00", anchor_timezone)
+    end = ephemeris.normalize_local_datetime(f"{anchor_year + 1}-01-01", "00:00", anchor_timezone)
     step = timedelta(minutes=COARSE_STEP_MINUTES)
 
     current = start
