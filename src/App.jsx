@@ -7,8 +7,6 @@ import {
   cityOptions,
   countryOptions,
   defaultLocationState,
-  isCustomLocation,
-  locationSummary,
 } from "./data/locationCatalog.js";
 import { calculateChart } from "./lib/api/chartApi.js";
 import {
@@ -377,38 +375,32 @@ function PersonFields({ person, role, title, onChange }) {
           ))}
         </select>
       </label>
-      {isCustomLocation(person) ? (
-        <>
-          <label>
-            出生地名称
-            <input value={person.location} onChange={(event) => onChange(role, "location", event.target.value)} />
-          </label>
-          <label>
-            纬度
-            <input
-              type="number"
-              step="0.0001"
-              value={person.latitude}
-              onChange={(event) => onChange(role, "latitude", event.target.value)}
-            />
-          </label>
-          <label>
-            经度
-            <input
-              type="number"
-              step="0.0001"
-              value={person.longitude}
-              onChange={(event) => onChange(role, "longitude", event.target.value)}
-            />
-          </label>
-          <label>
-            时区
-            <input value={person.timezone} onChange={(event) => onChange(role, "timezone", event.target.value)} />
-          </label>
-        </>
-      ) : (
-        <p className="location-summary">自动坐标：{locationSummary(person)}</p>
-      )}
+      <label>
+        出生地名称
+        <input value={person.location} onChange={(event) => onChange(role, "location", event.target.value)} />
+      </label>
+      <label>
+        纬度
+        <input
+          type="number"
+          step="0.0001"
+          value={person.latitude}
+          onChange={(event) => onChange(role, "latitude", event.target.value)}
+        />
+      </label>
+      <label>
+        经度
+        <input
+          type="number"
+          step="0.0001"
+          value={person.longitude}
+          onChange={(event) => onChange(role, "longitude", event.target.value)}
+        />
+      </label>
+      <label>
+        时区
+        <input value={person.timezone} onChange={(event) => onChange(role, "timezone", event.target.value)} />
+      </label>
     </fieldset>
   );
 }
@@ -439,38 +431,32 @@ function ReturnLocationFields({ location, onChange }) {
           ))}
         </select>
       </label>
-      {isCustomLocation(location) ? (
-        <>
-          <label>
-            地点名称
-            <input value={location.location} onChange={(event) => onChange("location", event.target.value)} />
-          </label>
-          <label>
-            纬度
-            <input
-              type="number"
-              step="0.0001"
-              value={location.latitude}
-              onChange={(event) => onChange("latitude", event.target.value)}
-            />
-          </label>
-          <label>
-            经度
-            <input
-              type="number"
-              step="0.0001"
-              value={location.longitude}
-              onChange={(event) => onChange("longitude", event.target.value)}
-            />
-          </label>
-          <label>
-            时区
-            <input value={location.timezone} onChange={(event) => onChange("timezone", event.target.value)} />
-          </label>
-        </>
-      ) : (
-        <p className="location-summary">自动坐标：{locationSummary(location)}</p>
-      )}
+      <label>
+        地点名称
+        <input value={location.location} onChange={(event) => onChange("location", event.target.value)} />
+      </label>
+      <label>
+        纬度
+        <input
+          type="number"
+          step="0.0001"
+          value={location.latitude}
+          onChange={(event) => onChange("latitude", event.target.value)}
+        />
+      </label>
+      <label>
+        经度
+        <input
+          type="number"
+          step="0.0001"
+          value={location.longitude}
+          onChange={(event) => onChange("longitude", event.target.value)}
+        />
+      </label>
+      <label>
+        时区
+        <input value={location.timezone} onChange={(event) => onChange("timezone", event.target.value)} />
+      </label>
     </fieldset>
   );
 }
