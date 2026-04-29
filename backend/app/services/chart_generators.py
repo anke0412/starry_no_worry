@@ -153,10 +153,36 @@ class DualSubjectComparisonGenerator(BaseChartGenerator):
 
 
 class DualSubjectFusionGenerator(BaseChartGenerator):
+    def build_fused_chart(
+        self,
+        primary_chart: ChartResult,
+        secondary_chart: ChartResult,
+        settings: ChartSettings,
+    ) -> ChartResult:
+        raise NotImplementedError
+
+    def build_chart_result(
+        self,
+        *,
+        primary_chart: ChartResult,
+        secondary_chart: ChartResult,
+        fused_chart: ChartResult,
+        settings: ChartSettings,
+    ) -> ChartResult:
+        raise NotImplementedError
+
     def generate(
         self,
         primary_profile: BirthProfile,
         secondary_profile: BirthProfile,
         settings: ChartSettings,
     ) -> ChartResult:
-        raise NotImplementedError
+        primary_chart = self.context.natal.calculate_from_profile(primary_profile, settings)
+        secondary_chart = self.context.natal.calculate_from_profile(secondary_profile, settings)
+        fused_chart = self.build_fused_chart(primary_chart, secondary_chart, settings)
+        return self.build_chart_result(
+            primary_chart=primary_chart,
+            secondary_chart=secondary_chart,
+            fused_chart=fused_chart,
+            settings=settings,
+        )

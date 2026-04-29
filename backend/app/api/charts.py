@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException, status
 
 from app.models.chart import (
     ChartResult,
+    CompositeChartRequest,
+    DavisonChartRequest,
     NatalChartRequest,
     SolarReturnChartRequest,
     SynastryChartRequest,
@@ -33,6 +35,38 @@ def create_natal_chart(request: NatalChartRequest) -> ChartResult:
 def create_synastry_chart(request: SynastryChartRequest) -> ChartResult:
     try:
         return SynastryChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
+@router.post("/composite", response_model=ChartResult, response_model_by_alias=True)
+def create_composite_chart(request: CompositeChartRequest) -> ChartResult:
+    from app.services.composite import CompositeChartService
+
+    try:
+        return CompositeChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
+@router.post("/davison", response_model=ChartResult, response_model_by_alias=True)
+def create_davison_chart(request: DavisonChartRequest) -> ChartResult:
+    from app.services.davison import DavisonChartService
+
+    try:
+        return DavisonChartService().calculate(request)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,

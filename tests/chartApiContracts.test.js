@@ -3,10 +3,13 @@ import assert from "node:assert/strict";
 
 import {
   aspectSetOptions,
+  buildCompositeChartPayload,
+  buildDavisonChartPayload,
   buildNatalChartPayload,
   buildSolarReturnChartPayload,
   buildSynastryChartPayload,
   buildTransitChartPayload,
+  defaultChartSettings,
   houseSystemOptions,
   orbProfileOptions,
 } from "../src/lib/api/chartContracts.js";
@@ -57,6 +60,54 @@ test("builds a synastry chart API payload with two profiles", () => {
   assert.equal(payload.primary.name, "Luna");
   assert.equal(payload.secondary.name, "Sol");
   assert.equal(payload.settings.houseSystem, "placidus");
+});
+
+test("builds composite payload from two birth profiles", () => {
+  assert.deepEqual(buildCompositeChartPayload(primary, secondary), {
+    primary: {
+      name: "Luna",
+      date: "1996-04-12",
+      time: "08:30",
+      locationName: "Shanghai",
+      latitude: 31.2304,
+      longitude: 121.4737,
+      timezone: "Asia/Shanghai",
+    },
+    secondary: {
+      name: "Sol",
+      date: "1993-09-07",
+      time: "21:10",
+      locationName: "Beijing",
+      latitude: 39.9042,
+      longitude: 116.4074,
+      timezone: "Asia/Shanghai",
+    },
+    settings: defaultChartSettings,
+  });
+});
+
+test("builds davison payload from two birth profiles", () => {
+  assert.deepEqual(buildDavisonChartPayload(primary, secondary), {
+    primary: {
+      name: "Luna",
+      date: "1996-04-12",
+      time: "08:30",
+      locationName: "Shanghai",
+      latitude: 31.2304,
+      longitude: 121.4737,
+      timezone: "Asia/Shanghai",
+    },
+    secondary: {
+      name: "Sol",
+      date: "1993-09-07",
+      time: "21:10",
+      locationName: "Beijing",
+      latitude: 39.9042,
+      longitude: 116.4074,
+      timezone: "Asia/Shanghai",
+    },
+    settings: defaultChartSettings,
+  });
 });
 
 test("builds a transit chart API payload with transit target time", () => {

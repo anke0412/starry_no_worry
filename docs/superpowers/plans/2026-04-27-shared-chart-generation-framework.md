@@ -8,6 +8,19 @@
 
 **Tech Stack:** Python 3.12, FastAPI, Pydantic, `ephem`, `pyswisseph`, pytest.
 
+## Status
+
+- Status: `Completed`
+- Phase: `Verified backfill`
+- Primary Owner: `not recorded`
+- Implement Agent: `not recorded`
+- Review Agent: `not recorded`
+- Verify Agent: `main-agent-backfill-verification`
+- Last Verified: `2026-04-28`
+- Verification Commands:
+  - `cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytest tests/test_chart_generators.py tests/test_transit_chart.py tests/test_synastry_chart.py tests/test_solar_return_chart.py -q`
+  - `cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytest -q`
+
 ---
 
 ## File Structure
@@ -38,7 +51,7 @@
 - Test: `backend/tests/test_transit_chart.py`
 - Test: `backend/tests/test_synastry_chart.py`
 
-- [ ] **Step 1: Write a failing unit test for the single-subject derived generator contract**
+- [x] **Step 1: Write a failing unit test for the single-subject derived generator contract**
 
 ```python
 from app.models.chart import BirthProfile, ChartSettings, ChartResult
@@ -96,7 +109,7 @@ def test_single_subject_generator_builds_primary_derived_and_overlay():
     assert result.related_charts["derivedOverlay"]["referenceName"] == "Luna"
 ```
 
-- [ ] **Step 2: Write a failing unit test for the dual-subject comparison generator contract**
+- [x] **Step 2: Write a failing unit test for the dual-subject comparison generator contract**
 
 ```python
 from app.models.chart import BirthProfile, ChartResult, ChartSettings
@@ -160,7 +173,7 @@ def test_dual_subject_generator_builds_two_natals_and_directional_overlays():
     assert result.related_charts["secondaryOverlay"]["referenceName"] == "Sol"
 ```
 
-- [ ] **Step 3: Write a failing unit test for the dual-subject fusion extension point**
+- [x] **Step 3: Write a failing unit test for the dual-subject fusion extension point**
 
 ```python
 import pytest
@@ -200,6 +213,7 @@ def test_dual_subject_fusion_requires_subclass_implementation():
 ```
 
 - [ ] **Step 4: Run the new tests to confirm the framework does not exist yet**
+Historical red-phase evidence is not recorded; current framework tests pass.
 
 Run:
 
@@ -209,7 +223,7 @@ cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytes
 
 Expected: FAIL with import or attribute errors because `chart_generators.py` and the generator classes do not exist yet.
 
-- [ ] **Step 5: Add narrow compatibility assertions to existing API tests**
+- [x] **Step 5: Add narrow compatibility assertions to existing API tests**
 
 ```python
 assert set(data["relatedCharts"].keys()) == {
@@ -245,7 +259,8 @@ Expected: PASS before the refactor, proving the compatibility baseline is stable
 - Modify: `backend/app/services/__init__.py`
 - Test: `backend/tests/test_chart_generators.py`
 
-- [ ] **Step 1: Add a lightweight shared context and base generator**
+- [x] **Step 1: Add a lightweight shared context and base generator**
+Current implementation is equivalent, but `ChartGenerationContext` uses `@dataclass(frozen=True)` instead of `slots=True`; needs re-verify only if slot semantics matter.
 
 ```python
 from dataclasses import dataclass
@@ -285,7 +300,7 @@ class BaseChartGenerator:
         )
 ```
 
-- [ ] **Step 2: Add the single-subject derived flow**
+- [x] **Step 2: Add the single-subject derived flow**
 
 ```python
 class SingleSubjectDerivedGenerator(BaseChartGenerator):
@@ -328,7 +343,7 @@ class SingleSubjectDerivedGenerator(BaseChartGenerator):
         )
 ```
 
-- [ ] **Step 3: Add the dual-subject comparison and fusion flows**
+- [x] **Step 3: Add the dual-subject comparison and fusion flows**
 
 ```python
 class DualSubjectComparisonGenerator(BaseChartGenerator):
@@ -378,6 +393,7 @@ class DualSubjectFusionGenerator(BaseChartGenerator):
 ```
 
 - [ ] **Step 4: Export the new module if package exports are used**
+`backend/app/services/__init__.py` remains a docstring-only package marker, and current imports do not require re-exports.
 
 ```python
 from app.services.chart_generators import (
@@ -389,7 +405,7 @@ from app.services.chart_generators import (
 )
 ```
 
-- [ ] **Step 5: Run the framework tests**
+- [x] **Step 5: Run the framework tests**
 
 Run:
 
@@ -405,7 +421,7 @@ Expected: PASS.
 - Modify: `backend/app/services/transit.py`
 - Test: `backend/tests/test_transit_chart.py`
 
-- [ ] **Step 1: Replace the current transit orchestration with a dedicated generator subclass**
+- [x] **Step 1: Replace the current transit orchestration with a dedicated generator subclass**
 
 ```python
 from app.models.chart import BirthProfile, ChartResult, TransitChartRequest
@@ -447,7 +463,7 @@ class TransitGenerator(SingleSubjectDerivedGenerator):
         )
 ```
 
-- [ ] **Step 2: Make `TransitChartService` a thin adapter**
+- [x] **Step 2: Make `TransitChartService` a thin adapter**
 
 ```python
 class TransitChartService:
@@ -458,7 +474,8 @@ class TransitChartService:
         return self.generator.generate(request.primary, request.settings, {"request": request})
 ```
 
-- [ ] **Step 3: Remove now-duplicated helper methods only if the test suite still stays green**
+- [x] **Step 3: Remove now-duplicated helper methods only if the test suite still stays green**
+Current helpers are limited to the still-used transit profile/id builders.
 
 ```python
 def build_transit_profile(request: TransitChartRequest) -> BirthProfile:
@@ -467,7 +484,7 @@ def build_transit_profile(request: TransitChartRequest) -> BirthProfile:
 
 Keep only the helpers still used by the generator subclass.
 
-- [ ] **Step 4: Run the transit tests**
+- [x] **Step 4: Run the transit tests**
 
 Run:
 
@@ -483,7 +500,7 @@ Expected: PASS with no response-shape change.
 - Modify: `backend/app/services/synastry.py`
 - Test: `backend/tests/test_synastry_chart.py`
 
-- [ ] **Step 1: Preserve the placement filtering helper as a reusable chart-family rule**
+- [x] **Step 1: Preserve the placement filtering helper as a reusable chart-family rule**
 
 ```python
 def planetary_placements(placements: list[Placement]) -> list[Placement]:
@@ -494,7 +511,7 @@ def planetary_placements(placements: list[Placement]) -> list[Placement]:
     ]
 ```
 
-- [ ] **Step 2: Replace the current orchestration with a dedicated comparison generator subclass**
+- [x] **Step 2: Replace the current orchestration with a dedicated comparison generator subclass**
 
 ```python
 from app.models.chart import ChartResult, SynastryChartRequest
@@ -524,7 +541,7 @@ class SynastryGenerator(DualSubjectComparisonGenerator):
         )
 ```
 
-- [ ] **Step 3: Make `SynastryChartService` a thin adapter**
+- [x] **Step 3: Make `SynastryChartService` a thin adapter**
 
 ```python
 class SynastryChartService:
@@ -535,7 +552,7 @@ class SynastryChartService:
         return self.generator.generate(request.primary, request.secondary, request.settings)
 ```
 
-- [ ] **Step 4: Keep the public helper `calculate_inter_chart_aspects` only if tests or other modules still use it**
+- [x] **Step 4: Keep the public helper `calculate_inter_chart_aspects` only if tests or other modules still use it**
 
 ```python
 def calculate_inter_chart_aspects(...):
@@ -544,7 +561,7 @@ def calculate_inter_chart_aspects(...):
 
 If it is only test scaffolding now, either leave it in place for compatibility or move the tests to `ChartOverlayService` behavior intentionally before deleting it.
 
-- [ ] **Step 5: Run the synastry tests**
+- [x] **Step 5: Run the synastry tests**
 
 Run:
 
@@ -562,7 +579,7 @@ Expected: PASS with no response-shape change.
 - Test: `backend/tests/test_synastry_chart.py`
 - Test: `backend/tests/test_transit_chart.py`
 
-- [ ] **Step 1: Update the API contract notes**
+- [x] **Step 1: Update the API contract notes**
 
 ```md
 ## Shared Generation Layer
@@ -575,7 +592,7 @@ This is an internal orchestration change only.
 - future derived and fusion chart families should reuse the same service layer
 ```
 
-- [ ] **Step 2: Run the focused backend suite**
+- [x] **Step 2: Run the focused backend suite**
 
 Run:
 
@@ -585,7 +602,7 @@ cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytes
 
 Expected: PASS.
 
-- [ ] **Step 3: Run the full backend suite**
+- [x] **Step 3: Run the full backend suite**
 
 Run:
 
@@ -596,6 +613,7 @@ cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytes
 Expected: PASS.
 
 - [ ] **Step 4: Commit the implementation**
+No commit evidence was recorded during this backfill.
 
 ```bash
 git add backend/app/services/chart_generators.py \
@@ -610,6 +628,7 @@ git commit -m "refactor: add shared chart generation framework"
 ```
 
 - [ ] **Step 5: Push the working branch**
+No push evidence was recorded during this backfill.
 
 ```bash
 git push origin dev_add_shared_chart_generation_framework

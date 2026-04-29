@@ -37,6 +37,14 @@ export function buildSynastryChartPayload(primary, secondary, settings = default
   };
 }
 
+export function buildCompositeChartPayload(primary, secondary, settings = defaultChartSettings) {
+  return buildSynastryChartPayload(primary, secondary, settings);
+}
+
+export function buildDavisonChartPayload(primary, secondary, settings = defaultChartSettings) {
+  return buildSynastryChartPayload(primary, secondary, settings);
+}
+
 export function buildTransitChartPayload(primary, transit, settings = defaultChartSettings) {
   return {
     primary: normalizeBirthProfile(primary),
