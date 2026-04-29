@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { calculateChart } from "../src/lib/api/chartApi.js";
+import { chartCategories, categoriesForMode } from "../src/data/chartCatalog.js";
 
 function successfulFetch(expectedPath, responseBody) {
   return async (url, options) => {
@@ -400,16 +401,188 @@ test("maps overlay house placements for synastry and transit results", async () 
   assert.equal(transitChart.overlays[0].placements[0].overlayHouseRuler, "土星");
 });
 
-test("rejects future chart categories that are not in the phase 1 backend", async () => {
-  await assert.rejects(
-    calculateChart({
+test("calculateChart routes composite requests to the composite endpoint", async () => {
+  let capturedUrl;
+  let requestBody;
+
+  await calculateChart(
+    {
       mode: "couple",
       category: "composite",
       people: [primary],
       primary,
+      secondary: { ...primary, name: "Sol" },
       forecastDate: "",
       forecastTime: "12:00",
-    }),
-    /暂未接入第一阶段后端计算/,
+    },
+    async (url, options) => {
+      capturedUrl = url;
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "composite-luna-sol",
+            chartType: "composite",
+            title: "Luna × Sol Composite Chart",
+            placements: [],
+            aspects: [],
+          };
+        },
+      };
+    },
   );
+
+  assert.equal(capturedUrl, "http://localhost:8000/api/charts/composite");
+  assert.equal(requestBody.primary.name, "Luna");
+  assert.equal(requestBody.secondary.name, "Sol");
+});
+
+test("chart catalog includes davison under couple mode", () => {
+  const davison = chartCategories.find((category) => category.id === "davison");
+
+  assert.ok(davison);
+  assert.equal(davison.mode, "couple");
+  assert.equal(categoriesForMode("couple").some((category) => category.id === "davison"), true);
+});
+
+test("calculateChart routes davison requests to the davison endpoint", async () => {
+  let capturedUrl;
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "couple",
+      category: "davison",
+      people: [primary],
+      primary,
+      secondary: { ...primary, name: "Sol" },
+      forecastDate: "",
+      forecastTime: "12:00",
+    },
+    async (url, options) => {
+      capturedUrl = url;
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "davison-luna-sol",
+            chartType: "davison",
+            title: "Luna × Sol Davison Chart",
+            placements: [],
+            aspects: [],
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(capturedUrl, "http://localhost:8000/api/charts/davison");
+  assert.equal(requestBody.primary.name, "Luna");
+  assert.equal(requestBody.secondary.name, "Sol");
+});
+
+test("maps davison results as a fused relationship chart", async () => {
+  const chart = await calculateChart(
+    {
+      mode: "couple",
+      category: "davison",
+      people: [primary],
+      primary: { ...primary, name: "小星" },
+      secondary: { ...primary, name: "小月" },
+      forecastDate: "",
+      forecastTime: "12:00",
+    },
+    successfulFetch("/api/charts/davison", {
+      chartId: "davison-luna-sol",
+      chartType: "davison",
+      title: "Luna × Sol Davison Chart",
+      placements: [
+        { body: "Sun", longitude: 23, sign: "Aries", degree: 23, minute: 0, house: 1 },
+      ],
+      aspects: [{ from: "Sun", to: "Moon", type: "trine", orb: 0.8 }],
+      relatedCharts: {
+        primaryNatal: {
+          chartId: "natal-luna",
+          profiles: [{ name: "Luna" }],
+          placements: [{ body: "Sun", sign: "Aries", degree: 1, minute: 0, house: 1 }],
+          houses: [],
+        },
+        secondaryNatal: {
+          chartId: "natal-sol",
+          profiles: [{ name: "Sol" }],
+          placements: [{ body: "Moon", sign: "Taurus", degree: 2, minute: 0, house: 2 }],
+          houses: [],
+        },
+        davisonChart: {
+          chartId: "davison-core",
+          profiles: [{ name: "Davison Chart" }],
+          placements: [{ body: "Sun", sign: "Aries", degree: 23, minute: 0, house: 1 }],
+          houses: [],
+        },
+      },
+    }),
+  );
+
+  assert.equal(chart.title, "小星 × 小月 的时空中点盘");
+  assert.equal(chart.placementGroups[0].title, "时空中点盘星体");
+  assert.equal(chart.placementGroups.length, 1);
+  assert.equal(chart.placementGroups[0].placements[0].planet, "太阳");
+  assert.equal(chart.aspectOwners.from, "时空中点盘");
+  assert.equal(chart.aspectOwners.to, "时空中点盘");
+  assert.equal(chart.overlays.length, 0);
+});
+
+test("maps composite results as a fused relationship chart", async () => {
+  const chart = await calculateChart(
+    {
+      mode: "couple",
+      category: "composite",
+      people: [primary],
+      primary: { ...primary, name: "小星" },
+      secondary: { ...primary, name: "小月" },
+      forecastDate: "",
+      forecastTime: "12:00",
+    },
+    successfulFetch("/api/charts/composite", {
+      chartId: "composite-luna-sol",
+      chartType: "composite",
+      title: "Luna × Sol Composite Chart",
+      placements: [
+        { body: "Sun", longitude: 15, sign: "Aries", degree: 15, minute: 0, house: 1 },
+      ],
+      aspects: [{ from: "Sun", to: "Moon", type: "trine", orb: 0.8 }],
+      relatedCharts: {
+        primaryNatal: {
+          chartId: "natal-luna",
+          profiles: [{ name: "Luna" }],
+          placements: [{ body: "Sun", sign: "Aries", degree: 1, minute: 0, house: 1 }],
+          houses: [],
+        },
+        secondaryNatal: {
+          chartId: "natal-sol",
+          profiles: [{ name: "Sol" }],
+          placements: [{ body: "Moon", sign: "Taurus", degree: 2, minute: 0, house: 2 }],
+          houses: [],
+        },
+        compositeChart: {
+          chartId: "composite-core",
+          profiles: [{ name: "Composite Chart" }],
+          placements: [{ body: "Sun", sign: "Aries", degree: 15, minute: 0, house: 1 }],
+          houses: [],
+        },
+      },
+    }),
+  );
+
+  assert.equal(chart.title, "小星 × 小月 的关系组合盘");
+  assert.equal(chart.placementGroups[0].title, "组合盘星体");
+  assert.equal(chart.placementGroups.length, 1);
+  assert.equal(chart.placementGroups[0].placements[0].planet, "太阳");
+  assert.equal(chart.aspectOwners.from, "组合盘");
+  assert.equal(chart.aspectOwners.to, "组合盘");
+  assert.equal(chart.overlays.length, 0);
 });

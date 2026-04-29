@@ -1,5 +1,7 @@
 import { findCategory } from "../../data/chartCatalog.js";
 import {
+  buildCompositeChartPayload,
+  buildDavisonChartPayload,
   buildNatalChartPayload,
   buildSolarReturnChartPayload,
   buildSynastryChartPayload,
@@ -12,6 +14,8 @@ const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL;
 const SUPPORTED_ENDPOINTS = {
   natal: "/api/charts/natal",
   synastry: "/api/charts/synastry",
+  composite: "/api/charts/composite",
+  davison: "/api/charts/davison",
   transit: "/api/charts/transit",
   "solar-return": "/api/charts/solar-return",
 };
@@ -127,6 +131,14 @@ function buildPayload(input) {
     return buildSynastryChartPayload(input.primary, input.secondary, input.settings);
   }
 
+  if (input.category === "composite") {
+    return buildCompositeChartPayload(input.primary, input.secondary, input.settings);
+  }
+
+  if (input.category === "davison") {
+    return buildDavisonChartPayload(input.primary, input.secondary, input.settings);
+  }
+
   if (input.category === "solar-return") {
     return buildSolarReturnChartPayload(
       input.primary,
@@ -201,6 +213,14 @@ function mapPlacementGroups(result, input) {
     ];
   }
 
+  if (input.category === "composite" && relatedCharts?.compositeChart) {
+    return [mapPlacementGroup(relatedCharts.compositeChart, "组合盘星体")];
+  }
+
+  if (input.category === "davison" && relatedCharts?.davisonChart) {
+    return [mapPlacementGroup(relatedCharts.davisonChart, "时空中点盘星体")];
+  }
+
   return [
     {
       id: result.chartId,
@@ -232,6 +252,20 @@ function mapPlacement(placement) {
 function mapAspectOwners(result, input) {
   const relatedCharts = result.relatedCharts;
 
+  if (input.category === "composite") {
+    return {
+      from: "组合盘",
+      to: "组合盘",
+    };
+  }
+
+  if (input.category === "davison") {
+    return {
+      from: "时空中点盘",
+      to: "时空中点盘",
+    };
+  }
+
   if (relatedCharts?.primaryOverlay) {
     return {
       from: relatedCharts.primaryOverlay.referenceName,
@@ -261,6 +295,10 @@ function mapAspectOwners(result, input) {
 
 function mapOverlays(relatedCharts) {
   if (!relatedCharts) {
+    return [];
+  }
+
+  if (relatedCharts.compositeChart) {
     return [];
   }
 

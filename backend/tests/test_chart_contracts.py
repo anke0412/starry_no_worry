@@ -2,7 +2,13 @@ from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 from app.main import app
-from app.models.chart import BirthProfile, ChartSettings, NatalChartRequest
+from app.models.chart import (
+    BirthProfile,
+    ChartSettings,
+    CompositeChartRequest,
+    DavisonChartRequest,
+    NatalChartRequest,
+)
 
 
 client = TestClient(app)
@@ -37,12 +43,36 @@ def test_natal_request_uses_default_chart_settings():
     assert request.model_dump(by_alias=True)["chartType"] == "natal"
 
 
+def test_composite_request_uses_default_chart_settings():
+    request = CompositeChartRequest(
+        primary=birth_profile_payload("Luna"),
+        secondary=birth_profile_payload("Sol"),
+    )
+
+    assert request.chart_type == "composite"
+    assert request.settings == ChartSettings()
+    assert request.model_dump(by_alias=True)["chartType"] == "composite"
+
+
+def test_davison_request_uses_default_chart_settings():
+    request = DavisonChartRequest(
+        primary=birth_profile_payload("Luna"),
+        secondary=birth_profile_payload("Sol"),
+    )
+
+    assert request.chart_type == "davison"
+    assert request.settings == ChartSettings()
+    assert request.model_dump(by_alias=True)["chartType"] == "davison"
+
+
 def test_chart_endpoints_are_registered_in_openapi_schema():
     schema = client.get("/openapi.json").json()
 
     assert "/api/charts/natal" in schema["paths"]
     assert "/api/charts/synastry" in schema["paths"]
     assert "/api/charts/transit" in schema["paths"]
+    assert "/api/charts/composite" in schema["paths"]
+    assert "/api/charts/davison" in schema["paths"]
 
 
 def test_natal_endpoint_accepts_contract_and_returns_chart_result():
@@ -56,6 +86,54 @@ def test_synastry_endpoint_requires_secondary_profile():
     response = client.post("/api/charts/synastry", json={"primary": birth_profile_payload()})
 
     assert response.status_code == 422
+
+
+def test_composite_endpoint_requires_secondary_profile():
+    response = client.post("/api/charts/composite", json={"primary": birth_profile_payload()})
+
+    assert response.status_code == 422
+
+
+def test_davison_endpoint_requires_secondary_profile():
+    response = client.post("/api/charts/davison", json={"primary": birth_profile_payload()})
+
+    assert response.status_code == 422
+
+
+def test_composite_endpoint_accepts_contract_and_returns_chart_result():
+    response = client.post(
+        "/api/charts/composite",
+        json={
+            "primary": birth_profile_payload("Luna"),
+            "secondary": birth_profile_payload("Sol"),
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["chartType"] == "composite"
+    assert set(response.json()["relatedCharts"].keys()) == {
+        "primaryNatal",
+        "secondaryNatal",
+        "compositeChart",
+    }
+
+
+def test_davison_endpoint_accepts_contract_and_returns_chart_result():
+    response = client.post(
+        "/api/charts/davison",
+        json={
+            "primary": birth_profile_payload("Luna"),
+            "secondary": birth_profile_payload("Sol"),
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["chartType"] == "davison"
+    assert set(response.json()["relatedCharts"].keys()) == {
+        "primaryNatal",
+        "secondaryNatal",
+        "davisonChart",
+    }
 
 
 def test_synastry_endpoint_accepts_contract_and_returns_chart_result():

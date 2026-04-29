@@ -4,7 +4,7 @@ This document records the chart API contract shared by the React frontend and Fa
 
 ## Current Status
 
-The natal, synastry, and transit chart endpoints return real `ChartResult` responses with ephemeris-backed placements and major aspects. Natal charts now include Placidus house cusps, Ascendant, Midheaven, and planet house placement.
+The natal, synastry, composite, davison, transit, and solar-return chart endpoints return real `ChartResult` responses with ephemeris-backed placements and major aspects. Natal charts now include Placidus house cusps, Ascendant, Midheaven, and planet house placement.
 
 ## Base URL
 
@@ -78,11 +78,13 @@ The backend currently supports `placidus` houses, `tropical` zodiac, `major` asp
 
 ## Shared Generation Layer
 
-Phase 2 introduces a shared backend generation framework for higher-order chart families.
+Phase 2 introduces a shared backend generation framework for higher-order chart families, including composite and davison fusion charts.
 This is an internal orchestration change only.
 
 - `/api/charts/transit` response shape is unchanged
 - `/api/charts/synastry` response shape is unchanged
+- `/api/charts/composite` is a fused chart response whose top-level placements, houses, and aspects come from the composite chart itself
+- `/api/charts/davison` is a fused chart response whose top-level placements, houses, and aspects come from the midpoint event chart rather than midpoint planetary longitudes
 - future derived and fusion chart families should reuse the same service layer
 
 ## Chart Endpoints
@@ -166,6 +168,100 @@ Request:
 Response: `ChartResult`.
 
 The synastry response includes both planetary placement sets, inter-chart major aspects, and both source natal charts in `relatedCharts`. Each related natal chart includes its own houses, Ascendant, and Midheaven.
+
+### POST /api/charts/composite
+
+Request:
+
+```json
+{
+  "primary": {
+    "name": "Luna",
+    "date": "1996-04-12",
+    "time": "08:30",
+    "locationName": "Shanghai",
+    "latitude": 31.2304,
+    "longitude": 121.4737,
+    "timezone": "Asia/Shanghai"
+  },
+  "secondary": {
+    "name": "Sol",
+    "date": "1993-09-07",
+    "time": "21:10",
+    "locationName": "Beijing",
+    "latitude": 39.9042,
+    "longitude": 116.4074,
+    "timezone": "Asia/Shanghai"
+  },
+  "settings": {
+    "houseSystem": "placidus",
+    "zodiac": "tropical",
+    "aspectSet": "major",
+    "orbProfile": "default"
+  }
+}
+```
+
+Response: `ChartResult`.
+
+The composite response is a fused chart result. The top-level `placements`, `houses`, and `aspects` are calculated from the composite chart itself, not copied from either source natal chart.
+
+The top-level composite `chartId` is pair-order-invariant and should change when either source profile identity changes in a way that would change the fused chart input.
+
+`relatedCharts` includes:
+
+- `primaryNatal`
+- `secondaryNatal`
+- `compositeChart`
+
+`primaryNatal` and `secondaryNatal` are the source natal charts. `compositeChart` is the internal natal snapshot used to generate the top-level fused response; it is not a separate `chartType: "composite"` related chart.
+
+### POST /api/charts/davison
+
+Request:
+
+```json
+{
+  "primary": {
+    "name": "Luna",
+    "date": "1996-04-12",
+    "time": "08:30",
+    "locationName": "Shanghai",
+    "latitude": 31.2304,
+    "longitude": 121.4737,
+    "timezone": "Asia/Shanghai"
+  },
+  "secondary": {
+    "name": "Sol",
+    "date": "1993-09-07",
+    "time": "21:10",
+    "locationName": "Beijing",
+    "latitude": 39.9042,
+    "longitude": 116.4074,
+    "timezone": "Asia/Shanghai"
+  },
+  "settings": {
+    "houseSystem": "placidus",
+    "zodiac": "tropical",
+    "aspectSet": "major",
+    "orbProfile": "default"
+  }
+}
+```
+
+Response: `ChartResult`.
+
+The Davison response is a fused chart result. The top-level `placements`, `houses`, and `aspects` are calculated from the midpoint event chart rather than by averaging the source planets directly.
+
+The top-level Davison `chartId` is pair-order-invariant and should change when either source profile identity changes in a way that would change the fused chart input.
+
+`relatedCharts` includes:
+
+- `primaryNatal`
+- `secondaryNatal`
+- `davisonChart`
+
+`primaryNatal` and `secondaryNatal` are the source natal charts. `davisonChart` is the internal natal snapshot generated from the midpoint instant and midpoint coordinates that powers the top-level fused response.
 
 ### POST /api/charts/transit
 

@@ -48,6 +48,15 @@ export const chartCategories = [
     focus: ["关系主题", "共同目标", "外显气质", "成长课题"],
   },
   {
+    id: "davison",
+    mode: "couple",
+    label: "时空中点盘",
+    outputTitle: "时空中点盘",
+    requiresSecondPerson: true,
+    requiresForecastDate: false,
+    focus: ["关系基调", "共同节奏", "事件时机", "长期课题"],
+  },
+  {
     id: "transit",
     mode: "forecast",
     label: "流年盘",

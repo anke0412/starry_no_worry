@@ -8,6 +8,21 @@
 
 **Tech Stack:** Python, FastAPI, Pydantic, Swiss Ephemeris (`pyswisseph`), React, Vite, Node test runner, pytest
 
+## Status
+
+- Status: `Completed`
+- Phase: `Verified backfill`
+- Primary Owner: `not recorded`
+- Implement Agent: `not recorded`
+- Review Agent: `not recorded`
+- Verify Agent: `main-agent-backfill-verification`
+- Last Verified: `2026-04-28`
+- Verification Commands:
+  - `cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytest tests/test_chart_generators.py tests/test_transit_chart.py tests/test_synastry_chart.py tests/test_solar_return_chart.py -q`
+  - `cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytest -q`
+  - `cd /Users/lianke/PycharmProjects/star && npm test`
+  - `cd /Users/lianke/PycharmProjects/star && npm run build`
+
 ---
 
 ## File Structure
@@ -58,7 +73,7 @@
 - Modify: `backend/app/models/chart.py`
 - Modify: `backend/app/api/charts.py`
 
-- [ ] **Step 1: Write the failing request/model and endpoint tests**
+- [x] **Step 1: Write the failing request/model and endpoint tests**
 
 ```python
 from fastapi.testclient import TestClient
@@ -111,12 +126,13 @@ def test_solar_return_endpoint_rejects_missing_return_timezone():
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
+Historical red-phase evidence is not recorded; current solar-return backend tests pass.
 
 Run: `cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytest tests/test_solar_return_chart.py -q`
 
 Expected: FAIL because `SolarReturnChartRequest` and `/api/charts/solar-return` do not exist yet.
 
-- [ ] **Step 3: Add minimal request models and route skeleton**
+- [x] **Step 3: Add minimal request models and route skeleton**
 
 ```python
 class ReturnLocation(BaseModel):
@@ -151,12 +167,14 @@ def create_solar_return_chart(request: SolarReturnChartRequest) -> ChartResult:
 ```
 
 - [ ] **Step 4: Run test to verify partial green / next expected failure**
+No intermediate partial-failure evidence was recorded during this backfill.
 
 Run: `cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytest tests/test_solar_return_chart.py -q`
 
 Expected: route now exists, but service/import behavior still fails.
 
 - [ ] **Step 5: Commit**
+No commit evidence was recorded during this backfill.
 
 ```bash
 git add backend/app/models/chart.py backend/app/api/charts.py backend/tests/test_solar_return_chart.py
@@ -172,7 +190,7 @@ git commit -m "test: add solar return request and route coverage"
 - Modify: `backend/app/services/ephemeris.py`
 - Create or Modify: `backend/app/services/solar_return.py`
 
-- [ ] **Step 1: Write the failing search behavior tests**
+- [x] **Step 1: Write the failing search behavior tests**
 
 ```python
 from datetime import datetime
@@ -223,12 +241,14 @@ def test_find_solar_return_datetime_uses_anchor_timezone():
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
+Historical red-phase evidence is not recorded; current solar-return backend tests pass.
 
 Run: `cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytest tests/test_solar_return_chart.py -q`
 
 Expected: FAIL because the search input/helper does not exist yet.
 
-- [ ] **Step 3: Write the minimal search helper**
+- [x] **Step 3: Write the minimal search helper**
+Implemented in `backend/app/services/solar_return.py`; the helper searches the anchor year rather than a narrow anchor window, which is sufficient for current tests.
 
 ```python
 @dataclass(frozen=True)
@@ -249,7 +269,8 @@ def find_solar_return_datetime(search_input: SolarReturnSearchInput) -> datetime
     return refine_solar_return_near_anchor(anchor, natal_sun_longitude)
 ```
 
-- [ ] **Step 4: Add bounded coarse-to-fine search**
+- [x] **Step 4: Add bounded coarse-to-fine search**
+Current implementation uses `bracket_solar_return()` plus `bisect_solar_return()` in `backend/app/services/solar_return.py`; needs re-verify only if the intended search window must stay centered on the input anchor.
 
 ```python
 SEARCH_WINDOW_HOURS = 36
@@ -261,13 +282,14 @@ def refine_solar_return_near_anchor(anchor: datetime, natal_sun_longitude: float
     return bisect_solar_return(lower, upper, natal_sun_longitude)
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytest tests/test_solar_return_chart.py -q`
 
 Expected: PASS for the new search tests, with other solar-return tests still pending.
 
 - [ ] **Step 6: Commit**
+No commit evidence was recorded during this backfill.
 
 ```bash
 git add backend/app/services/solar_return.py backend/app/services/ephemeris.py backend/tests/test_solar_return_chart.py
@@ -283,7 +305,7 @@ git commit -m "feat: add solar return time search helper"
 - Modify: `backend/app/services/chart_generators.py`
 - Modify: `backend/tests/test_solar_return_chart.py`
 
-- [ ] **Step 1: Write the failing generator/service delegation tests**
+- [x] **Step 1: Write the failing generator/service delegation tests**
 
 ```python
 from app.models.chart import SolarReturnChartRequest
@@ -316,12 +338,13 @@ def test_solar_return_service_delegates_to_generator(monkeypatch):
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
+Historical red-phase evidence is not recorded; current solar-return backend tests pass.
 
 Run: `cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytest tests/test_solar_return_chart.py -q`
 
 Expected: FAIL because the service/generator target context does not exist yet.
 
-- [ ] **Step 3: Implement the generator target context and derived-chart flow**
+- [x] **Step 3: Implement the generator target context and derived-chart flow**
 
 ```python
 class SolarReturnTargetContext(TypedDict):
@@ -350,7 +373,7 @@ class SolarReturnGenerator(SingleSubjectDerivedGenerator[SolarReturnTargetContex
         return solar_return
 ```
 
-- [ ] **Step 4: Implement result packaging to match the transit-style contract**
+- [x] **Step 4: Implement result packaging to match the transit-style contract**
 
 ```python
     def build_chart_result(self, *, primary_chart, derived_chart, overlay, settings, target_context) -> ChartResult:
@@ -373,13 +396,14 @@ class SolarReturnGenerator(SingleSubjectDerivedGenerator[SolarReturnTargetContex
         )
 ```
 
-- [ ] **Step 5: Run tests to verify it passes**
+- [x] **Step 5: Run tests to verify it passes**
 
 Run: `cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytest tests/test_solar_return_chart.py -q`
 
 Expected: service delegation tests pass and endpoint contract tests become the next failing edge if labels/shape differ.
 
 - [ ] **Step 6: Commit**
+No commit evidence was recorded during this backfill.
 
 ```bash
 git add backend/app/services/solar_return.py backend/tests/test_solar_return_chart.py
@@ -395,7 +419,7 @@ git commit -m "feat: add solar return generator and service"
 - Modify: `backend/app/api/charts.py`
 - Modify: `backend/app/services/solar_return.py`
 
-- [ ] **Step 1: Write the failing endpoint contract test**
+- [x] **Step 1: Write the failing endpoint contract test**
 
 ```python
 def test_solar_return_endpoint_returns_natal_return_chart_and_overlay():
@@ -417,12 +441,14 @@ def test_solar_return_endpoint_returns_natal_return_chart_and_overlay():
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
+Historical red-phase evidence is not recorded; current solar-return backend tests pass.
 
 Run: `cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytest tests/test_solar_return_chart.py::test_solar_return_endpoint_returns_natal_return_chart_and_overlay -q`
 
 Expected: FAIL on chart type, overlay naming, or related chart content until contract is aligned.
 
-- [ ] **Step 3: Align endpoint response and error semantics**
+- [x] **Step 3: Align endpoint response and error semantics**
+Current endpoint returns the documented `solarReturn`/`solarReturnOverlay` contract; the existing test asserts `referenceName` but not every label string from the example.
 
 ```python
 def build_overlay_label(self, primary_chart: ChartResult, _derived_chart: ChartResult) -> str:
@@ -441,13 +467,14 @@ def build_solar_return_profile(primary_profile, exact_return, return_location):
     )
 ```
 
-- [ ] **Step 4: Run targeted and full backend chart tests**
+- [x] **Step 4: Run targeted and full backend chart tests**
 
 Run: `cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytest tests/test_solar_return_chart.py tests/test_transit_chart.py tests/test_synastry_chart.py tests/test_chart_generators.py -q`
 
 Expected: PASS for the chart family suite.
 
 - [ ] **Step 5: Commit**
+No commit evidence was recorded during this backfill.
 
 ```bash
 git add backend/app/api/charts.py backend/app/services/solar_return.py backend/tests/test_solar_return_chart.py
@@ -464,7 +491,7 @@ git commit -m "feat: finalize solar return API contract"
 - Modify: `tests/chartEngine.test.js`
 - Modify: `tests/appInitialState.test.js`
 
-- [ ] **Step 1: Write the failing frontend request tests**
+- [x] **Step 1: Write the failing frontend request tests**
 
 ```javascript
 import test from "node:test";
@@ -511,12 +538,14 @@ test("forecast category list includes solar return", () => {
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
+Historical red-phase evidence is not recorded; current frontend tests pass.
 
 Run: `cd /Users/lianke/PycharmProjects/star && npm test -- --run`
 
 Expected: FAIL because the category and request fields do not exist yet.
 
-- [ ] **Step 3: Add minimal chart catalog and request wiring**
+- [x] **Step 3: Add minimal chart catalog and request wiring**
+Current catalog marks `solar-return` with `requiresForecastDate: false` and routes anchor fields through dedicated solar-return state, which is equivalent to the shipped UI flow.
 
 ```javascript
 {
@@ -541,13 +570,14 @@ if (input.category === "solar-return") {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `cd /Users/lianke/PycharmProjects/star && npm test -- --run`
 
 Expected: PASS for the new request tests, with API/presentation tests still pending.
 
 - [ ] **Step 5: Commit**
+No commit evidence was recorded during this backfill.
 
 ```bash
 git add src/data/chartCatalog.js src/lib/chartEngine.js tests/chartEngine.test.js tests/appInitialState.test.js
@@ -563,7 +593,8 @@ git commit -m "feat: add solar return workspace request fields"
 - Modify: `src/lib/api/chartApi.js`
 - Create or Modify: `tests/chartApi.test.js`
 
-- [ ] **Step 1: Write the failing API helper tests**
+- [x] **Step 1: Write the failing API helper tests**
+Equivalent coverage lives in `tests/chartApiClient.test.js` rather than the plan's placeholder `tests/chartApi.test.js`.
 
 ```javascript
 import test from "node:test";
@@ -646,12 +677,13 @@ test("calculateChart routes solar return requests to the solar-return endpoint",
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
+Historical red-phase evidence is not recorded; current frontend tests pass.
 
 Run: `cd /Users/lianke/PycharmProjects/star && npm test -- --run`
 
 Expected: FAIL because the payload builder and endpoint route do not exist yet.
 
-- [ ] **Step 3: Add the payload builder and API route**
+- [x] **Step 3: Add the payload builder and API route**
 
 ```javascript
 export function buildSolarReturnChartPayload(primary, solarReturn, settings = defaultChartSettings) {
@@ -674,7 +706,7 @@ const SUPPORTED_ENDPOINTS = {
 };
 ```
 
-- [ ] **Step 4: Update result mapping labels**
+- [x] **Step 4: Update result mapping labels**
 
 ```javascript
 if (input.category === "solar-return" && relatedCharts?.primaryNatal && relatedCharts?.solarReturn) {
@@ -694,13 +726,14 @@ if (relatedCharts?.solarReturnOverlay) {
 }
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `cd /Users/lianke/PycharmProjects/star && npm test -- --run`
 
 Expected: PASS for the frontend API helper suite.
 
 - [ ] **Step 6: Commit**
+No commit evidence was recorded during this backfill.
 
 ```bash
 git add src/lib/api/chartContracts.js src/lib/api/chartApi.js tests/chartApi.test.js
@@ -715,7 +748,7 @@ git commit -m "feat: wire frontend solar return API helpers"
 - Modify: `src/App.jsx`
 - Modify: `tests/appInitialState.test.js`
 
-- [ ] **Step 1: Write the failing UI source assertions**
+- [x] **Step 1: Write the failing UI source assertions**
 
 ```javascript
 test("workspace exposes solar return anchor and location fields", () => {
@@ -728,12 +761,13 @@ test("workspace exposes solar return anchor and location fields", () => {
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
+Historical red-phase evidence is not recorded; current frontend tests pass.
 
 Run: `cd /Users/lianke/PycharmProjects/star && npm test -- --run`
 
 Expected: FAIL because the form fields do not exist yet.
 
-- [ ] **Step 3: Add the new local state and conditional form sections**
+- [x] **Step 3: Add the new local state and conditional form sections**
 
 ```javascript
 const [solarReturnAnchorDate, setSolarReturnAnchorDate] = useState("2026-04-27");
@@ -765,7 +799,7 @@ const [solarReturnLocation, setSolarReturnLocation] = useState({
 ) : null}
 ```
 
-- [ ] **Step 4: Include the new data in `createChartRequest()` input**
+- [x] **Step 4: Include the new data in `createChartRequest()` input**
 
 ```javascript
 const request = createChartRequest({
@@ -782,13 +816,14 @@ const request = createChartRequest({
 });
 ```
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `cd /Users/lianke/PycharmProjects/star && npm test -- --run`
 
 Expected: PASS for the new UI source assertions.
 
 - [ ] **Step 6: Commit**
+No commit evidence was recorded during this backfill.
 
 ```bash
 git add src/App.jsx tests/appInitialState.test.js
@@ -802,7 +837,8 @@ git commit -m "feat: add solar return form fields"
 **Files:**
 - Modify: `docs/api-contracts.md`
 
-- [ ] **Step 1: Write the failing doc expectation test or checklist assertion**
+- [x] **Step 1: Write the failing doc expectation test or checklist assertion**
+Backfilled from the present doc contents; no separate checklist artifact is recorded.
 
 Use an explicit review checklist in the task notes:
 
@@ -815,7 +851,7 @@ Confirm docs/api-contracts.md includes:
 - relatedCharts primaryNatal / solarReturn / solarReturnOverlay
 ```
 
-- [ ] **Step 2: Update the contract doc**
+- [x] **Step 2: Update the contract doc**
 
 ```markdown
 ### POST /api/charts/solar-return
@@ -843,25 +879,26 @@ Request:
 ```
 ```
 
-- [ ] **Step 3: Run backend verification**
+- [x] **Step 3: Run backend verification**
 
 Run: `cd /Users/lianke/PycharmProjects/star/backend && ../.venv312/bin/python -m pytest`
 
 Expected: full backend suite passes.
 
-- [ ] **Step 4: Run frontend verification**
+- [x] **Step 4: Run frontend verification**
 
 Run: `cd /Users/lianke/PycharmProjects/star && npm test`
 
 Expected: frontend tests pass.
 
-- [ ] **Step 5: Run production build verification**
+- [x] **Step 5: Run production build verification**
 
 Run: `cd /Users/lianke/PycharmProjects/star && npm run build`
 
 Expected: Vite production build succeeds.
 
 - [ ] **Step 6: Commit**
+No commit evidence was recorded during this backfill.
 
 ```bash
 git add docs/api-contracts.md

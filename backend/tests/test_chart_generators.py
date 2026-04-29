@@ -76,6 +76,55 @@ class StubComparisonGenerator(DualSubjectComparisonGenerator):
         )
 
 
+class StubFusionGenerator(DualSubjectFusionGenerator):
+    def __init__(self):
+        super().__init__()
+        self.captured: dict[str, object] = {}
+
+    def build_fused_chart(
+        self,
+        primary_chart: ChartResult,
+        secondary_chart: ChartResult,
+        settings: ChartSettings,
+    ) -> ChartResult:
+        self.captured["build_fused_chart"] = {
+            "primary_chart": primary_chart,
+            "secondary_chart": secondary_chart,
+            "settings": settings,
+        }
+        return primary_chart
+
+    def build_chart_result(
+        self,
+        *,
+        primary_chart: ChartResult,
+        secondary_chart: ChartResult,
+        fused_chart: ChartResult,
+        settings: ChartSettings,
+    ) -> ChartResult:
+        self.captured["build_chart_result"] = {
+            "primary_chart": primary_chart,
+            "secondary_chart": secondary_chart,
+            "fused_chart": fused_chart,
+            "settings": settings,
+        }
+        return ChartResult(
+            chartId="stub-fusion",
+            chartType="stubFusion",
+            title="Stub Fusion Chart",
+            profiles=[*primary_chart.profiles, *secondary_chart.profiles],
+            calculation=self.build_calculation_metadata(),
+            placements=fused_chart.placements,
+            houses=fused_chart.houses,
+            aspects=fused_chart.aspects,
+            relatedCharts={
+                "primaryNatal": primary_chart.model_dump(by_alias=True),
+                "secondaryNatal": secondary_chart.model_dump(by_alias=True),
+                "fusedChart": fused_chart.model_dump(by_alias=True),
+            },
+        )
+
+
 class IncompleteFusionGenerator(DualSubjectFusionGenerator):
     pass
 
@@ -171,6 +220,29 @@ def test_dual_subject_generator_builds_two_natals_and_directional_overlays():
     assert any(aspect["orb"] > 6 for aspect in primary_overlay["aspects"])
     assert any(aspect["type"] == "quincunx" for aspect in secondary_overlay["aspects"])
     assert any(aspect["orb"] > 6 for aspect in secondary_overlay["aspects"])
+
+
+def test_dual_subject_fusion_builds_two_natals_and_passes_them_to_hooks():
+    primary = build_profile("Luna", "2000-01-01", "20:00", "Shanghai", 31.2304, 121.4737)
+    secondary = build_profile("Sol", "1993-09-07", "21:10", "Beijing", 39.9042, 116.4074)
+    settings = build_settings()
+
+    generator = StubFusionGenerator()
+    result = generator.generate(primary, secondary, settings)
+
+    assert result.chart_type == "stubFusion"
+    assert result.related_charts["primaryNatal"]["chartType"] == "natal"
+    assert result.related_charts["secondaryNatal"]["chartType"] == "natal"
+    assert result.related_charts["fusedChart"]["chartType"] == "natal"
+    assert (
+        generator.captured["build_fused_chart"]["primary_chart"].profiles[0].name  # type: ignore[index]
+        == "Luna"
+    )
+    assert (
+        generator.captured["build_fused_chart"]["secondary_chart"].profiles[0].name  # type: ignore[index]
+        == "Sol"
+    )
+    assert generator.captured["build_chart_result"]["fused_chart"] is generator.captured["build_fused_chart"]["primary_chart"]  # type: ignore[index]
 
 
 def test_dual_subject_fusion_requires_subclass_implementation():

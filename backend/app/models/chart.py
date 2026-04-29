@@ -41,6 +41,16 @@ class SynastryChartRequest(BaseChartRequest):
     secondary: BirthProfile
 
 
+class CompositeChartRequest(BaseChartRequest):
+    chart_type: Literal["composite"] = Field(default="composite", alias="chartType")
+    secondary: BirthProfile
+
+
+class DavisonChartRequest(BaseChartRequest):
+    chart_type: Literal["davison"] = Field(default="davison", alias="chartType")
+    secondary: BirthProfile
+
+
 class TransitChartRequest(BaseChartRequest):
     chart_type: Literal["transit"] = Field(default="transit", alias="chartType")
     transit_date: str = Field(alias="transitDate")
