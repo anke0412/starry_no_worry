@@ -4,7 +4,11 @@ This document records the chart API contract shared by the React frontend and Fa
 
 ## Current Status
 
-The natal, synastry, composite, davison, transit, relationship-transit, progression, solar-return, and lunar-return chart endpoints return real `ChartResult` responses with ephemeris-backed placements and major aspects. Natal charts now include Placidus house cusps, Ascendant, Midheaven, and planet house placement.
+This document mixes stable current contracts with incremental Phase 2 target contracts.
+
+Use `work/plans/phase2-full-rollout.md` and the latest `work/decisions/` note to determine which higher-order chart families are source-complete in the current repository before relying on them operationally.
+
+Natal charts include house cusps, Ascendant, Midheaven, supplemental points, and planet house placement.
 
 ## Base URL
 
@@ -74,7 +78,14 @@ Required for calculated natal charts, synastry source natal charts, and transit 
 }
 ```
 
-The backend currently supports `placidus` houses, `tropical` zodiac, `major` aspects, and the default orb profile. Unsupported house systems return `422 invalid_chart_request`.
+The backend currently supports:
+
+- house systems: `placidus`, `whole-sign`, `equal`
+- zodiac: `tropical`
+- aspect sets: `major`, `major_extended`
+- orb profiles: `tight`, `default`, `wide`
+
+Unsupported setting values return `422 invalid_chart_request`.
 
 ## Shared Generation Layer
 

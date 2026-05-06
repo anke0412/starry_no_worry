@@ -13,8 +13,8 @@
 11. 第二阶段扩展方向包括：组合盘、Davison、马盘、日返、月返、三限相关变体。
 12. 第二阶段推荐顺序：公共计算能力 → 共用盘型生成框架 → 新盘型落地 → 分析交互 → AI 解读增强。
 13. 后端统一生成框架已经落地：单体衍生、双体比较、双体融合三类生成器方向明确。
-14. `transit`、`progression` 已迁移到单体衍生框架，`synastry` 已迁移到双体比较框架，`relationship-transit` 已迁移到双体衍生框架，这几种模式的后端升级已完成。
-15. 日返盘、月返盘后端已经落地，并复用共享 chart generation framework。
+14. 共享 chart generation framework 已建立；高级盘型的实际 rollout 状态以当前 active Phase 2 plan 与 `work/decisions/` 为准，不要仅凭旧 spec 或旧记忆假设某个声明盘型已经源码完整。
+15. 第二阶段稳定公共能力已经覆盖：可选点位、多宫制、相位集合/容许度、统计面板；更细的盘型完成度与交互缺口应回看当前 active plan。
 16. 中文术语必须严格统一：人名用用户输入，行星名、星座名、相位/宫位/overlay 表述都要专业且精确。
 17. 用户非常在意前端细节，尤其是 tooltip、相位描述、轮盘标注和表格可读性。
 18. backend 测试环境以 `.venv312` 为准；测试基线优先记录可复核方式：当前在 `backend` 目录执行 `../.venv312/bin/python -m pytest --collect-only -q` 可收集 `100 tests`，不要只记固定 passed 数。
