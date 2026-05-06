@@ -42,6 +42,13 @@ test("calls the natal chart API and maps backend placements with localized label
       chartId: "natal-luna",
       chartType: "natal",
       title: "Luna Natal Chart",
+      statistics: {
+        totalBodies: 12,
+        elementCounts: { fire: 4, earth: 2, air: 3, water: 3 },
+        modalityCounts: { cardinal: 4, fixed: 5, mutable: 3 },
+        polarityCounts: { yang: 7, yin: 5 },
+        hemisphereCounts: { northern: 6, southern: 6, eastern: 5, western: 7 },
+      },
       placements: [
         {
           body: "Sun",
@@ -139,6 +146,9 @@ test("calls the natal chart API and maps backend placements with localized label
   );
   assert.equal(chart.aspects[8].from, "海王星");
   assert.equal(chart.aspects[8].to, "南交点");
+  assert.equal(chart.statistics.totalBodies, 12);
+  assert.equal(chart.statistics.sections[0].items[0].label, "火象");
+  assert.equal(chart.statistics.sections[0].items[0].count, 4);
 });
 
 test("calls the transit chart API with forecast date and time", async () => {
@@ -179,6 +189,249 @@ test("calls the transit chart API with forecast date and time", async () => {
 
   assert.equal(requestBody.transitDate, "2026-05-01");
   assert.equal(requestBody.transitTime, "12:00");
+  assert.equal(requestBody.settings.houseSystem, "whole-sign");
+  assert.equal(requestBody.settings.aspectSet, "major_extended");
+  assert.equal(requestBody.settings.orbProfile, "tight");
+});
+
+test("routes relationship transit requests to the relationship transit endpoint", async () => {
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "couple",
+      category: "relationship-transit",
+      people: [primary],
+      primary,
+      secondary: { ...primary, name: "Sol" },
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    async (url, options) => {
+      assert.equal(url, "http://localhost:8000/api/charts/relationship-transit");
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "relationship-transit-luna-sol",
+            chartType: "relationshipTransit",
+            title: "Luna × Sol Relationship Transit Chart",
+            placements: [],
+            aspects: [],
+            relatedCharts: {
+              primaryNatal: {
+                profiles: [{ name: "Luna" }],
+                placements: [],
+                houses: [],
+                chartType: "natal",
+              },
+              secondaryNatal: {
+                profiles: [{ name: "Sol" }],
+                placements: [],
+                houses: [],
+                chartType: "natal",
+              },
+              transitSky: {
+                profiles: [{ name: "Transit Sky" }],
+                placements: [],
+                houses: [],
+                chartType: "transitSky",
+              },
+              primaryTransitOverlay: {
+                overlayId: "transit-in-primary",
+                label: "Transit sky in Luna houses",
+                referenceName: "Luna",
+                overlayName: "Transit Sky",
+                houses: [],
+                placements: [],
+                aspects: [],
+              },
+              secondaryTransitOverlay: {
+                overlayId: "transit-in-secondary",
+                label: "Transit sky in Sol houses",
+                referenceName: "Sol",
+                overlayName: "Transit Sky",
+                houses: [],
+                placements: [],
+                aspects: [],
+              },
+            },
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(requestBody.primary.name, "Luna");
+  assert.equal(requestBody.secondary.name, "Sol");
+  assert.equal(requestBody.transitDate, "2026-05-01");
+  assert.equal(requestBody.transitTime, "12:00");
+  assert.equal(requestBody.settings.houseSystem, "whole-sign");
+  assert.equal(requestBody.settings.aspectSet, "major_extended");
+  assert.equal(requestBody.settings.orbProfile, "tight");
+});
+
+test("routes progression requests to the progression endpoint", async () => {
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "forecast",
+      category: "progression",
+      people: [primary],
+      primary,
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    async (url, options) => {
+      assert.equal(url, "http://localhost:8000/api/charts/progression");
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "progression-luna",
+            chartType: "progression",
+            title: "Luna Progression Chart",
+            placements: [],
+            aspects: [],
+            relatedCharts: {
+              primaryNatal: {
+                profiles: [{ name: "Luna" }],
+                placements: [],
+                houses: [],
+                chartType: "natal",
+              },
+              progressedChart: {
+                profiles: [{ name: "Luna Progressed" }],
+                placements: [],
+                houses: [],
+                chartType: "progressedChart",
+              },
+              progressedOverlay: {
+                overlayId: "progressed-in-natal",
+                label: "Progressed chart in Luna houses",
+                referenceName: "Luna",
+                overlayName: "Luna Progressed",
+                houses: [],
+                placements: [],
+                aspects: [],
+              },
+            },
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(requestBody.progressionDate, "2026-05-01");
+  assert.equal(requestBody.progressionTime, "12:00");
+  assert.equal(requestBody.settings.houseSystem, "whole-sign");
+  assert.equal(requestBody.settings.aspectSet, "major_extended");
+  assert.equal(requestBody.settings.orbProfile, "tight");
+});
+
+test("maps progression results as a derived timing chart", async () => {
+  const chart = await calculateChart(
+    {
+      mode: "forecast",
+      category: "progression",
+      people: [primary],
+      primary: { ...primary, name: "小星" },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    successfulFetch("/api/charts/progression", {
+      chartId: "progression-luna",
+      chartType: "progression",
+      title: "Luna Progression Chart",
+      placements: [],
+      aspects: [],
+      relatedCharts: {
+        primaryNatal: {
+          chartId: "natal-luna",
+          profiles: [{ name: "Luna" }],
+          chartType: "natal",
+          placements: [{ body: "Sun", longitude: 22.4, sign: "Aries", degree: 22, minute: 24, house: 1 }],
+          houses: [],
+        },
+        progressedChart: {
+          chartId: "progressed-luna",
+          profiles: [{ name: "Luna Progressed" }],
+          chartType: "progressedChart",
+          placements: [{ body: "Moon", longitude: 130, sign: "Leo", degree: 10, minute: 0, house: 5 }],
+          houses: [],
+        },
+        progressedOverlay: {
+          overlayId: "progressed-in-natal",
+          label: "Progressed chart in Luna houses",
+          referenceName: "Luna",
+          overlayName: "Luna Progressed",
+          houses: [{ house: 1, sign: "Aries" }],
+          placements: [{ body: "Moon", longitude: 130, sign: "Leo", degree: 10, minute: 0, sourceHouse: 5, overlayHouse: 1 }],
+          aspects: [{ from: "Moon", to: "Sun", type: "trine", orb: 0.3 }],
+        },
+      },
+    }),
+  );
+
+  assert.equal(chart.title, "小星 的次限推运盘");
+  assert.deepEqual(chart.placementGroups.map((group) => group.title), ["Luna 的本命星体", "次限星体"]);
+  assert.equal(chart.aspectOwners.from, "Luna");
+  assert.equal(chart.aspectOwners.to, "次限");
+  assert.equal(chart.overlays[0].title, "次限星体 飞入 Luna");
+});
+
+test("calls the synastry chart API with custom settings", async () => {
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "couple",
+      category: "synastry",
+      people: [primary],
+      primary,
+      secondary: { ...primary, name: "Sol" },
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
+      forecastDate: "",
+      forecastTime: "12:00",
+    },
+    async (url, options) => {
+      assert.equal(url, "http://localhost:8000/api/charts/synastry");
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "synastry-luna-sol",
+            chartType: "synastry",
+            title: "Luna × Sol Synastry Chart",
+            placements: [],
+            aspects: [],
+          };
+        },
+      };
+    },
+  );
+
   assert.equal(requestBody.settings.houseSystem, "whole-sign");
   assert.equal(requestBody.settings.aspectSet, "major_extended");
   assert.equal(requestBody.settings.orbProfile, "tight");
@@ -253,6 +506,339 @@ test("routes solar return requests to the solar return endpoint", async () => {
   assert.equal(requestBody.anchorTime, "18:00");
   assert.equal(requestBody.returnLocation.locationName, "Tokyo");
   assert.equal(requestBody.settings.houseSystem, "whole-sign");
+  assert.equal(requestBody.settings.aspectSet, "major_extended");
+  assert.equal(requestBody.settings.orbProfile, "tight");
+});
+
+test("routes solar return requests built from createChartRequest with anchor fields intact", async () => {
+  let requestBody;
+
+  const { createChartRequest } = await import("../src/lib/chartEngine.js");
+
+  const request = createChartRequest({
+    mode: "forecast",
+    category: "solar-return",
+    primary: {
+      name: "Luna",
+      date: "1996-04-12",
+      time: "08:30",
+      location: "Shanghai",
+      latitude: "31.2304",
+      longitude: "121.4737",
+      timezone: "Asia/Shanghai",
+    },
+    solarReturnAnchorDate: "2026-04-27",
+    solarReturnAnchorTime: "18:00",
+    solarReturnLocation: {
+      locationName: "Tokyo",
+      latitude: "35.6762",
+      longitude: "139.6503",
+      timezone: "Asia/Tokyo",
+    },
+  });
+
+  await calculateChart(request, async (_url, options) => {
+    requestBody = JSON.parse(options.body);
+
+    return {
+      ok: true,
+      async json() {
+        return {
+          chartId: "solar-return-luna",
+          chartType: "solarReturn",
+          title: "Luna Solar Return Chart",
+          placements: [],
+          aspects: [],
+          relatedCharts: {
+            primaryNatal: { profiles: [{ name: "Luna" }], placements: [], houses: [], chartType: "natal" },
+            solarReturn: { profiles: [{ name: "Luna Solar Return" }], placements: [], houses: [], chartType: "solarReturn" },
+            solarReturnOverlay: {
+              overlayId: "solar-return-in-natal",
+              label: "Solar Return in Luna houses",
+              referenceName: "Luna",
+              overlayName: "Luna Solar Return",
+              houses: [],
+              placements: [],
+              aspects: [],
+            },
+          },
+        };
+      },
+    };
+  });
+
+  assert.equal(requestBody.anchorDate, "2026-04-27");
+  assert.equal(requestBody.anchorTime, "18:00");
+});
+
+test("routes lunar return requests to the lunar return endpoint", async () => {
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "forecast",
+      category: "lunar-return",
+      people: [primary],
+      primary,
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
+      solarReturnAnchorDate: "2026-05-16",
+      solarReturnAnchorTime: "06:30",
+      solarReturnLocation: {
+        locationName: "Seoul",
+        latitude: "37.5665",
+        longitude: "126.9780",
+        timezone: "Asia/Seoul",
+      },
+    },
+    async (url, options) => {
+      assert.equal(url, "http://localhost:8000/api/charts/lunar-return");
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "lunar-return-luna",
+            chartType: "lunarReturn",
+            title: "Luna Lunar Return Chart",
+            placements: [],
+            aspects: [],
+            relatedCharts: {
+              primaryNatal: {
+                profiles: [{ name: "Luna" }],
+                placements: [],
+                houses: [],
+                chartType: "natal",
+              },
+              lunarReturn: {
+                profiles: [{ name: "Luna Lunar Return" }],
+                placements: [],
+                houses: [],
+                chartType: "lunarReturn",
+              },
+              lunarReturnOverlay: {
+                overlayId: "lunar-return-in-natal",
+                label: "Lunar Return in Luna houses",
+                referenceName: "Luna",
+                overlayName: "Luna Lunar Return",
+                houses: [],
+                placements: [],
+                aspects: [],
+              },
+            },
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(requestBody.anchorDate, "2026-05-16");
+  assert.equal(requestBody.anchorTime, "06:30");
+  assert.equal(requestBody.returnLocation.locationName, "Seoul");
+  assert.equal(requestBody.settings.houseSystem, "whole-sign");
+  assert.equal(requestBody.settings.aspectSet, "major_extended");
+  assert.equal(requestBody.settings.orbProfile, "tight");
+});
+
+test("routes lunar return requests built from createChartRequest with anchor fields intact", async () => {
+  let requestBody;
+
+  const { createChartRequest } = await import("../src/lib/chartEngine.js");
+
+  const request = createChartRequest({
+    mode: "forecast",
+    category: "lunar-return",
+    primary: {
+      name: "Luna",
+      date: "1996-04-12",
+      time: "08:30",
+      location: "Shanghai",
+      latitude: "31.2304",
+      longitude: "121.4737",
+      timezone: "Asia/Shanghai",
+    },
+    solarReturnAnchorDate: "2026-05-16",
+    solarReturnAnchorTime: "06:30",
+    solarReturnLocation: {
+      locationName: "Seoul",
+      latitude: "37.5665",
+      longitude: "126.9780",
+      timezone: "Asia/Seoul",
+    },
+  });
+
+  await calculateChart(request, async (_url, options) => {
+    requestBody = JSON.parse(options.body);
+
+    return {
+      ok: true,
+      async json() {
+        return {
+          chartId: "lunar-return-luna",
+          chartType: "lunarReturn",
+          title: "Luna Lunar Return Chart",
+          placements: [],
+          aspects: [],
+          relatedCharts: {
+            primaryNatal: { profiles: [{ name: "Luna" }], placements: [], houses: [], chartType: "natal" },
+            lunarReturn: { profiles: [{ name: "Luna Lunar Return" }], placements: [], houses: [], chartType: "lunarReturn" },
+            lunarReturnOverlay: {
+              overlayId: "lunar-return-in-natal",
+              label: "Lunar Return in Luna houses",
+              referenceName: "Luna",
+              overlayName: "Luna Lunar Return",
+              houses: [],
+              placements: [],
+              aspects: [],
+            },
+          },
+        };
+      },
+    };
+  });
+
+  assert.equal(requestBody.anchorDate, "2026-05-16");
+  assert.equal(requestBody.anchorTime, "06:30");
+});
+
+test("return chart API payloads ignore stale forecast fallbacks", async () => {
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "forecast",
+      category: "lunar-return",
+      people: [primary],
+      primary,
+      forecastDate: "2030-01-01",
+      forecastTime: "23:59",
+      solarReturnAnchorDate: "2026-05-16",
+      solarReturnAnchorTime: "06:30",
+      solarReturnLocation: {
+        locationName: "Seoul",
+        latitude: "37.5665",
+        longitude: "126.9780",
+        timezone: "Asia/Seoul",
+      },
+    },
+    async (_url, options) => {
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "lunar-return-luna",
+            chartType: "lunarReturn",
+            title: "Luna Lunar Return Chart",
+            placements: [],
+            aspects: [],
+            relatedCharts: {
+              primaryNatal: { profiles: [{ name: "Luna" }], placements: [], houses: [], chartType: "natal" },
+              lunarReturn: { profiles: [{ name: "Luna Lunar Return" }], placements: [], houses: [], chartType: "lunarReturn" },
+              lunarReturnOverlay: {
+                overlayId: "lunar-return-in-natal",
+                label: "Lunar Return in Luna houses",
+                referenceName: "Luna",
+                overlayName: "Luna Lunar Return",
+                houses: [],
+                placements: [],
+                aspects: [],
+              },
+            },
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(requestBody.anchorDate, "2026-05-16");
+  assert.equal(requestBody.anchorTime, "06:30");
+});
+
+test("maps lunar return results as a derived timing chart", async () => {
+  const chart = await calculateChart(
+    {
+      mode: "forecast",
+      category: "lunar-return",
+      people: [primary],
+      primary: { ...primary, name: "小星" },
+      solarReturnAnchorDate: "2026-05-16",
+      solarReturnAnchorTime: "06:30",
+      solarReturnLocation: {
+        locationName: "Seoul",
+        latitude: "37.5665",
+        longitude: "126.9780",
+        timezone: "Asia/Seoul",
+      },
+    },
+    successfulFetch("/api/charts/lunar-return", {
+      chartId: "lunar-return-luna",
+      chartType: "lunarReturn",
+      title: "Luna Lunar Return Chart",
+      placements: [],
+      aspects: [],
+      relatedCharts: {
+        primaryNatal: {
+          chartId: "natal-luna",
+          profiles: [{ name: "Luna" }],
+          chartType: "natal",
+          placements: [{ body: "Sun", longitude: 22.4, sign: "Aries", degree: 22, minute: 24, house: 1 }],
+          houses: [],
+          statistics: {
+            totalBodies: 12,
+            elementCounts: { fire: 4, earth: 2, air: 3, water: 3 },
+            modalityCounts: { cardinal: 4, fixed: 5, mutable: 3 },
+            polarityCounts: { yang: 7, yin: 5 },
+            hemisphereCounts: { northern: 6, southern: 6, eastern: 5, western: 7 },
+          },
+        },
+        lunarReturn: {
+          chartId: "lunar-return-chart-luna",
+          profiles: [{ name: "Luna Lunar Return" }],
+          chartType: "lunarReturn",
+          placements: [{ body: "Moon", longitude: 130, sign: "Leo", degree: 10, minute: 0, house: 5 }],
+          houses: [],
+          statistics: {
+            totalBodies: 12,
+            elementCounts: { fire: 3, earth: 3, air: 3, water: 3 },
+            modalityCounts: { cardinal: 3, fixed: 5, mutable: 4 },
+            polarityCounts: { yang: 6, yin: 6 },
+            hemisphereCounts: { northern: 7, southern: 5, eastern: 5, western: 7 },
+          },
+        },
+        lunarReturnOverlay: {
+          overlayId: "lunar-return-in-natal",
+          label: "Lunar Return in Luna houses",
+          referenceName: "Luna",
+          overlayName: "Luna Lunar Return",
+          houses: [{ house: 1, sign: "Aries" }],
+          placements: [
+            {
+              body: "Moon",
+              longitude: 130,
+              sign: "Leo",
+              degree: 10,
+              minute: 0,
+              sourceHouse: 5,
+              overlayHouse: 1,
+            },
+          ],
+          aspects: [{ from: "Moon", to: "Sun", type: "trine", orb: 0.3 }],
+        },
+      },
+    }),
+  );
+
+  assert.equal(chart.title, "小星 的月返推运盘");
+  assert.deepEqual(chart.placementGroups.map((group) => group.title), ["Luna 的本命星体", "月返星体"]);
+  assert.equal(chart.aspectOwners.from, "Luna");
+  assert.equal(chart.aspectOwners.to, "月返");
+  assert.equal(chart.overlays[0].title, "月返星体 飞入 Luna");
 });
 
 test("maps overlay house placements for synastry and transit results", async () => {
@@ -317,10 +903,24 @@ test("maps overlay house placements for synastry and transit results", async () 
         primaryNatal: {
           profiles: [{ name: "Luna" }],
           placements: [{ body: "Sun", sign: "Aries", degree: 1, minute: 0, house: 1 }],
+          statistics: {
+            totalBodies: 12,
+            elementCounts: { fire: 4, earth: 2, air: 3, water: 3 },
+            modalityCounts: { cardinal: 4, fixed: 5, mutable: 3 },
+            polarityCounts: { yang: 7, yin: 5 },
+            hemisphereCounts: { northern: 6, southern: 6, eastern: 5, western: 7 },
+          },
         },
         secondaryNatal: {
           profiles: [{ name: "Sol" }],
           placements: [{ body: "Moon", sign: "Taurus", degree: 2, minute: 0, house: 2 }],
+          statistics: {
+            totalBodies: 12,
+            elementCounts: { fire: 2, earth: 4, air: 3, water: 3 },
+            modalityCounts: { cardinal: 3, fixed: 5, mutable: 4 },
+            polarityCounts: { yang: 5, yin: 7 },
+            hemisphereCounts: { northern: 7, southern: 5, eastern: 6, western: 6 },
+          },
         },
       },
     }),
@@ -340,6 +940,8 @@ test("maps overlay house placements for synastry and transit results", async () 
   assert.equal(synastryChart.overlays[0].placements[0].overlayHouseRuler, "金星");
   assert.equal(synastryChart.overlays[0].aspects[0].from, "月亮");
   assert.equal(synastryChart.overlays[0].aspects[0].to, "金星");
+  assert.equal(synastryChart.placementGroups[0].statistics.sections[0].items[0].label, "火象");
+  assert.equal(synastryChart.placementGroups[1].statistics.sections[3].items[1].label, "南半球");
 
   const transitChart = await calculateChart(
     {
@@ -381,10 +983,24 @@ test("maps overlay house placements for synastry and transit results", async () 
         primaryNatal: {
           profiles: [{ name: "Luna" }],
           placements: [{ body: "Sun", sign: "Aries", degree: 1, minute: 0, house: 1 }],
+          statistics: {
+            totalBodies: 12,
+            elementCounts: { fire: 4, earth: 2, air: 3, water: 3 },
+            modalityCounts: { cardinal: 4, fixed: 5, mutable: 3 },
+            polarityCounts: { yang: 7, yin: 5 },
+            hemisphereCounts: { northern: 6, southern: 6, eastern: 5, western: 7 },
+          },
         },
         transitSky: {
           profiles: [{ name: "Transit Sky" }],
           placements: [{ body: "Saturn", sign: "Pisces", degree: 20, minute: 0, house: 11 }],
+          statistics: {
+            totalBodies: 12,
+            elementCounts: { fire: 3, earth: 3, air: 2, water: 4 },
+            modalityCounts: { cardinal: 4, fixed: 4, mutable: 4 },
+            polarityCounts: { yang: 5, yin: 7 },
+            hemisphereCounts: { northern: 5, southern: 7, eastern: 4, western: 8 },
+          },
         },
       },
     }),
@@ -399,6 +1015,119 @@ test("maps overlay house placements for synastry and transit results", async () 
   assert.equal(transitChart.overlays[0].placements[0].planet, "土星");
   assert.equal(transitChart.overlays[0].placements[0].overlayHouse, 10);
   assert.equal(transitChart.overlays[0].placements[0].overlayHouseRuler, "土星");
+  assert.equal(transitChart.placementGroups[1].statistics.sections[2].items[1].label, "阴性");
+});
+
+test("maps relationship transit results as a dual-subject timing chart", async () => {
+  const relationshipTransitChart = await calculateChart(
+    {
+      mode: "couple",
+      category: "relationship-transit",
+      people: [primary],
+      primary: { ...primary, name: "小星" },
+      secondary: { ...primary, name: "小月" },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    successfulFetch("/api/charts/relationship-transit", {
+      chartId: "relationship-transit-luna-sol",
+      chartType: "relationshipTransit",
+      title: "Luna × Sol Relationship Transit Chart",
+      placements: [],
+      aspects: [],
+      relatedCharts: {
+        primaryNatal: {
+          profiles: [{ name: "Luna" }],
+          placements: [{ body: "Sun", sign: "Aries", degree: 1, minute: 0, house: 1 }],
+          statistics: {
+            totalBodies: 12,
+            elementCounts: { fire: 4, earth: 2, air: 3, water: 3 },
+            modalityCounts: { cardinal: 4, fixed: 5, mutable: 3 },
+            polarityCounts: { yang: 7, yin: 5 },
+            hemisphereCounts: { northern: 6, southern: 6, eastern: 5, western: 7 },
+          },
+        },
+        secondaryNatal: {
+          profiles: [{ name: "Sol" }],
+          placements: [{ body: "Moon", sign: "Taurus", degree: 2, minute: 0, house: 2 }],
+          statistics: {
+            totalBodies: 12,
+            elementCounts: { fire: 2, earth: 4, air: 3, water: 3 },
+            modalityCounts: { cardinal: 3, fixed: 5, mutable: 4 },
+            polarityCounts: { yang: 5, yin: 7 },
+            hemisphereCounts: { northern: 7, southern: 5, eastern: 6, western: 6 },
+          },
+        },
+        transitSky: {
+          profiles: [{ name: "Transit Sky" }],
+          placements: [{ body: "Saturn", sign: "Pisces", degree: 20, minute: 0, house: 11 }],
+          statistics: {
+            totalBodies: 12,
+            elementCounts: { fire: 3, earth: 3, air: 2, water: 4 },
+            modalityCounts: { cardinal: 4, fixed: 4, mutable: 4 },
+            polarityCounts: { yang: 5, yin: 7 },
+            hemisphereCounts: { northern: 5, southern: 7, eastern: 4, western: 8 },
+          },
+        },
+        primaryTransitOverlay: {
+          overlayId: "transit-in-primary",
+          label: "Transit sky in Luna houses",
+          referenceName: "Luna",
+          overlayName: "Transit Sky",
+          houses: [{ house: 10, sign: "Capricorn" }],
+          placements: [
+            {
+              body: "Saturn",
+              longitude: 350,
+              sign: "Pisces",
+              degree: 20,
+              minute: 0,
+              sourceHouse: 11,
+              overlayHouse: 10,
+            },
+          ],
+          aspects: [{ from: "Sun", to: "Saturn", type: "square", orb: 1.1 }],
+        },
+        secondaryTransitOverlay: {
+          overlayId: "transit-in-secondary",
+          label: "Transit sky in Sol houses",
+          referenceName: "Sol",
+          overlayName: "Transit Sky",
+          houses: [{ house: 7, sign: "Libra" }],
+          placements: [
+            {
+              body: "Saturn",
+              longitude: 350,
+              sign: "Pisces",
+              degree: 20,
+              minute: 0,
+              sourceHouse: 11,
+              overlayHouse: 7,
+            },
+          ],
+          aspects: [{ from: "Moon", to: "Saturn", type: "trine", orb: 0.8 }],
+        },
+      },
+    }),
+  );
+
+  assert.equal(relationshipTransitChart.title, "小星 × 小月 的关系流年盘");
+  assert.deepEqual(
+    relationshipTransitChart.placementGroups.map((group) => group.title),
+    ["Luna 的本命星体", "Sol 的本命星体", "流年天象星体"],
+  );
+  assert.equal(relationshipTransitChart.aspectOwners.from, "关系");
+  assert.equal(relationshipTransitChart.aspectOwners.to, "流年");
+  assert.equal(relationshipTransitChart.overlays.length, 2);
+  assert.equal(relationshipTransitChart.aspects.length, 2);
+  assert.equal(relationshipTransitChart.aspects[0].from, "太阳");
+  assert.equal(relationshipTransitChart.aspects[0].fromOwner, "Luna");
+  assert.equal(relationshipTransitChart.aspects[0].toOwner, "流年");
+  assert.equal(relationshipTransitChart.overlays[0].title, "流年星体 飞入 Luna");
+  assert.equal(relationshipTransitChart.overlays[1].title, "流年星体 飞入 Sol");
+  assert.equal(relationshipTransitChart.overlays[1].sourceHouseTitle, "主参考地流年宫位");
+  assert.equal(relationshipTransitChart.overlays[1].placements[0].sourceHouse, "-");
+  assert.equal(relationshipTransitChart.overlays[1].placements[0].overlayHouse, 7);
 });
 
 test("calculateChart routes composite requests to the composite endpoint", async () => {
@@ -412,6 +1141,11 @@ test("calculateChart routes composite requests to the composite endpoint", async
       people: [primary],
       primary,
       secondary: { ...primary, name: "Sol" },
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
       forecastDate: "",
       forecastTime: "12:00",
     },
@@ -437,6 +1171,9 @@ test("calculateChart routes composite requests to the composite endpoint", async
   assert.equal(capturedUrl, "http://localhost:8000/api/charts/composite");
   assert.equal(requestBody.primary.name, "Luna");
   assert.equal(requestBody.secondary.name, "Sol");
+  assert.equal(requestBody.settings.houseSystem, "whole-sign");
+  assert.equal(requestBody.settings.aspectSet, "major_extended");
+  assert.equal(requestBody.settings.orbProfile, "tight");
 });
 
 test("chart catalog includes davison under couple mode", () => {
@@ -445,6 +1182,24 @@ test("chart catalog includes davison under couple mode", () => {
   assert.ok(davison);
   assert.equal(davison.mode, "couple");
   assert.equal(categoriesForMode("couple").some((category) => category.id === "davison"), true);
+});
+
+test("forecast catalog only exposes chart types with live backend support", () => {
+  const forecastCategories = categoriesForMode("forecast").map((category) => category.id);
+
+  assert.deepEqual(forecastCategories, ["transit", "solar-return", "lunar-return", "progression"]);
+  assert.equal(forecastCategories.includes("progression"), true);
+  assert.equal(forecastCategories.includes("relationship-transit"), false);
+});
+
+test("couple catalog exposes relationship transit as a live dual-subject timing chart", () => {
+  const coupleCategories = categoriesForMode("couple").map((category) => category.id);
+  const relationshipTransit = chartCategories.find((category) => category.id === "relationship-transit");
+
+  assert.equal(coupleCategories.includes("relationship-transit"), true);
+  assert.equal(relationshipTransit.mode, "couple");
+  assert.equal(relationshipTransit.requiresSecondPerson, true);
+  assert.equal(relationshipTransit.requiresForecastDate, true);
 });
 
 test("calculateChart routes davison requests to the davison endpoint", async () => {
@@ -458,6 +1213,11 @@ test("calculateChart routes davison requests to the davison endpoint", async () 
       people: [primary],
       primary,
       secondary: { ...primary, name: "Sol" },
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
       forecastDate: "",
       forecastTime: "12:00",
     },
@@ -483,6 +1243,9 @@ test("calculateChart routes davison requests to the davison endpoint", async () 
   assert.equal(capturedUrl, "http://localhost:8000/api/charts/davison");
   assert.equal(requestBody.primary.name, "Luna");
   assert.equal(requestBody.secondary.name, "Sol");
+  assert.equal(requestBody.settings.houseSystem, "whole-sign");
+  assert.equal(requestBody.settings.aspectSet, "major_extended");
+  assert.equal(requestBody.settings.orbProfile, "tight");
 });
 
 test("maps davison results as a fused relationship chart", async () => {

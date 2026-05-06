@@ -77,12 +77,15 @@ export function zodiacSegments(ascendantLongitude = 0, center = 200) {
   });
 }
 
-export function buildChartWheelModel(chart, { center = 200 } = {}) {
+export function buildChartWheelModel(chart, { center = 200, geometrySourceChart = chart } = {}) {
   const groups = chart.placementGroups?.length
     ? chart.placementGroups
     : [{ id: "placements", title: chart.title, placements: chart.placements ?? [] }];
+  const geometryGroups = geometrySourceChart.placementGroups?.length
+    ? geometrySourceChart.placementGroups
+    : [{ id: "placements", title: geometrySourceChart.title, placements: geometrySourceChart.placements ?? [] }];
   const usesDualRings = groups.length > 1;
-  const allPlacements = groups.flatMap((group) => group.placements ?? []);
+  const allPlacements = geometryGroups.flatMap((group) => group.placements ?? []);
   const ascendant = findPlacement(allPlacements, "上升点");
   const midheaven = findPlacement(allPlacements, "天顶");
   const ascendantLongitude = validLongitude(ascendant?.longitude) ? ascendant.longitude : 0;

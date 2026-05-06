@@ -1,4 +1,4 @@
-import React, { useState, useTransition } from "react";
+import React, { useEffect, useState, useTransition } from "react";
 
 import { ChartWheel } from "./components/chart/ChartWheel.jsx";
 import { categoriesForMode, readingModes } from "./data/chartCatalog.js";
@@ -15,7 +15,9 @@ import {
   houseSystemOptions,
   orbProfileOptions,
 } from "./lib/api/chartContracts.js";
-import { createChartRequest } from "./lib/chartEngine.js";
+import { buildAspectSelectionKeys, buildOverlaySelectionKeys, buildPlacementSelectionKey } from "./lib/chartSelection.js";
+import { applyVisibilityFilters, defaultVisibilitySettings } from "./lib/chartVisibility.js";
+import { buildRegenerationRequestKey, createChartRequest } from "./lib/chartEngine.js";
 import { buildInterpretationContext, createInterpretationReport } from "./lib/interpretationAgent.js";
 
 const defaultPeople = {
@@ -38,6 +40,7 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState("natal");
   const [people, setPeople] = useState(defaultPeople);
   const [settings, setSettings] = useState(defaultChartSettings);
+  const [visibility, setVisibility] = useState(defaultVisibilitySettings);
   const [forecastDate, setForecastDate] = useState("2026-05-01");
   const [forecastTime, setForecastTime] = useState("12:00");
   const [solarReturnAnchorDate, setSolarReturnAnchorDate] = useState("2026-04-27");
@@ -50,11 +53,30 @@ export default function App() {
   const [currentView, setCurrentView] = useState("workspace");
   const [isLoading, setIsLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [selectedPlacementKey, setSelectedPlacementKey] = useState(null);
 
   const categories = categoriesForMode(activeMode);
   const selectedCategory = categories.find((category) => category.id === activeCategory) || categories[0];
   const needsSecondPerson = selectedCategory?.requiresSecondPerson;
   const needsForecastDate = selectedCategory?.requiresForecastDate;
+  const currentRequestKey = buildRegenerationRequestKey({
+    mode: activeMode,
+    category: activeCategory,
+    primary: people.primary,
+    secondary: people.secondary,
+    settings,
+    forecastDate,
+    forecastTime,
+    solarReturnAnchorDate,
+    solarReturnAnchorTime,
+    solarReturnLocation,
+  });
+
+  useEffect(() => {
+    if (result && result.requestKey !== currentRequestKey) {
+      setResult(null);
+    }
+  }, [currentRequestKey, result]);
 
   function handleModeChange(mode) {
     const nextCategory = categoriesForMode(mode)[0].id;
@@ -80,11 +102,23 @@ export default function App() {
         solarReturnAnchorTime,
         solarReturnLocation,
       });
+      const requestKey = buildRegenerationRequestKey({
+        mode: activeMode,
+        category: activeCategory,
+        primary: people.primary,
+        secondary: people.secondary,
+        settings,
+        forecastDate,
+        forecastTime,
+        solarReturnAnchorDate,
+        solarReturnAnchorTime,
+        solarReturnLocation,
+      });
       const chart = await calculateChart(request);
       const report = createInterpretationReport(buildInterpretationContext(chart));
 
       startTransition(() => {
-        setResult({ chart, report });
+        setResult({ chart, report, requestKey });
         setCurrentView("result");
         setError("");
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -107,6 +141,13 @@ export default function App() {
 
   function updateSettings(field, value) {
     setSettings((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  function updateVisibility(field, value) {
+    setVisibility((current) => ({
       ...current,
       [field]: value,
     }));
@@ -135,7 +176,12 @@ export default function App() {
         </nav>
 
         <section className="result-stack" id="top">
-          <ChartPanel result={result} />
+          <ChartPanel
+            result={result}
+            visibility={visibility}
+            selectedPlacementKey={selectedPlacementKey}
+            onPlacementSelect={setSelectedPlacementKey}
+          />
           <AgentPanel report={result.report} />
         </section>
       </main>
@@ -266,6 +312,35 @@ export default function App() {
                   </select>
                 </label>
               </div>
+              <div className="settings-fields">
+                <fieldset className="visibility-settings">
+                  <legend>显示筛选</legend>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={visibility.showNodes}
+                      onChange={(event) => updateVisibility("showNodes", event.target.checked)}
+                    />
+                    交点
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={visibility.showSupplementalPoints}
+                      onChange={(event) => updateVisibility("showSupplementalPoints", event.target.checked)}
+                    />
+                    凯龙/莉莉丝/福点/宿命点
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={visibility.showAngles}
+                      onChange={(event) => updateVisibility("showAngles", event.target.checked)}
+                    />
+                    上升点 / 天顶
+                  </label>
+                </fieldset>
+              </div>
             </details>
 
             <PersonFields person={people.primary} role="primary" title="本人资料" onChange={updatePerson} />
@@ -274,10 +349,10 @@ export default function App() {
               <PersonFields person={people.secondary} role="secondary" title="对方资料" onChange={updatePerson} />
             ) : null}
 
-            {activeCategory === "solar-return" ? (
+            {isReturnChartCategory(activeCategory) ? (
               <>
                 <fieldset className="person-fields">
-                  <legend>日返参考时间</legend>
+                  <legend>{returnChartCopy(activeCategory).timingLegend}</legend>
                   <label>
                     参考日期
                     <input
@@ -295,11 +370,15 @@ export default function App() {
                     />
                   </label>
                 </fieldset>
-                <ReturnLocationFields location={solarReturnLocation} onChange={updateSolarReturnLocation} />
+                <ReturnLocationFields
+                  title={returnChartCopy(activeCategory).locationLegend}
+                  location={solarReturnLocation}
+                  onChange={updateSolarReturnLocation}
+                />
               </>
             ) : null}
 
-            {needsForecastDate && activeCategory !== "solar-return" ? (
+            {needsForecastDate && !isReturnChartCategory(activeCategory) ? (
               <div className="date-time-row">
                 <div className="field-group">
                   <label htmlFor="forecastDate">推运日期</label>
@@ -329,7 +408,14 @@ export default function App() {
             </button>
           </form>
 
-          {result ? <ChartPanel result={result} /> : null}
+          {result ? (
+            <ChartPanel
+              result={result}
+              visibility={visibility}
+              selectedPlacementKey={selectedPlacementKey}
+              onPlacementSelect={setSelectedPlacementKey}
+            />
+          ) : null}
         </div>
       </section>
 
@@ -405,12 +491,12 @@ function PersonFields({ person, role, title, onChange }) {
   );
 }
 
-function ReturnLocationFields({ location, onChange }) {
+function ReturnLocationFields({ title, location, onChange }) {
   const cities = cityOptions(location.countryId);
 
   return (
     <fieldset className="person-fields">
-      <legend>日返发生地</legend>
+      <legend>{title}</legend>
       <label>
         国家
         <select value={location.countryId} onChange={(event) => onChange("countryId", event.target.value)}>
@@ -476,24 +562,53 @@ function updateLocationField(current, field, value) {
   };
 }
 
-function ChartPanel({ result }) {
+function isReturnChartCategory(categoryId) {
+  return categoryId === "solar-return" || categoryId === "lunar-return";
+}
+
+function returnChartCopy(categoryId) {
+  if (categoryId === "lunar-return") {
+    return {
+      timingLegend: "月返参考时间",
+      locationLegend: "月返发生地",
+    };
+  }
+
+  return {
+    timingLegend: "日返参考时间",
+    locationLegend: "日返发生地",
+  };
+}
+
+function ChartPanel({ result, visibility, selectedPlacementKey, onPlacementSelect }) {
+  const visibleChart = applyVisibilityFilters(result.chart, visibility);
+  const [highlightedPlacementKeys, setHighlightedPlacementKeys] = useState([]);
+  const activePlacementKeys = highlightedPlacementKeys.length ? highlightedPlacementKeys : selectedPlacementKey ? [selectedPlacementKey] : [];
+
   return (
     <section className="chart-panel" aria-label="星盘结果">
       <div>
         <p className="eyebrow">Generated Chart</p>
-        <h2>{result.chart.title}</h2>
+        <h2>{visibleChart.title}</h2>
       </div>
 
-      <ChartWheel chart={result.chart} />
+      <ChartWheel
+        chart={visibleChart}
+        geometrySourceChart={result.chart}
+        selectedPlacementKey={selectedPlacementKey}
+        highlightedPlacementKeys={highlightedPlacementKeys}
+        onPlacementSelect={onPlacementSelect}
+      />
 
       <div className="chart-data">
-        <div>
+        <section className="chart-data-section">
           <h3>重点主题</h3>
-          <p>{result.chart.focus.join(" / ")}</p>
-        </div>
-        {result.chart.placementGroups.map((group) => (
-          <div key={group.id}>
+          <p>{visibleChart.focus.join(" / ")}</p>
+        </section>
+        {visibleChart.placementGroups.map((group) => (
+          <section className="chart-data-section" key={group.id}>
             <h3>{group.title}</h3>
+            <StatisticsPanel statistics={group.statistics} />
             <div className="data-table-wrap">
               <table className="data-table">
                 <thead>
@@ -506,7 +621,17 @@ function ChartPanel({ result }) {
                 </thead>
                 <tbody>
                   {group.placements.map((placement, index) => (
-                    <tr key={`${group.id}-${placement.planet}-${index}`}>
+                    <tr
+                      className={
+                        activePlacementKeys.includes(buildPlacementSelectionKey(placement, group.id)) ? "data-row-active" : undefined
+                      }
+                      key={`${group.id}-${placement.planet}-${index}`}
+                      onMouseEnter={() => {
+                        setHighlightedPlacementKeys([]);
+                        onPlacementSelect(buildPlacementSelectionKey(placement, group.id));
+                      }}
+                      onMouseLeave={() => onPlacementSelect(null)}
+                    >
                       <td>{placement.planet}</td>
                       <td>{placement.sign}</td>
                       <td>
@@ -518,37 +643,50 @@ function ChartPanel({ result }) {
                 </tbody>
               </table>
             </div>
-          </div>
+          </section>
         ))}
-        <div>
+        <section className="chart-data-section">
           <h3>主要相位</h3>
           <div className="data-table-wrap">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>{result.chart.aspectOwners.from} 的星体</th>
-                  <th>{result.chart.aspectOwners.to} 的星体</th>
+                  <th>{aspectColumnTitle(visibleChart, "from")}</th>
+                  <th>{aspectColumnTitle(visibleChart, "to")}</th>
                   <th>相位类型</th>
                   <th>容许度</th>
                 </tr>
               </thead>
               <tbody>
-                {result.chart.aspects.map((aspect, index) => (
-                  <tr key={`${aspect.from}-${aspect.to}-${index}`}>
-                    <td>{aspect.from}</td>
-                    <td>{aspect.to}</td>
+                {visibleChart.aspects.map((aspect, index) => (
+                  <tr
+                    className={
+                      highlightedPlacementKeys.length &&
+                      highlightedPlacementKeys.join("|") === buildAspectSelectionKeys(aspect, visibleChart.placementGroups).join("|")
+                        ? "aspect-row-active"
+                        : undefined
+                    }
+                    key={`${aspect.from}-${aspect.to}-${index}`}
+                    onMouseEnter={() => setHighlightedPlacementKeys(buildAspectSelectionKeys(aspect, visibleChart.placementGroups))}
+                    onMouseLeave={() => {
+                      setHighlightedPlacementKeys([]);
+                      onPlacementSelect(null);
+                    }}
+                  >
+                    <td>{formatAspectParty(aspect, "from")}</td>
+                    <td>{formatAspectParty(aspect, "to")}</td>
                     <td>
                       <span className={`aspect-chip aspect-chip-${aspect.tone ?? "neutral"}`}>{aspect.label ?? aspect.type}</span>
                     </td>
                     <td>{aspect.orb}</td>
                   </tr>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        {result.chart.overlays.map((overlay) => (
-          <div key={overlay.id}>
+                </tbody>
+              </table>
+            </div>
+        </section>
+        {visibleChart.overlays.map((overlay) => (
+          <section className="chart-data-section" key={overlay.id}>
             <h3>{overlay.houseTableTitle}</h3>
             <div className="data-table-wrap">
               <table className="data-table">
@@ -557,20 +695,33 @@ function ChartPanel({ result }) {
                     <th>星体</th>
                     <th>星座</th>
                     <th>度数</th>
-                    <th>原本宫位</th>
+                    <th>{overlay.sourceHouseTitle ?? "原本宫位"}</th>
                     <th>飞入宫位</th>
                     <th>飞入宫位宫主星</th>
                   </tr>
                 </thead>
                 <tbody>
                   {overlay.placements.map((placement, index) => (
-                    <tr key={`${overlay.id}-${placement.planet}-${index}`}>
+                    <tr
+                      className={
+                        highlightedPlacementKeys.length &&
+                        highlightedPlacementKeys.join("|") === buildOverlaySelectionKeys(placement, visibleChart.placementGroups).join("|")
+                          ? "overlay-row-active"
+                          : undefined
+                      }
+                      key={`${overlay.id}-${placement.planet}-${index}`}
+                      onMouseEnter={() => setHighlightedPlacementKeys(buildOverlaySelectionKeys(placement, visibleChart.placementGroups))}
+                      onMouseLeave={() => {
+                        setHighlightedPlacementKeys([]);
+                        onPlacementSelect(null);
+                      }}
+                    >
                       <td>{placement.planet}</td>
                       <td>{placement.sign}</td>
                       <td>
                         {placement.degree}°{placement.minute ? `${placement.minute}'` : ""}
                       </td>
-                      <td>第 {placement.sourceHouse} 宫</td>
+                      <td>{formatHouseValue(placement.sourceHouse)}</td>
                       <td>第 {placement.overlayHouse} 宫</td>
                       <td>{placement.overlayHouseRuler}</td>
                     </tr>
@@ -578,11 +729,75 @@ function ChartPanel({ result }) {
                 </tbody>
               </table>
             </div>
-          </div>
+          </section>
         ))}
       </div>
     </section>
   );
+}
+
+function StatisticsPanel({ statistics }) {
+  if (!statistics) {
+    return null;
+  }
+
+  return (
+    <div className="chart-statistics" aria-label="统计概览">
+      <h4>统计概览</h4>
+      <p>统计对象：{statistics.totalBodies} 个核心点位</p>
+      <div className="chart-statistics-grid">
+        {statistics.sections.map((section) => (
+          <div key={section.id}>
+            <p>{statisticsSectionTitle(section.id)}</p>
+            <p>{section.items.map((item) => `${item.label} ${item.count}`).join(" / ")}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function statisticsSectionTitle(sectionId) {
+  if (sectionId === "elementCounts") {
+    return "四象";
+  }
+
+  if (sectionId === "modalityCounts") {
+    return "三态";
+  }
+
+  if (sectionId === "polarityCounts") {
+    return "阴阳";
+  }
+
+  return "半球";
+}
+
+function aspectColumnTitle(chart, side) {
+  if (chart.category === "relationship-transit") {
+    return side === "from" ? "本命侧星体" : "流年侧星体";
+  }
+
+  return `${chart.aspectOwners[side]} 的星体`;
+}
+
+function formatAspectParty(aspect, side) {
+  const owner = side === "from" ? aspect.fromOwner : aspect.toOwner;
+  const planet = side === "from" ? aspect.from : aspect.to;
+
+  if (!owner) {
+    return planet;
+  }
+
+  return `${owner} · ${planet}`;
+}
+
+function formatHouseValue(value) {
+  if (value === "-" || value === null || value === undefined) {
+    return "-";
+  }
+
+  return `第 ${value} 宫`;
 }
 
 function AgentPanel({ report }) {

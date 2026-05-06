@@ -679,6 +679,19 @@ select:focus {
   opacity: 0.78;
 }
 
+.wheel-placement-active {
+  opacity: 0.72;
+}
+
+.wheel-placement-active .wheel-placement-leader {
+  stroke: rgba(162, 79, 105, 0.62);
+  stroke-width: 1.35;
+}
+
+.wheel-placement-active .wheel-placement-dot {
+  fill: rgba(162, 79, 105, 0.96);
+}
+
 .chart-wheel-caption {
   display: flex;
   flex-wrap: wrap;
@@ -703,6 +716,16 @@ select:focus {
   gap: 22px;
 }
 
+.chart-data-section {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border: 1px solid rgba(34, 51, 38, 0.08);
+  border-radius: 24px;
+  background: rgba(255, 252, 246, 0.82);
+  box-shadow: 0 18px 36px rgba(130, 153, 118, 0.08);
+}
+
 .chart-data h3,
 .report-list h3,
 .question-bank h3 {
@@ -724,6 +747,18 @@ select:focus {
   font-size: 0.92rem;
 }
 
+.data-row-active {
+  background: rgba(162, 79, 105, 0.08);
+}
+
+.aspect-row-active {
+  background: rgba(111, 159, 106, 0.1);
+}
+
+.overlay-row-active {
+  background: rgba(215, 168, 79, 0.11);
+}
+
 .data-table th,
 .data-table td {
   padding: 12px 14px;
@@ -733,7 +768,11 @@ select:focus {
 }
 
 .data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   background: rgba(220, 236, 207, 0.44);
+  backdrop-filter: blur(10px);
   color: var(--ink);
   font-size: 0.78rem;
   letter-spacing: 0.08em;

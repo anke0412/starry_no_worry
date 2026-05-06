@@ -15,7 +15,7 @@ export const readingModes = [
     id: "forecast",
     label: "推运排盘",
     eyebrow: "Timing",
-    description: "适合流年、次限、关系推运和阶段性趋势观察。",
+    description: "适合流年、日返和阶段性趋势观察。",
   },
 ];
 
@@ -57,6 +57,15 @@ export const chartCategories = [
     focus: ["关系基调", "共同节奏", "事件时机", "长期课题"],
   },
   {
+    id: "relationship-transit",
+    mode: "couple",
+    label: "关系流年盘",
+    outputTitle: "关系流年盘",
+    requiresSecondPerson: true,
+    requiresForecastDate: true,
+    focus: ["关系气候", "触发事件", "互动节奏", "阶段压力"],
+  },
+  {
     id: "transit",
     mode: "forecast",
     label: "流年盘",
@@ -75,22 +84,22 @@ export const chartCategories = [
     focus: ["年度主题", "自我更新", "关系焦点", "行动窗口"],
   },
   {
+    id: "lunar-return",
+    mode: "forecast",
+    label: "月返盘",
+    outputTitle: "月返推运盘",
+    requiresSecondPerson: false,
+    requiresForecastDate: false,
+    focus: ["月度主题", "情绪节奏", "关系气候", "短期窗口"],
+  },
+  {
     id: "progression",
     mode: "forecast",
-    label: "次限盘",
+    label: "次限推运盘",
     outputTitle: "次限推运盘",
     requiresSecondPerson: false,
     requiresForecastDate: true,
-    focus: ["内在成熟", "人生阶段", "情感变化", "长期趋势"],
-  },
-  {
-    id: "relationship-transit",
-    mode: "forecast",
-    label: "关系推运",
-    outputTitle: "关系推运盘",
-    requiresSecondPerson: true,
-    requiresForecastDate: true,
-    focus: ["关系时机", "承诺议题", "沟通窗口", "共同选择"],
+    focus: ["阶段主题", "内在成熟", "情绪推进", "人生节奏"],
   },
 ];
 

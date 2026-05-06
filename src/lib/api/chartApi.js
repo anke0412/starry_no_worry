@@ -2,7 +2,10 @@ import { findCategory } from "../../data/chartCatalog.js";
 import {
   buildCompositeChartPayload,
   buildDavisonChartPayload,
+  buildLunarReturnChartPayload,
   buildNatalChartPayload,
+  buildProgressionChartPayload,
+  buildRelationshipTransitChartPayload,
   buildSolarReturnChartPayload,
   buildSynastryChartPayload,
   buildTransitChartPayload,
@@ -16,8 +19,11 @@ const SUPPORTED_ENDPOINTS = {
   synastry: "/api/charts/synastry",
   composite: "/api/charts/composite",
   davison: "/api/charts/davison",
+  "relationship-transit": "/api/charts/relationship-transit",
   transit: "/api/charts/transit",
   "solar-return": "/api/charts/solar-return",
+  "lunar-return": "/api/charts/lunar-return",
+  progression: "/api/charts/progression",
 };
 
 const BODY_LABELS = {
@@ -92,6 +98,30 @@ const TRADITIONAL_SIGN_RULERS = {
   Pisces: "Jupiter",
 };
 
+const STATISTIC_LABELS = {
+  elementCounts: {
+    fire: "火象",
+    earth: "土象",
+    air: "风象",
+    water: "水象",
+  },
+  modalityCounts: {
+    cardinal: "基本宫",
+    fixed: "固定宫",
+    mutable: "变动宫",
+  },
+  polarityCounts: {
+    yang: "阳性",
+    yin: "阴性",
+  },
+  hemisphereCounts: {
+    northern: "北半球",
+    southern: "南半球",
+    eastern: "东半球",
+    western: "西半球",
+  },
+};
+
 export async function calculateChart(input, fetcher = fetch) {
   const category = findCategory(input.category);
 
@@ -139,13 +169,48 @@ function buildPayload(input) {
     return buildDavisonChartPayload(input.primary, input.secondary, input.settings);
   }
 
+  if (input.category === "relationship-transit") {
+    return buildRelationshipTransitChartPayload(
+      input.primary,
+      input.secondary,
+      {
+        transitDate: input.forecastDate,
+        transitTime: input.forecastTime,
+      },
+      input.settings,
+    );
+  }
+
   if (input.category === "solar-return") {
     return buildSolarReturnChartPayload(
       input.primary,
       {
-        anchorDate: input.forecastDate || input.solarReturnAnchorDate,
-        anchorTime: input.forecastTime || input.solarReturnAnchorTime,
+        anchorDate: input.solarReturnAnchorDate,
+        anchorTime: input.solarReturnAnchorTime,
         returnLocation: input.solarReturnLocation,
+      },
+      input.settings,
+    );
+  }
+
+  if (input.category === "lunar-return") {
+    return buildLunarReturnChartPayload(
+      input.primary,
+      {
+        anchorDate: input.solarReturnAnchorDate,
+        anchorTime: input.solarReturnAnchorTime,
+        returnLocation: input.solarReturnLocation,
+      },
+      input.settings,
+    );
+  }
+
+  if (input.category === "progression") {
+    return buildProgressionChartPayload(
+      input.primary,
+      {
+        progressionDate: input.forecastDate,
+        progressionTime: input.forecastTime,
       },
       input.settings,
     );
@@ -171,15 +236,16 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
     category: input.category,
     categoryLabel: category.label,
     people,
-    forecastDate: input.forecastDate,
+    forecastDate: input.category === "solar-return" || input.category === "lunar-return" ? input.solarReturnAnchorDate : input.forecastDate,
     focus: category.focus,
     placements: result.placements.map((placement) => ({
       ...mapPlacement(placement),
     })),
     placementGroups: mapPlacementGroups(result, input),
     aspectOwners: mapAspectOwners(result, input),
-    aspects: sortAspectsByBodyOrder(result.aspects).map(mapAspect),
+    aspects: mapWorkspaceAspects(result, input),
     overlays: mapOverlays(result.relatedCharts),
+    statistics: mapStatistics(result.statistics),
     houseNotes: category.focus.map((item, index) => ({
       house: index + 1,
       theme: item,
@@ -206,10 +272,37 @@ function mapPlacementGroups(result, input) {
     ];
   }
 
+  if (
+    input.category === "relationship-transit"
+    && relatedCharts?.primaryNatal
+    && relatedCharts?.secondaryNatal
+    && relatedCharts?.transitSky
+  ) {
+    return [
+      mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
+      mapPlacementGroup(relatedCharts.secondaryNatal, `${chartProfileName(relatedCharts.secondaryNatal, input.secondary.name)} 的本命星体`),
+      mapPlacementGroup(relatedCharts.transitSky, "流年天象星体"),
+    ];
+  }
+
   if (input.category === "solar-return" && relatedCharts?.primaryNatal && relatedCharts?.solarReturn) {
     return [
       mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
       mapPlacementGroup(relatedCharts.solarReturn, "日返星体"),
+    ];
+  }
+
+  if (input.category === "lunar-return" && relatedCharts?.primaryNatal && relatedCharts?.lunarReturn) {
+    return [
+      mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
+      mapPlacementGroup(relatedCharts.lunarReturn, "月返星体"),
+    ];
+  }
+
+  if (input.category === "progression" && relatedCharts?.primaryNatal && relatedCharts?.progressedChart) {
+    return [
+      mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
+      mapPlacementGroup(relatedCharts.progressedChart, "次限星体"),
     ];
   }
 
@@ -226,6 +319,7 @@ function mapPlacementGroups(result, input) {
       id: result.chartId,
       title: `${input.primary.name} 的星体落点`,
       placements: result.placements.map(mapPlacement),
+      statistics: mapStatistics(result.statistics),
     },
   ];
 }
@@ -235,6 +329,7 @@ function mapPlacementGroup(chart, title) {
     id: chart.chartId ?? title,
     title,
     placements: (chart.placements ?? []).map(mapPlacement),
+    statistics: mapStatistics(chart.statistics),
   };
 }
 
@@ -266,6 +361,13 @@ function mapAspectOwners(result, input) {
     };
   }
 
+  if (input.category === "relationship-transit") {
+    return {
+      from: "关系",
+      to: "流年",
+    };
+  }
+
   if (relatedCharts?.primaryOverlay) {
     return {
       from: relatedCharts.primaryOverlay.referenceName,
@@ -287,10 +389,57 @@ function mapAspectOwners(result, input) {
     };
   }
 
+  if (relatedCharts?.lunarReturnOverlay) {
+    return {
+      from: relatedCharts.lunarReturnOverlay.referenceName,
+      to: "月返",
+    };
+  }
+
+  if (relatedCharts?.progressedOverlay) {
+    return {
+      from: relatedCharts.progressedOverlay.referenceName,
+      to: "次限",
+    };
+  }
+
   return {
     from: input.primary.name,
     to: input.primary.name,
   };
+}
+
+function mapWorkspaceAspects(result, input) {
+  if (input.category === "relationship-transit") {
+    return mapRelationshipTransitAspects(result.relatedCharts);
+  }
+
+  return sortAspectsByBodyOrder(result.aspects).map(mapAspect);
+}
+
+function mapRelationshipTransitAspects(relatedCharts) {
+  if (!relatedCharts?.transitSky) {
+    return [];
+  }
+
+  return [
+    ...mapRelationshipOverlayAspects(relatedCharts.primaryTransitOverlay, relatedCharts.primaryNatal, relatedCharts.transitSky),
+    ...mapRelationshipOverlayAspects(relatedCharts.secondaryTransitOverlay, relatedCharts.secondaryNatal, relatedCharts.transitSky),
+  ];
+}
+
+function mapRelationshipOverlayAspects(overlay, referenceChart, transitSky) {
+  if (!overlay || !referenceChart || !transitSky) {
+    return [];
+  }
+
+  return sortAspectsByBodyOrder(overlay.aspects ?? []).map((aspect) => ({
+    ...mapAspect(aspect),
+    fromGroupId: referenceChart.chartId,
+    toGroupId: transitSky.chartId,
+    fromOwner: overlay.referenceName,
+    toOwner: "流年",
+  }));
 }
 
 function mapOverlays(relatedCharts) {
@@ -302,7 +451,16 @@ function mapOverlays(relatedCharts) {
     return [];
   }
 
-  return ["primaryOverlay", "secondaryOverlay", "transitOverlay", "solarReturnOverlay"]
+  return [
+    "primaryOverlay",
+    "secondaryOverlay",
+    "transitOverlay",
+    "primaryTransitOverlay",
+    "secondaryTransitOverlay",
+    "solarReturnOverlay",
+    "lunarReturnOverlay",
+    "progressedOverlay",
+  ]
     .map((key) => relatedCharts[key])
     .filter(Boolean)
     .map((overlay) => ({
@@ -317,10 +475,11 @@ function mapOverlays(relatedCharts) {
         longitude: placement.longitude,
         degree: placement.degree,
         minute: placement.minute,
-        sourceHouse: placement.sourceHouse ?? "-",
+        sourceHouse: overlaySourceHouseValue(overlay, placement),
         overlayHouse: placement.overlayHouse,
         overlayHouseRuler: houseRuler(overlay.houses, placement.overlayHouse),
       })),
+      sourceHouseTitle: overlaySourceHouseTitle(overlay),
       aspects: sortAspectsByBodyOrder(overlay.aspects).map(mapAspect),
     }));
 }
@@ -333,6 +492,33 @@ function mapAspect(aspect) {
     label: aspectTypeLabel(aspect.type),
     tone: aspectTone(aspect.type),
     orb: formatAspectOrb(aspect.orb),
+  };
+}
+
+function mapStatistics(statistics) {
+  if (!statistics) {
+    return null;
+  }
+
+  return {
+    totalBodies: statistics.totalBodies,
+    sections: [
+      mapStatisticsSection("elementCounts", statistics.elementCounts),
+      mapStatisticsSection("modalityCounts", statistics.modalityCounts),
+      mapStatisticsSection("polarityCounts", statistics.polarityCounts),
+      mapStatisticsSection("hemisphereCounts", statistics.hemisphereCounts),
+    ],
+  };
+}
+
+function mapStatisticsSection(sectionKey, counts = {}) {
+  return {
+    id: sectionKey,
+    items: Object.entries(STATISTIC_LABELS[sectionKey]).map(([key, label]) => ({
+      key,
+      label,
+      count: counts[key] ?? 0,
+    })),
   };
 }
 
@@ -374,7 +560,31 @@ function overlayDisplayName(name) {
     return "日返星体";
   }
 
+  if (typeof name === "string" && name.endsWith(" Lunar Return")) {
+    return "月返星体";
+  }
+
+  if (typeof name === "string" && name.endsWith(" Progressed")) {
+    return "次限星体";
+  }
+
   return name;
+}
+
+function overlaySourceHouseTitle(overlay) {
+  if (overlay.overlayId === "transit-in-secondary") {
+    return "主参考地流年宫位";
+  }
+
+  return "原本宫位";
+}
+
+function overlaySourceHouseValue(overlay, placement) {
+  if (overlay.overlayId === "transit-in-secondary") {
+    return "-";
+  }
+
+  return placement.sourceHouse ?? "-";
 }
 
 function houseRuler(houses, houseNumber) {

@@ -4,7 +4,7 @@ This document records the chart API contract shared by the React frontend and Fa
 
 ## Current Status
 
-The natal, synastry, composite, davison, transit, and solar-return chart endpoints return real `ChartResult` responses with ephemeris-backed placements and major aspects. Natal charts now include Placidus house cusps, Ascendant, Midheaven, and planet house placement.
+The natal, synastry, composite, davison, transit, relationship-transit, progression, solar-return, and lunar-return chart endpoints return real `ChartResult` responses with ephemeris-backed placements and major aspects. Natal charts now include Placidus house cusps, Ascendant, Midheaven, and planet house placement.
 
 ## Base URL
 
@@ -116,6 +116,22 @@ Request:
 Response: `ChartResult`.
 
 The natal response includes real planet placements, supplemental calculated points, mean lunar nodes, major aspects, 12 Placidus house cusps, Ascendant, Midheaven, and the house number for each placement.
+
+Every `ChartResult` now also returns a `statistics` object for result-surface summaries and later AI interpretation inputs:
+
+```json
+{
+  "statistics": {
+    "elementCounts": { "fire": 4, "earth": 2, "air": 3, "water": 3 },
+    "modalityCounts": { "cardinal": 4, "fixed": 5, "mutable": 3 },
+    "polarityCounts": { "yang": 7, "yin": 5 },
+    "hemisphereCounts": { "northern": 6, "southern": 6, "eastern": 5, "western": 7 },
+    "totalBodies": 12
+  }
+}
+```
+
+`statistics` is calculated from the 10 classical / modern planets plus `Ascendant` and `Midheaven`. Related chart snapshots inside `relatedCharts` carry their own `statistics` as well.
 
 `placements` includes the core planets plus calculated points including:
 
@@ -298,6 +314,99 @@ The transit response includes the primary natal planetary placements, transit-sk
 
 `primaryNatal` includes houses, Ascendant, and Midheaven. `transitSky` remains a sky snapshot without houses.
 
+### POST /api/charts/relationship-transit
+
+Request:
+
+```json
+{
+  "primary": {
+    "name": "Luna",
+    "date": "1996-04-12",
+    "time": "08:30",
+    "locationName": "Shanghai",
+    "latitude": 31.2304,
+    "longitude": 121.4737,
+    "timezone": "Asia/Shanghai"
+  },
+  "secondary": {
+    "name": "Sol",
+    "date": "1993-09-07",
+    "time": "21:10",
+    "locationName": "Beijing",
+    "latitude": 39.9042,
+    "longitude": 116.4074,
+    "timezone": "Asia/Shanghai"
+  },
+  "transitDate": "2026-05-01",
+  "transitTime": "12:00",
+  "settings": {
+    "houseSystem": "placidus",
+    "zodiac": "tropical",
+    "aspectSet": "major",
+    "orbProfile": "default"
+  }
+}
+```
+
+Response: `ChartResult`.
+
+The relationship-transit response combines two source natal charts with one shared transit-sky snapshot for the requested target instant.
+
+`relatedCharts` includes:
+
+- `primaryNatal`
+- `secondaryNatal`
+- `transitSky`
+- `primaryTransitOverlay`
+- `secondaryTransitOverlay`
+
+`transitDate` and `transitTime` are interpreted in `primary.timezone`, then used to calculate one shared transit sky that is compared against both natal charts.
+
+`primaryTransitOverlay` and `secondaryTransitOverlay` are the canonical aspect-bearing structures for this chart family. The top-level `aspects` list is intentionally empty so clients do not lose which natal owner a given transit aspect belongs to.
+
+`secondaryTransitOverlay` intentionally omits `sourceHouse` because the shared transit sky is not recalculated in a separate secondary-location frame.
+
+### POST /api/charts/progression
+
+Request:
+
+```json
+{
+  "primary": {
+    "name": "Luna",
+    "date": "1996-04-12",
+    "time": "08:30",
+    "locationName": "Shanghai",
+    "latitude": 31.2304,
+    "longitude": 121.4737,
+    "timezone": "Asia/Shanghai"
+  },
+  "progressionDate": "2026-05-01",
+  "progressionTime": "12:00",
+  "settings": {
+    "houseSystem": "placidus",
+    "zodiac": "tropical",
+    "aspectSet": "major",
+    "orbProfile": "default"
+  }
+}
+```
+
+Response: `ChartResult`.
+
+The progression response includes the primary natal placements, a progressed-chart placement set derived from the requested forecast instant, and inter-chart aspects between progressed and natal placements.
+
+`relatedCharts` includes:
+
+- `primaryNatal`
+- `progressedChart`
+- `progressedOverlay`
+
+`progressionDate` and `progressionTime` are interpreted in the source profile timezone and used as the progression target instant.
+
+`progressedChart` includes its own houses, Ascendant, and Midheaven. `progressedOverlay` describes progressed placements flying into natal houses.
+
 ### POST /api/charts/solar-return
 
 Request:
@@ -343,6 +452,52 @@ The solar return response includes the primary natal placements, solar return pl
 `anchorDate` and `anchorTime` are interpreted in `returnLocation.timezone`, then used as a search anchor for the exact solar return instant.
 
 `solarReturn` includes its own houses, Ascendant, and Midheaven. `solarReturnOverlay` describes solar return placements flying into natal houses.
+
+### POST /api/charts/lunar-return
+
+Request:
+
+```json
+{
+  "primary": {
+    "name": "Luna",
+    "date": "1996-04-12",
+    "time": "08:30",
+    "locationName": "Shanghai",
+    "latitude": 31.2304,
+    "longitude": 121.4737,
+    "timezone": "Asia/Shanghai"
+  },
+  "anchorDate": "2026-05-16",
+  "anchorTime": "06:30",
+  "returnLocation": {
+    "locationName": "Seoul",
+    "latitude": 37.5665,
+    "longitude": 126.978,
+    "timezone": "Asia/Seoul"
+  },
+  "settings": {
+    "houseSystem": "placidus",
+    "zodiac": "tropical",
+    "aspectSet": "major",
+    "orbProfile": "default"
+  }
+}
+```
+
+Response: `ChartResult`.
+
+The lunar return response includes the primary natal placements, lunar return placements calculated for the exact moon-return moment nearest the requested anchor, and inter-chart aspects between the lunar return and natal placements.
+
+`relatedCharts` includes:
+
+- `primaryNatal`
+- `lunarReturn`
+- `lunarReturnOverlay`
+
+`anchorDate` and `anchorTime` are interpreted in `returnLocation.timezone`, then used as a search anchor for the nearest exact lunar return instant.
+
+`lunarReturn` includes its own houses, Ascendant, and Midheaven. `lunarReturnOverlay` describes lunar return placements flying into natal houses.
 
 ## Temporary Not Implemented Response
 

@@ -19,6 +19,14 @@ test("workspace exposes chart settings controls for house system and aspect calc
   assert.match(appSource, /容许度/);
 });
 
+test("workspace exposes visibility toggles for optional points and angles", () => {
+  assert.match(appSource, /const \[visibility, setVisibility\]/);
+  assert.match(appSource, /显示筛选/);
+  assert.match(appSource, /交点/);
+  assert.match(appSource, /凯龙\/莉莉丝\/福点\/宿命点/);
+  assert.match(appSource, /上升点 \/ 天顶/);
+});
+
 test("workspace exposes solar return anchor and location fields", () => {
   assert.match(appSource, /solarReturnAnchorDate/);
   assert.match(appSource, /solarReturnAnchorTime/);
@@ -29,12 +37,14 @@ test("workspace exposes solar return anchor and location fields", () => {
 
 test("chart result panel renders an aspect list", () => {
   assert.match(appSource, />主要相位</);
-  assert.match(appSource, /result\.chart\.aspects\.map/);
+  assert.match(appSource, /visibleChart\.aspects\.map/);
   assert.match(appSource, /aspect-chip/);
 });
 
 test("chart result panel renders a reusable chart wheel instead of the placeholder visual", () => {
-  assert.match(appSource, /<ChartWheel chart=\{result\.chart\} \/>/);
+  assert.match(appSource, /<ChartWheel/);
+  assert.match(appSource, /chart=\{visibleChart\}/);
+  assert.match(appSource, /geometrySourceChart=\{result\.chart\}/);
   assert.doesNotMatch(appSource, /星盘图占位/);
   assert.doesNotMatch(appSource, /planet-dot/);
 });
@@ -122,24 +132,85 @@ test("chart wheel has compact placement hover tooltips and softer MC IC axis lin
   assert.match(geometrySource, /radius: 158/);
 });
 
+test("chart wheel accepts shared selected placement state for linked highlighting", () => {
+  const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
+
+  assert.match(chartWheelSource, /selectedPlacementKey/);
+  assert.match(chartWheelSource, /onPlacementSelect/);
+  assert.match(chartWheelSource, /wheel-placement-active/);
+});
+
 test("natal result page uses stacked interpretation layout and tables", () => {
   assert.match(appSource, /className="result-stack"/);
-  assert.match(appSource, /result\.chart\.placementGroups\.map/);
+  assert.match(appSource, /visibleChart\.placementGroups\.map/);
+  assert.match(appSource, /<StatisticsPanel statistics=\{group\.statistics\} \/>/);
+  assert.match(appSource, />统计概览</);
+  assert.match(appSource, /return "四象"/);
+  assert.match(appSource, /return "三态"/);
+  assert.match(appSource, /return "阴阳"/);
+  assert.match(appSource, /return "半球"/);
   assert.match(appSource, />星体</);
   assert.match(appSource, />星座</);
   assert.match(appSource, />度数</);
   assert.match(appSource, />宫位</);
-  assert.match(appSource, /result\.chart\.aspectOwners\.from/);
-  assert.match(appSource, /result\.chart\.aspectOwners\.to/);
+  assert.match(appSource, /aspectColumnTitle\(visibleChart, "from"\)/);
+  assert.match(appSource, /aspectColumnTitle\(visibleChart, "to"\)/);
   assert.match(appSource, />相位类型</);
   assert.match(appSource, />容许度</);
 });
 
 test("result page renders overlay house tables when available", () => {
-  assert.match(appSource, /result\.chart\.overlays\.map/);
+  assert.match(appSource, /visibleChart\.overlays\.map/);
   assert.match(appSource, />飞入宫位</);
-  assert.match(appSource, />原本宫位</);
+  assert.match(appSource, /overlay\.sourceHouseTitle \?\? "原本宫位"/);
   assert.match(appSource, />飞入宫位宫主星</);
-  assert.match(appSource, /result\.chart\.placementGroups\.map/);
-  assert.match(appSource, /result\.chart\.aspectOwners\.from/);
+  assert.match(appSource, /visibleChart\.placementGroups\.map/);
+  assert.match(appSource, /formatHouseValue\(placement\.sourceHouse\)/);
+});
+
+test("workspace clears stale generated results after calculation inputs change", () => {
+  assert.match(appSource, /useEffect\(\(\) => \{/);
+  assert.match(appSource, /result && result\.requestKey !== currentRequestKey/);
+  assert.match(appSource, /setResult\(null\)/);
+});
+
+test("result page shares one selected placement state between wheel and tables", () => {
+  assert.match(appSource, /const \[selectedPlacementKey, setSelectedPlacementKey\] = useState\(null\)/);
+  assert.match(appSource, /selectedPlacementKey=\{selectedPlacementKey\}/);
+  assert.match(appSource, /onPlacementSelect=\{setSelectedPlacementKey\}/);
+  assert.match(appSource, /buildPlacementSelectionKey\(placement, group\.id\)/);
+  assert.match(appSource, /data-row-active/);
+});
+
+test("aspect rows can highlight the linked placements on the wheel", () => {
+  assert.match(appSource, /const \[highlightedPlacementKeys, setHighlightedPlacementKeys\] = useState\(\[\]\)/);
+  assert.match(appSource, /buildAspectSelectionKeys\(aspect, visibleChart\.placementGroups\)/);
+  assert.match(appSource, /highlightedPlacementKeys=\{highlightedPlacementKeys\}/);
+  assert.match(appSource, /aspect-row-active/);
+});
+
+test("overlay rows can highlight the linked placements on the wheel", () => {
+  assert.match(appSource, /buildOverlaySelectionKeys\(placement, visibleChart\.placementGroups\)/);
+  assert.match(appSource, /overlay-row-active/);
+});
+
+test("hover-driven wheel and table highlights clear when the pointer leaves", () => {
+  const chartWheelSource = readFileSync(new URL("../src/components/chart/ChartWheel.jsx", import.meta.url), "utf8");
+
+  assert.match(chartWheelSource, /onMouseLeave=\{\(\) => \{\s*hideTooltip\(\);\s*onPlacementSelect\(null\);\s*\}\}/);
+  assert.match(
+    appSource,
+    /onMouseLeave=\{\(\) => \{\s*setHighlightedPlacementKeys\(\[\]\);\s*onPlacementSelect\(null\);\s*\}\}/,
+  );
+  assert.match(appSource, /onMouseLeave=\{\(\) => onPlacementSelect\(null\)\}/);
+});
+
+test("result tables use section cards and sticky headers for dense reading", () => {
+  const stylesSource = readFileSync(new URL("../src/styles.css", import.meta.url), "utf8");
+
+  assert.match(appSource, /className="chart-data-section"/);
+  assert.match(stylesSource, /\.chart-data-section/);
+  assert.match(stylesSource, /\.data-table th \{/);
+  assert.match(stylesSource, /position: sticky/);
+  assert.match(stylesSource, /top: 0/);
 });

@@ -144,3 +144,36 @@ test("builds professional house dividers with outer segments and inner axis line
   assert.equal(Math.round(line.axisInner.x), 200);
   assert.equal(Math.round(line.axisOuter.x), 96);
 });
+
+test("preserves wheel orientation when display filtering hides angle placements", () => {
+  const filteredWheel = buildChartWheelModel(
+    {
+      placementGroups: [
+        {
+          id: "primary",
+          title: "Luna 的本命星体",
+          placements: [{ planet: "太阳", longitude: 22.4, sign: "白羊", degree: 22, minute: 24, house: 1 }],
+        },
+      ],
+      aspects: [],
+    },
+    {
+      geometrySourceChart: {
+        placementGroups: [
+          {
+            id: "primary",
+            title: "Luna 的本命星体",
+            placements: [
+              { planet: "太阳", longitude: 22.4, sign: "白羊", degree: 22, minute: 24, house: 1 },
+              { planet: "上升点", longitude: 88.2, sign: "双子", degree: 28, minute: 12, house: 1 },
+              { planet: "天顶", longitude: 331.5, sign: "双鱼", degree: 1, minute: 30, house: 10 },
+            ],
+          },
+        ],
+        aspects: [],
+      },
+    },
+  );
+
+  assert.equal(filteredWheel.ascendantLongitude, 88.2);
+});

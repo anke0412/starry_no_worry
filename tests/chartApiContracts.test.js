@@ -5,6 +5,9 @@ import {
   aspectSetOptions,
   buildCompositeChartPayload,
   buildDavisonChartPayload,
+  buildRelationshipTransitChartPayload,
+  buildProgressionChartPayload,
+  buildLunarReturnChartPayload,
   buildNatalChartPayload,
   buildSolarReturnChartPayload,
   buildSynastryChartPayload,
@@ -120,6 +123,32 @@ test("builds a transit chart API payload with transit target time", () => {
   assert.equal(payload.transitTime, "12:00");
 });
 
+test("builds a relationship transit payload with two profiles and transit target time", () => {
+  const payload = buildRelationshipTransitChartPayload(
+    primary,
+    secondary,
+    {
+      transitDate: "2026-05-01",
+      transitTime: "12:00",
+    },
+  );
+
+  assert.equal(payload.primary.name, "Luna");
+  assert.equal(payload.secondary.name, "Sol");
+  assert.equal(payload.transitDate, "2026-05-01");
+  assert.equal(payload.transitTime, "12:00");
+});
+
+test("builds a progression chart API payload with target time", () => {
+  const payload = buildProgressionChartPayload(primary, {
+    progressionDate: "2026-05-01",
+    progressionTime: "12:00",
+  });
+
+  assert.equal(payload.progressionDate, "2026-05-01");
+  assert.equal(payload.progressionTime, "12:00");
+});
+
 test("builds a solar return chart API payload with anchor and return location", () => {
   const payload = buildSolarReturnChartPayload(primary, {
     anchorDate: "2026-04-27",
@@ -136,6 +165,24 @@ test("builds a solar return chart API payload with anchor and return location", 
   assert.equal(payload.anchorTime, "18:00");
   assert.equal(payload.returnLocation.locationName, "Tokyo");
   assert.equal(payload.returnLocation.latitude, 35.6762);
+});
+
+test("builds a lunar return chart API payload with anchor and return location", () => {
+  const payload = buildLunarReturnChartPayload(primary, {
+    anchorDate: "2026-05-16",
+    anchorTime: "06:30",
+    returnLocation: {
+      locationName: "Seoul",
+      latitude: "37.5665",
+      longitude: "126.9780",
+      timezone: "Asia/Seoul",
+    },
+  });
+
+  assert.equal(payload.anchorDate, "2026-05-16");
+  assert.equal(payload.anchorTime, "06:30");
+  assert.equal(payload.returnLocation.locationName, "Seoul");
+  assert.equal(payload.returnLocation.longitude, 126.978);
 });
 
 test("merges custom settings into payloads", () => {

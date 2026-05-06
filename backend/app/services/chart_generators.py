@@ -152,6 +152,85 @@ class DualSubjectComparisonGenerator(BaseChartGenerator):
         )
 
 
+class DualSubjectDerivedGenerator(BaseChartGenerator, Generic[DerivedTargetContextT]):
+    primary_overlay_id = "derived-in-primary"
+    secondary_overlay_id = "derived-in-secondary"
+
+    def build_primary_overlay_label(
+        self,
+        primary_chart: ChartResult,
+        _secondary_chart: ChartResult,
+        derived_chart: ChartResult,
+    ) -> str:
+        return f"{derived_chart.profiles[0].name} in {primary_chart.profiles[0].name} houses"
+
+    def build_secondary_overlay_label(
+        self,
+        _primary_chart: ChartResult,
+        secondary_chart: ChartResult,
+        derived_chart: ChartResult,
+    ) -> str:
+        return f"{derived_chart.profiles[0].name} in {secondary_chart.profiles[0].name} houses"
+
+    def build_derived_chart(
+        self,
+        primary_profile: BirthProfile,
+        secondary_profile: BirthProfile,
+        settings: ChartSettings,
+        target_context: DerivedTargetContextT,
+    ) -> ChartResult:
+        raise NotImplementedError
+
+    def build_chart_result(
+        self,
+        *,
+        primary_chart: ChartResult,
+        secondary_chart: ChartResult,
+        derived_chart: ChartResult,
+        primary_overlay: ChartOverlay,
+        secondary_overlay: ChartOverlay,
+        settings: ChartSettings,
+        target_context: DerivedTargetContextT,
+    ) -> ChartResult:
+        raise NotImplementedError
+
+    def generate(
+        self,
+        primary_profile: BirthProfile,
+        secondary_profile: BirthProfile,
+        settings: ChartSettings,
+        target_context: DerivedTargetContextT,
+    ) -> ChartResult:
+        primary_chart = self.context.natal.calculate_from_profile(primary_profile, settings)
+        secondary_chart = self.context.natal.calculate_from_profile(secondary_profile, settings)
+        derived_chart = self.build_derived_chart(primary_profile, secondary_profile, settings, target_context)
+        primary_overlay = self.context.overlay.build(
+            overlay_id=self.primary_overlay_id,
+            label=self.build_primary_overlay_label(primary_chart, secondary_chart, derived_chart),
+            reference_chart=primary_chart,
+            overlay_chart=derived_chart,
+            aspect_set=settings.aspect_set,
+            orb_profile=settings.orb_profile,
+        )
+        secondary_overlay = self.context.overlay.build(
+            overlay_id=self.secondary_overlay_id,
+            label=self.build_secondary_overlay_label(primary_chart, secondary_chart, derived_chart),
+            reference_chart=secondary_chart,
+            overlay_chart=derived_chart,
+            aspect_set=settings.aspect_set,
+            orb_profile=settings.orb_profile,
+        )
+        return self.build_chart_result(
+            primary_chart=primary_chart,
+            secondary_chart=secondary_chart,
+            derived_chart=derived_chart,
+            primary_overlay=primary_overlay,
+            secondary_overlay=secondary_overlay,
+            settings=settings,
+            target_context=target_context,
+        )
+
+
 class DualSubjectFusionGenerator(BaseChartGenerator):
     def build_fused_chart(
         self,

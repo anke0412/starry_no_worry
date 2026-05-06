@@ -13,10 +13,10 @@
 11. 第二阶段扩展方向包括：组合盘、Davison、马盘、日返、月返、三限相关变体。
 12. 第二阶段推荐顺序：公共计算能力 → 共用盘型生成框架 → 新盘型落地 → 分析交互 → AI 解读增强。
 13. 后端统一生成框架已经落地：单体衍生、双体比较、双体融合三类生成器方向明确。
-14. `transit` 已迁移到单体衍生框架，`synastry` 已迁移到双体比较框架，这两种模式的后端升级已完成。
-15. 日返盘后端已经落地，并复用共享 chart generation framework。
+14. `transit`、`progression` 已迁移到单体衍生框架，`synastry` 已迁移到双体比较框架，`relationship-transit` 已迁移到双体衍生框架，这几种模式的后端升级已完成。
+15. 日返盘、月返盘后端已经落地，并复用共享 chart generation framework。
 16. 中文术语必须严格统一：人名用用户输入，行星名、星座名、相位/宫位/overlay 表述都要专业且精确。
 17. 用户非常在意前端细节，尤其是 tooltip、相位描述、轮盘标注和表格可读性。
-18. backend 测试环境以 `.venv312` 为准；测试基线优先记录可复核方式：当前在 `backend` 目录执行 `../.venv312/bin/python -m pytest --collect-only -q` 可收集 `61 tests`，不要只记固定 passed 数。
+18. backend 测试环境以 `.venv312` 为准；测试基线优先记录可复核方式：当前在 `backend` 目录执行 `../.venv312/bin/python -m pytest --collect-only -q` 可收集 `100 tests`，不要只记固定 passed 数。
 19. 协作运行约定：主 agent 负责先读项目记忆与当前 task/plan，再决定下一任务，派发 `implement` / `review` / `verify` 三类子 agent，汇总结果并回写计划勾选，同时维护测试基线和审阅结论。
 20. 子代理命名必须带功能目标，方便人工审阅，例如：`impl_transit_generator`、`review_synastry_adapter`、`verify_backend_chart_suite`。
