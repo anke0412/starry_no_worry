@@ -166,3 +166,9 @@ def test_solar_return_endpoint_returns_natal_return_chart_and_overlay():
     assert data["relatedCharts"]["primaryNatal"]["chartType"] == "natal"
     assert data["relatedCharts"]["solarReturn"]["chartType"] == "solarReturn"
     assert data["relatedCharts"]["solarReturnOverlay"]["referenceName"] == "Luna"
+
+
+def test_lunar_return_endpoint_exists():
+    response = client.post("/api/charts/lunar-return", json=solar_return_payload())
+
+    assert response.status_code != 404

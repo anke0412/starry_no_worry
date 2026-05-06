@@ -4,13 +4,19 @@ from app.models.chart import (
     ChartResult,
     CompositeChartRequest,
     DavisonChartRequest,
+    LunarReturnChartRequest,
     NatalChartRequest,
+    ProgressionChartRequest,
+    RelationshipTransitChartRequest,
     SolarReturnChartRequest,
     SynastryChartRequest,
     TransitChartRequest,
 )
 from app.services.natal import NatalChartService
+from app.services.lunar_return import LunarReturnChartService
 from app.services.solar_return import SolarReturnChartService
+from app.services.progression import ProgressionChartService
+from app.services.relationship_transit import RelationshipTransitChartService
 from app.services.synastry import SynastryChartService
 from app.services.transit import TransitChartService
 
@@ -91,10 +97,52 @@ def create_transit_chart(request: TransitChartRequest) -> ChartResult:
         ) from error
 
 
+@router.post("/relationship-transit", response_model=ChartResult, response_model_by_alias=True)
+def create_relationship_transit_chart(request: RelationshipTransitChartRequest) -> ChartResult:
+    try:
+        return RelationshipTransitChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
+@router.post("/progression", response_model=ChartResult, response_model_by_alias=True)
+def create_progression_chart(request: ProgressionChartRequest) -> ChartResult:
+    try:
+        return ProgressionChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
 @router.post("/solar-return", response_model=ChartResult, response_model_by_alias=True)
 def create_solar_return_chart(request: SolarReturnChartRequest) -> ChartResult:
     try:
         return SolarReturnChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
+@router.post("/lunar-return", response_model=ChartResult, response_model_by_alias=True)
+def create_lunar_return_chart(request: LunarReturnChartRequest) -> ChartResult:
+    try:
+        return LunarReturnChartService().calculate(request)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,

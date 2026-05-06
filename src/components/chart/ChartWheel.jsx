@@ -1,20 +1,34 @@
 import React from "react";
 
+import { buildPlacementSelectionKey } from "../../lib/chartSelection.js";
 import { buildChartWheelModel, buildHouseLineModel, pointOnWheel } from "../../lib/chartWheelGeometry.js";
 import { ZodiacGlyph } from "./ZodiacGlyph.jsx";
 
 const VIEWBOX_SIZE = 400;
 const CENTER = 200;
 
-export function ChartWheel({ chart }) {
+export function ChartWheel({
+  chart,
+  geometrySourceChart = chart,
+  selectedPlacementKey = null,
+  highlightedPlacementKeys = [],
+  onPlacementSelect = () => {},
+}) {
   const [tooltip, setTooltip] = React.useState(null);
-  const wheel = buildChartWheelModel(chart, { center: CENTER });
-  const houseCusps = housesFromChart(chart);
+  const wheel = buildChartWheelModel(chart, { center: CENTER, geometrySourceChart });
+  const houseCusps = housesFromChart(geometrySourceChart);
   const showTooltip = (nextTooltip) => setTooltip(nextTooltip);
   const hideTooltip = () => setTooltip(null);
 
   return (
-    <figure className="chart-wheel-frame" aria-label={`${chart.title} 星盘轮盘`} onMouseLeave={hideTooltip}>
+    <figure
+      className="chart-wheel-frame"
+      aria-label={`${chart.title} 星盘轮盘`}
+      onMouseLeave={() => {
+        hideTooltip();
+        onPlacementSelect(null);
+      }}
+    >
       <svg className="chart-wheel" viewBox={`0 0 ${VIEWBOX_SIZE} ${VIEWBOX_SIZE}`} role="img">
         <title>{chart.title} 星盘轮盘</title>
         <defs>
@@ -103,9 +117,17 @@ export function ChartWheel({ chart }) {
           <g className={`wheel-layer wheel-layer-${layerIndex + 1}`} key={layer.id}>
             {layer.placements.map((placement, index) => (
               <g
-                className="wheel-placement"
+                className={
+                  selectedPlacementKey === buildPlacementSelectionKey(placement, layer.id) ||
+                  highlightedPlacementKeys.includes(buildPlacementSelectionKey(placement, layer.id))
+                    ? "wheel-placement wheel-placement-active"
+                    : "wheel-placement"
+                }
                 key={`${layer.id}-${placement.planet}-${index}`}
-                onMouseEnter={() => showTooltip(placementTooltip(placement, layer.title, wheel.aspectLines))}
+                onMouseEnter={() => {
+                  onPlacementSelect(buildPlacementSelectionKey(placement, layer.id));
+                  showTooltip(placementTooltip(placement, layer.title, wheel.aspectLines));
+                }}
               >
                 <title>{placementTitle(placement, layer.title)}</title>
                 <line className="wheel-placement-leader" {...placement.leaderLine} />

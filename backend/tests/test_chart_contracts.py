@@ -8,6 +8,7 @@ from app.models.chart import (
     CompositeChartRequest,
     DavisonChartRequest,
     NatalChartRequest,
+    RelationshipTransitChartRequest,
 )
 
 
@@ -65,12 +66,26 @@ def test_davison_request_uses_default_chart_settings():
     assert request.model_dump(by_alias=True)["chartType"] == "davison"
 
 
+def test_relationship_transit_request_uses_default_chart_settings():
+    request = RelationshipTransitChartRequest(
+        primary=birth_profile_payload("Luna"),
+        secondary=birth_profile_payload("Sol"),
+        transitDate="2026-05-01",
+        transitTime="12:00",
+    )
+
+    assert request.chart_type == "relationshipTransit"
+    assert request.settings == ChartSettings()
+    assert request.model_dump(by_alias=True)["chartType"] == "relationshipTransit"
+
+
 def test_chart_endpoints_are_registered_in_openapi_schema():
     schema = client.get("/openapi.json").json()
 
     assert "/api/charts/natal" in schema["paths"]
     assert "/api/charts/synastry" in schema["paths"]
     assert "/api/charts/transit" in schema["paths"]
+    assert "/api/charts/relationship-transit" in schema["paths"]
     assert "/api/charts/composite" in schema["paths"]
     assert "/api/charts/davison" in schema["paths"]
 
@@ -167,3 +182,24 @@ def test_transit_endpoint_accepts_contract_and_returns_chart_result():
 
     assert response.status_code == 200
     assert response.json()["chartType"] == "transit"
+
+
+def test_relationship_transit_endpoint_requires_secondary_profile_and_transit_datetime():
+    response = client.post("/api/charts/relationship-transit", json={"primary": birth_profile_payload()})
+
+    assert response.status_code == 422
+
+
+def test_relationship_transit_endpoint_accepts_contract_and_returns_chart_result():
+    response = client.post(
+        "/api/charts/relationship-transit",
+        json={
+            "primary": birth_profile_payload("Luna"),
+            "secondary": birth_profile_payload("Sol"),
+            "transitDate": "2026-05-01",
+            "transitTime": "12:00",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["chartType"] == "relationshipTransit"

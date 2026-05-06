@@ -1,4 +1,5 @@
 import { findCategory } from "../data/chartCatalog.js";
+import { defaultChartSettings } from "./api/chartContracts.js";
 
 const SIGNS = ["白羊", "金牛", "双子", "巨蟹", "狮子", "处女", "天秤", "天蝎", "射手", "摩羯", "水瓶", "双鱼"];
 const PLANETS = ["太阳", "月亮", "水星", "金星", "火星", "上升"];
@@ -24,16 +25,22 @@ export function createChartRequest(input) {
   }
 
   const solarReturnLocation = input.solarReturnLocation ? normalizeSolarReturnLocation(input.solarReturnLocation) : null;
+  const isReturnChart = input.category === "solar-return" || input.category === "lunar-return";
 
   return {
     mode: input.mode,
     category: input.category,
-    settings: input.settings ?? null,
+    settings: {
+      ...defaultChartSettings,
+      ...(input.settings ?? {}),
+    },
     primary: normalizePerson(input.primary),
     secondary: input.secondary ? normalizePerson(input.secondary) : null,
     people: [normalizePerson(input.primary), input.secondary ? normalizePerson(input.secondary) : null].filter(Boolean),
-    forecastDate: input.category === "solar-return" ? input.solarReturnAnchorDate || "" : input.forecastDate || "",
-    forecastTime: input.category === "solar-return" ? input.solarReturnAnchorTime || "12:00" : input.forecastTime || "12:00",
+    forecastDate: isReturnChart ? input.solarReturnAnchorDate || "" : input.forecastDate || "",
+    forecastTime: isReturnChart ? input.solarReturnAnchorTime || "12:00" : input.forecastTime || "12:00",
+    solarReturnAnchorDate: input.solarReturnAnchorDate || "",
+    solarReturnAnchorTime: input.solarReturnAnchorTime || "12:00",
     solarReturnLocation,
     categoryMeta: category,
     createdAt: new Date().toISOString(),
@@ -73,6 +80,32 @@ export function generateChartSnapshot(request) {
   };
 }
 
+export function buildRegenerationRequestKey(input) {
+  const category = input.category;
+  const primary = normalizePersonLike(input.primary);
+  const secondary = input.secondary ? normalizePersonLike(input.secondary) : null;
+  const settings = {
+    ...defaultChartSettings,
+    ...(input.settings ?? {}),
+  };
+  const solarReturnLocation = input.solarReturnLocation
+    ? normalizeSolarReturnLocationLike(input.solarReturnLocation)
+    : null;
+
+  const isReturnChart = category === "solar-return" || category === "lunar-return";
+
+  return JSON.stringify({
+    mode: input.mode ?? "",
+    category,
+    settings,
+    primary,
+    secondary,
+    forecastDate: isReturnChart ? input.solarReturnAnchorDate || "" : input.forecastDate || "",
+    forecastTime: isReturnChart ? input.solarReturnAnchorTime || "12:00" : input.forecastTime || "12:00",
+    solarReturnLocation,
+  });
+}
+
 function normalizePerson(person) {
   return {
     name: person.name?.trim() || "未命名",
@@ -85,12 +118,33 @@ function normalizePerson(person) {
   };
 }
 
+function normalizePersonLike(person = {}) {
+  return {
+    name: person.name?.trim() || "未命名",
+    date: person.date || "",
+    time: person.time || "",
+    location: (person.location ?? person.locationName ?? "").trim(),
+    latitude: person.latitude ?? "",
+    longitude: person.longitude ?? "",
+    timezone: person.timezone ?? "",
+  };
+}
+
 function normalizeSolarReturnLocation(location) {
   return {
     locationName: location.location?.trim() || location.locationName?.trim() || "",
     latitude: location.latitude,
     longitude: location.longitude,
     timezone: location.timezone,
+  };
+}
+
+function normalizeSolarReturnLocationLike(location = {}) {
+  return {
+    locationName: (location.location ?? location.locationName ?? "").trim(),
+    latitude: location.latitude ?? "",
+    longitude: location.longitude ?? "",
+    timezone: location.timezone ?? "",
   };
 }
 

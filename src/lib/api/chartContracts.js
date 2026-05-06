@@ -54,12 +54,46 @@ export function buildTransitChartPayload(primary, transit, settings = defaultCha
   };
 }
 
+export function buildRelationshipTransitChartPayload(
+  primary,
+  secondary,
+  transit,
+  settings = defaultChartSettings,
+) {
+  return {
+    primary: normalizeBirthProfile(primary),
+    secondary: normalizeBirthProfile(secondary),
+    transitDate: transit.transitDate,
+    transitTime: transit.transitTime,
+    settings: normalizeSettings(settings),
+  };
+}
+
+export function buildProgressionChartPayload(primary, progression, settings = defaultChartSettings) {
+  return {
+    primary: normalizeBirthProfile(primary),
+    progressionDate: progression.progressionDate,
+    progressionTime: progression.progressionTime,
+    settings: normalizeSettings(settings),
+  };
+}
+
 export function buildSolarReturnChartPayload(primary, solarReturn, settings = defaultChartSettings) {
   return {
     primary: normalizeBirthProfile(primary),
     anchorDate: solarReturn.anchorDate,
     anchorTime: solarReturn.anchorTime,
     returnLocation: normalizeReturnLocation(solarReturn.returnLocation),
+    settings: normalizeSettings(settings),
+  };
+}
+
+export function buildLunarReturnChartPayload(primary, lunarReturn, settings = defaultChartSettings) {
+  return {
+    primary: normalizeBirthProfile(primary),
+    anchorDate: lunarReturn.anchorDate,
+    anchorTime: lunarReturn.anchorTime,
+    returnLocation: normalizeReturnLocation(lunarReturn.returnLocation),
     settings: normalizeSettings(settings),
   };
 }

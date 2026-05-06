@@ -74,6 +74,12 @@ def test_natal_endpoint_returns_real_ephemeris_placements():
     assert data["houses"][0]["degree"] is not None
     assert data["houses"][0]["minute"] is not None
     assert all(placement["house"] is not None for placement in data["placements"])
+    assert data["statistics"]["totalBodies"] == 12
+    assert set(data["statistics"]["elementCounts"].keys()) == {"fire", "earth", "air", "water"}
+    assert set(data["statistics"]["modalityCounts"].keys()) == {"cardinal", "fixed", "mutable"}
+    assert set(data["statistics"]["polarityCounts"].keys()) == {"yang", "yin"}
+    assert set(data["statistics"]["hemisphereCounts"].keys()) == {"northern", "southern", "eastern", "western"}
+    assert sum(data["statistics"]["elementCounts"].values()) == data["statistics"]["totalBodies"]
     assert {
         "from": "North Node",
         "to": "South Node",

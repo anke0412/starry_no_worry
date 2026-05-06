@@ -39,7 +39,7 @@ test("builds a timing section for forecast categories", () => {
   const chart = generateChartSnapshot(
     createChartRequest({
       mode: "forecast",
-      category: "progression",
+      category: "transit",
       primary: {
         name: "Luna",
         date: "1996-04-12",

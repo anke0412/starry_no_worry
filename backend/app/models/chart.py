@@ -1,6 +1,66 @@
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+ELEMENT_BY_SIGN = {
+    "Aries": "fire",
+    "Leo": "fire",
+    "Sagittarius": "fire",
+    "Taurus": "earth",
+    "Virgo": "earth",
+    "Capricorn": "earth",
+    "Gemini": "air",
+    "Libra": "air",
+    "Aquarius": "air",
+    "Cancer": "water",
+    "Scorpio": "water",
+    "Pisces": "water",
+}
+
+MODALITY_BY_SIGN = {
+    "Aries": "cardinal",
+    "Cancer": "cardinal",
+    "Libra": "cardinal",
+    "Capricorn": "cardinal",
+    "Taurus": "fixed",
+    "Leo": "fixed",
+    "Scorpio": "fixed",
+    "Aquarius": "fixed",
+    "Gemini": "mutable",
+    "Virgo": "mutable",
+    "Sagittarius": "mutable",
+    "Pisces": "mutable",
+}
+
+POLARITY_BY_SIGN = {
+    "Aries": "yang",
+    "Gemini": "yang",
+    "Leo": "yang",
+    "Libra": "yang",
+    "Sagittarius": "yang",
+    "Aquarius": "yang",
+    "Taurus": "yin",
+    "Cancer": "yin",
+    "Virgo": "yin",
+    "Scorpio": "yin",
+    "Capricorn": "yin",
+    "Pisces": "yin",
+}
+
+STATISTICAL_BODIES = {
+    "Sun",
+    "Moon",
+    "Mercury",
+    "Venus",
+    "Mars",
+    "Jupiter",
+    "Saturn",
+    "Uranus",
+    "Neptune",
+    "Pluto",
+    "Ascendant",
+    "Midheaven",
+}
 
 
 class BirthProfile(BaseModel):
@@ -57,6 +117,19 @@ class TransitChartRequest(BaseChartRequest):
     transit_time: str = Field(alias="transitTime")
 
 
+class RelationshipTransitChartRequest(BaseChartRequest):
+    chart_type: Literal["relationshipTransit"] = Field(default="relationshipTransit", alias="chartType")
+    secondary: BirthProfile
+    transit_date: str = Field(alias="transitDate")
+    transit_time: str = Field(alias="transitTime")
+
+
+class ProgressionChartRequest(BaseChartRequest):
+    chart_type: Literal["progression"] = Field(default="progression", alias="chartType")
+    progression_date: str = Field(alias="progressionDate")
+    progression_time: str = Field(alias="progressionTime")
+
+
 class ReturnLocation(BaseModel):
     location_name: str = Field(alias="locationName")
     latitude: float | None = None
@@ -68,6 +141,13 @@ class ReturnLocation(BaseModel):
 
 class SolarReturnChartRequest(BaseChartRequest):
     chart_type: Literal["solarReturn"] = Field(default="solarReturn", alias="chartType")
+    anchor_date: str = Field(alias="anchorDate")
+    anchor_time: str = Field(alias="anchorTime")
+    return_location: ReturnLocation = Field(alias="returnLocation")
+
+
+class LunarReturnChartRequest(BaseChartRequest):
+    chart_type: Literal["lunarReturn"] = Field(default="lunarReturn", alias="chartType")
     anchor_date: str = Field(alias="anchorDate")
     anchor_time: str = Field(alias="anchorTime")
     return_location: ReturnLocation = Field(alias="returnLocation")
@@ -138,6 +218,16 @@ class ChartOverlay(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
 
+class ChartStatistics(BaseModel):
+    element_counts: dict[str, int] = Field(alias="elementCounts")
+    modality_counts: dict[str, int] = Field(alias="modalityCounts")
+    polarity_counts: dict[str, int] = Field(alias="polarityCounts")
+    hemisphere_counts: dict[str, int] = Field(alias="hemisphereCounts")
+    total_bodies: int = Field(alias="totalBodies")
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
 class ChartResult(BaseModel):
     chart_id: str = Field(alias="chartId")
     chart_type: str = Field(alias="chartType")
@@ -147,6 +237,54 @@ class ChartResult(BaseModel):
     placements: list[Placement]
     houses: list[HouseCusp]
     aspects: list[Aspect]
+    statistics: ChartStatistics | None = None
     related_charts: dict[str, object] | None = Field(default=None, alias="relatedCharts")
 
     model_config = ConfigDict(populate_by_name=True)
+
+    @model_validator(mode="after")
+    def populate_statistics(self) -> "ChartResult":
+        if self.statistics is None:
+            self.statistics = build_chart_statistics(self.placements)
+        return self
+
+
+def build_chart_statistics(placements: list[Placement]) -> ChartStatistics:
+    relevant_placements = [placement for placement in placements if placement.body in STATISTICAL_BODIES]
+    element_counts = {key: 0 for key in ("fire", "earth", "air", "water")}
+    modality_counts = {key: 0 for key in ("cardinal", "fixed", "mutable")}
+    polarity_counts = {key: 0 for key in ("yang", "yin")}
+    hemisphere_counts = {key: 0 for key in ("northern", "southern", "eastern", "western")}
+
+    for placement in relevant_placements:
+        element = ELEMENT_BY_SIGN.get(placement.sign)
+        modality = MODALITY_BY_SIGN.get(placement.sign)
+        polarity = POLARITY_BY_SIGN.get(placement.sign)
+
+        if element:
+            element_counts[element] += 1
+
+        if modality:
+            modality_counts[modality] += 1
+
+        if polarity:
+            polarity_counts[polarity] += 1
+
+        if placement.house is not None:
+            if 1 <= placement.house <= 6:
+                hemisphere_counts["northern"] += 1
+            else:
+                hemisphere_counts["southern"] += 1
+
+            if placement.house in {10, 11, 12, 1, 2, 3}:
+                hemisphere_counts["eastern"] += 1
+            else:
+                hemisphere_counts["western"] += 1
+
+    return ChartStatistics(
+        elementCounts=element_counts,
+        modalityCounts=modality_counts,
+        polarityCounts=polarity_counts,
+        hemisphereCounts=hemisphere_counts,
+        totalBodies=len(relevant_placements),
+    )

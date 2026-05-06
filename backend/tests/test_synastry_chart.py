@@ -120,6 +120,8 @@ def test_synastry_endpoint_returns_dual_natal_results_and_inter_chart_aspects():
     }
     assert data["relatedCharts"]["primaryNatal"]["chartType"] == "natal"
     assert data["relatedCharts"]["secondaryNatal"]["chartType"] == "natal"
+    assert data["relatedCharts"]["primaryNatal"]["statistics"]["totalBodies"] == 12
+    assert data["relatedCharts"]["secondaryNatal"]["statistics"]["totalBodies"] == 12
     assert data["relatedCharts"]["primaryOverlay"]["referenceName"] == "Luna"
     assert data["relatedCharts"]["primaryOverlay"]["overlayName"] == "Sol"
     assert len(data["relatedCharts"]["primaryOverlay"]["houses"]) == 12
