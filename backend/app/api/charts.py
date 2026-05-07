@@ -13,10 +13,7 @@ from app.models.chart import (
     TransitChartRequest,
 )
 from app.services.natal import NatalChartService
-from app.services.lunar_return import LunarReturnChartService
 from app.services.solar_return import SolarReturnChartService
-from app.services.progression import ProgressionChartService
-from app.services.relationship_transit import RelationshipTransitChartService
 from app.services.synastry import SynastryChartService
 from app.services.transit import TransitChartService
 
@@ -99,6 +96,8 @@ def create_transit_chart(request: TransitChartRequest) -> ChartResult:
 
 @router.post("/relationship-transit", response_model=ChartResult, response_model_by_alias=True)
 def create_relationship_transit_chart(request: RelationshipTransitChartRequest) -> ChartResult:
+    from app.services.relationship_transit import RelationshipTransitChartService
+
     try:
         return RelationshipTransitChartService().calculate(request)
     except ValueError as error:
@@ -113,6 +112,8 @@ def create_relationship_transit_chart(request: RelationshipTransitChartRequest) 
 
 @router.post("/progression", response_model=ChartResult, response_model_by_alias=True)
 def create_progression_chart(request: ProgressionChartRequest) -> ChartResult:
+    from app.services.progression import ProgressionChartService
+
     try:
         return ProgressionChartService().calculate(request)
     except ValueError as error:
@@ -141,6 +142,8 @@ def create_solar_return_chart(request: SolarReturnChartRequest) -> ChartResult:
 
 @router.post("/lunar-return", response_model=ChartResult, response_model_by_alias=True)
 def create_lunar_return_chart(request: LunarReturnChartRequest) -> ChartResult:
+    from app.services.lunar_return import LunarReturnChartService
+
     try:
         return LunarReturnChartService().calculate(request)
     except ValueError as error:

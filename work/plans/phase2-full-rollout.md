@@ -119,7 +119,9 @@ The product should move from a partially advanced astrology tool into a Phase 2-
 - review is complete for Step 1
 - verification snapshot is recorded in `work/runs/2026-05-06-step1-verification.md`
 
-## 12. Current Step 2 Slice
+## 12. Slice History
+
+### 2026-05-07 Slice A
 
 - selected capability: restore the existing Phase 2 linked-reading and visibility surfaces so the frontend can build again
 - branch: `codex/phase2-full-rollout-step-2-reading-helpers`
@@ -127,17 +129,35 @@ The product should move from a partially advanced astrology tool into a Phase 2-
   - create `src/lib/chartSelection.js`
   - create `src/lib/chartVisibility.js`
   - keep the change limited to the already-declared frontend interaction flow in `src/App.jsx` and `src/components/chart/ChartWheel.jsx`
-- out of scope for this slice:
-  - backend missing chart-family services
-  - retrograde calculation
-  - LLM-backed interpretation
-- review outcome:
+- outcome:
+  - frontend build was restored
   - overlay hover matching was tightened so overlay rows no longer fan out to unrelated same-named bodies across multiple groups
 - verification snapshot:
   - frontend `npm test`: pass
   - frontend `npm run build`: pass
-  - backend `../.venv312/bin/python -m pytest tests`: still blocked by the pre-existing missing `app.services.lunar_return` import during collection
+  - backend `../.venv312/bin/python -m pytest tests`: remained blocked by the then-missing `app.services.lunar_return` import during collection
   - detailed record: `work/runs/2026-05-07-step2-verification.md`
+
+### 2026-05-07 Slice B
+
+- selected capability: restore the missing `lunar-return` backend service so the declared endpoint can run
+- branch: `codex/phase2-full-rollout-step-2-lunar-return-service`
+- bounded scope:
+  - create `backend/app/services/lunar_return.py`
+  - add focused backend coverage for the lunar-return service and endpoint path
+  - restore importable backend service modules for `progression` and `relationship-transit` so the app can validate the `lunar-return` path without unrelated import-chain failures
+- out of scope for this slice:
+  - `composite`
+  - `davison`
+  - retrograde calculation
+  - LLM-backed interpretation
+- outcome so far:
+  - `lunar-return` focused backend tests pass
+  - backend full-suite blocker has moved forward from `lunar_return` / `progression` / `relationship_transit` to the still-missing `composite` / `davison` services
+- verification snapshot:
+  - focused backend `tests/test_solar_return_chart.py`: pass
+  - full backend `../.venv312/bin/python -m pytest tests -q`: only `composite` and `davison` remain failing
+  - detailed record: `work/runs/2026-05-07-step2b-verification.md`
 
 ## 13. Ordered Step Queue
 
