@@ -10,6 +10,7 @@ import {
   buildSolarArcChartPayload,
   buildSolarReturnChartPayload,
   buildSynastryChartPayload,
+  buildTertiaryProgressionChartPayload,
   buildTransitChartPayload,
 } from "./chartContracts.js";
 
@@ -28,6 +29,7 @@ const SUPPORTED_ENDPOINTS = {
   "lunar-return": "/api/charts/lunar-return",
   "solar-arc": "/api/charts/solar-arc",
   progression: "/api/charts/progression",
+  "tertiary-progression": "/api/charts/tertiary-progression",
 };
 
 const BODY_LABELS = {
@@ -235,6 +237,17 @@ function buildPayload(input) {
     );
   }
 
+  if (input.category === "tertiary-progression") {
+    return buildTertiaryProgressionChartPayload(
+      input.primary,
+      {
+        tertiaryDate: input.forecastDate,
+        tertiaryTime: input.forecastTime,
+      },
+      input.settings,
+    );
+  }
+
   return buildTransitChartPayload(
     input.primary,
     {
@@ -329,6 +342,13 @@ function mapPlacementGroups(result, input) {
     return [
       mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
       mapPlacementGroup(relatedCharts.solarArcChart, "太阳弧星体"),
+    ];
+  }
+
+  if (input.category === "tertiary-progression" && relatedCharts?.primaryNatal && relatedCharts?.tertiaryProgressedChart) {
+    return [
+      mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
+      mapPlacementGroup(relatedCharts.tertiaryProgressedChart, "三限星体"),
     ];
   }
 
@@ -448,6 +468,13 @@ function mapAspectOwners(result, input) {
     };
   }
 
+  if (relatedCharts?.tertiaryProgressedOverlay) {
+    return {
+      from: relatedCharts.tertiaryProgressedOverlay.referenceName,
+      to: "三限",
+    };
+  }
+
   return {
     from: input.primary.name,
     to: input.primary.name,
@@ -510,6 +537,7 @@ function mapOverlays(relatedCharts) {
     "lunarReturnOverlay",
     "solarArcOverlay",
     "progressedOverlay",
+    "tertiaryProgressedOverlay",
   ]
     .map((key) => relatedCharts[key])
     .filter(Boolean)
@@ -617,12 +645,16 @@ function overlayDisplayName(name) {
     return "月返星体";
   }
 
-  if (typeof name === "string" && name.endsWith(" Progressed")) {
-    return "次限星体";
-  }
-
   if (typeof name === "string" && name.endsWith(" Solar Arc")) {
     return "太阳弧星体";
+  }
+
+  if (typeof name === "string" && name.endsWith(" Tertiary Progressed")) {
+    return "三限星体";
+  }
+
+  if (typeof name === "string" && name.endsWith(" Progressed")) {
+    return "次限星体";
   }
 
   return name;

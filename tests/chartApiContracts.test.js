@@ -12,6 +12,7 @@ import {
   buildSolarArcChartPayload,
   buildSolarReturnChartPayload,
   buildSynastryChartPayload,
+  buildTertiaryProgressionChartPayload,
   buildTransitChartPayload,
   defaultChartSettings,
   houseSystemOptions,
@@ -158,6 +159,16 @@ test("builds a solar arc chart API payload with target time", () => {
 
   assert.equal(payload.solarArcDate, "2026-05-01");
   assert.equal(payload.solarArcTime, "12:00");
+});
+
+test("builds a tertiary progression chart API payload with target time", () => {
+  const payload = buildTertiaryProgressionChartPayload(primary, {
+    tertiaryDate: "2026-05-01",
+    tertiaryTime: "12:00",
+  });
+
+  assert.equal(payload.tertiaryDate, "2026-05-01");
+  assert.equal(payload.tertiaryTime, "12:00");
 });
 
 test("builds a solar return chart API payload with anchor and return location", () => {

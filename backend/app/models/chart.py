@@ -141,6 +141,12 @@ class SolarArcChartRequest(BaseChartRequest):
     solar_arc_time: str = Field(alias="solarArcTime")
 
 
+class TertiaryProgressionChartRequest(BaseChartRequest):
+    chart_type: Literal["tertiaryProgression"] = Field(default="tertiaryProgression", alias="chartType")
+    tertiary_date: str = Field(alias="tertiaryDate")
+    tertiary_time: str = Field(alias="tertiaryTime")
+
+
 class ReturnLocation(BaseModel):
     location_name: str = Field(alias="locationName")
     latitude: float | None = None

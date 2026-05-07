@@ -504,6 +504,44 @@ The solar-arc response includes the primary natal placements, a solar-arc direct
 
 `solarArcDate` and `solarArcTime` are interpreted in the source profile timezone and used to determine the target Sun longitude whose difference from the natal Sun becomes the shared directing arc.
 
+### POST /api/charts/tertiary-progression
+
+Request:
+
+```json
+{
+  "primary": {
+    "name": "Luna",
+    "date": "1996-04-12",
+    "time": "08:30",
+    "locationName": "Shanghai",
+    "latitude": 31.2304,
+    "longitude": 121.4737,
+    "timezone": "Asia/Shanghai"
+  },
+  "tertiaryDate": "2026-05-01",
+  "tertiaryTime": "12:00",
+  "settings": {
+    "houseSystem": "placidus",
+    "zodiac": "tropical",
+    "aspectSet": "major",
+    "orbProfile": "default"
+  }
+}
+```
+
+Response: `ChartResult`.
+
+The tertiary progression response includes the primary natal placements, a tertiary-progressed chart derived from the target instant through a lunar-month scaling rule, and inter-chart aspects between tertiary-progressed and natal placements.
+
+`relatedCharts` includes:
+
+- `primaryNatal`
+- `tertiaryProgressedChart`
+- `tertiaryProgressedOverlay`
+
+`tertiaryDate` and `tertiaryTime` are interpreted in the source profile timezone and converted into a tertiary-progressed datetime by scaling elapsed life days against the lunar month length.
+
 `progressedChart` includes its own houses, Ascendant, and Midheaven. `progressedOverlay` describes progressed placements flying into natal houses.
 
 ### POST /api/charts/solar-return
