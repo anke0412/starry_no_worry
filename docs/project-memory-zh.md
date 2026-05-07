@@ -116,6 +116,9 @@
 - 相位显示、tooltip、宫位 / overlay 表述需要尽量精确到“谁和谁”
 - 表格结构和轮盘结构都要保持专业可读
 - 第二阶段稳定公共能力已经覆盖：可选点位、多宫制、相位集合 / 容许度、统计面板
+- 本地 interpretation agent 已升级为 chart-aware 版本：
+  - 会消费真实 placements / aspects / statistics
+  - 会输出带 `reportId`、`chartId`、`mode`、`title` 的结构化报告
 - 更细的盘型完成度与交互缺口应回看当前 active plan / `work/decisions/`，避免把短期审计状态误当成长久记忆
 - 在前端测试、tooltip、可视化修正时，要默认用户会检查很细的小问题
 - backend 测试环境以 `.venv312` 为准

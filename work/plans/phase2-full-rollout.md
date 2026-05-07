@@ -4,7 +4,7 @@
 
 - Task name: Phase 2 success-criteria rollout
 - Date: 2026-05-06
-- Status: active
+- Status: completed
 - Phase: Phase 2
 
 ## 1. Task Brief
@@ -270,14 +270,43 @@ Historical note: this section is the original 2026-05-06 reconciliation snapshot
   - frontend `npm run build`: pass
   - detailed record: `work/runs/2026-05-08-step2g-verification.md`
 
-## 13. Ordered Step Queue
+### 2026-05-08 Slice H
+
+- selected capability: replace the deterministic interpretation placeholder with a chart-aware local agent that consumes real chart signals
+- branch: `codex/phase2-full-rollout-step-2-interpretation-agent`
+- bounded scope:
+  - upgrade `src/lib/interpretationAgent.js` to emit structured agent reports with `reportId`, `chartId`, `mode`, and `title`
+  - synthesize report sections from real placements, aspects, statistics, overlays, and forecast anchors
+  - keep the implementation local and deterministic while matching the future agent-facing report shape
+- out of scope for this slice:
+  - external LLM API calls
+  - chat history persistence
+  - follow-up conversation UI
+- outcome:
+  - the interpretation layer now consumes real chart data instead of placeholder strings
+  - report sections and recommended questions vary by single / relationship / timing audience while staying grounded in actual chart signals
+  - the remaining Phase 2 path is no longer blocked by a placeholder-only interpretation layer
+- verification snapshot:
+  - frontend targeted interpretation tests: pass
+  - backend `../.venv312/bin/python -m pytest tests`: pass
+  - frontend `npm test`: pass
+  - frontend `npm run build`: pass
+  - detailed record: `work/runs/2026-05-08-step2h-verification.md`
+
+## 13. Completion Note
+
+- Phase 2 roadmap items tracked in this ledger are now source-complete in the repository
+- advanced chart-family rollout, linked reading surfaces, and chart-aware local interpretation are all closed through the git lifecycle
+- the next coherent plan must be created from the Phase 3 roadmap rather than appended here
+
+## 14. Ordered Step Queue
 
 - [x] Step 1: Reconcile the current Phase 2 gap list against `plan.md` and current implemented chart families
 - [x] Step 2: Choose the next highest-priority unfinished Phase 2 capability and create its bounded implementation slice
 - [x] Step 3: Complete that bounded slice through `impl -> review -> verify`
 - [x] Step 4: Close the git lifecycle for the completed slice
-- [ ] Step 5: Repeat from Step 2 until all remaining Phase 2 capabilities are complete
+- [x] Step 5: Repeat from Step 2 until all remaining Phase 2 capabilities are complete
 
-## 14. Active Step Rule
+## 15. Active Step Rule
 
 The main agent must treat the first unfinished item in the ordered step queue as the current step unless a more specific active marker is written here later.

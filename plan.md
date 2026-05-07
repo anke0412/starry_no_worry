@@ -13,7 +13,7 @@ The current app is a React/Vite prototype with a spring visual direction and a w
 - Frontend entry: `src/App.jsx`
 - Chart category catalog: `src/data/chartCatalog.js`
 - Placeholder chart engine: `src/lib/chartEngine.js`
-- Placeholder interpretation agent: `src/lib/interpretationAgent.js`
+- Chart-aware local interpretation agent: `src/lib/interpretationAgent.js`
 - Existing tests: `tests/chartEngine.test.js`, `tests/interpretationAgent.test.js`
 - Existing design note: `docs/superpowers/specs/2026-04-20-astrology-site-design.md`
 
