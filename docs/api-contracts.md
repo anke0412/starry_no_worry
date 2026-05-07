@@ -155,6 +155,8 @@ Every `ChartResult` now also returns a `statistics` object for result-surface su
 - `Ascendant`
 - `Midheaven`
 
+Planetary and point placements now populate `retrograde` when the ephemeris motion at the calculated moment is backward in geocentric longitude.
+
 Missing `timezone`, `latitude`, or `longitude` returns `422 invalid_chart_request`.
 
 The backend currently uses the mean lunar node for `North Node`; `South Node` is returned as the exact opposite point.

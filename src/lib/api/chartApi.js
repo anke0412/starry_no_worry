@@ -341,6 +341,7 @@ function mapPlacement(placement) {
     house: placement.house ?? "-",
     degree: placement.degree,
     minute: placement.minute,
+    retrograde: placement.retrograde ?? false,
   };
 }
 
@@ -477,6 +478,7 @@ function mapOverlays(relatedCharts) {
         longitude: placement.longitude,
         degree: placement.degree,
         minute: placement.minute,
+        retrograde: placement.retrograde ?? false,
         sourceHouse: overlaySourceHouseValue(overlay, placement),
         overlayHouse: placement.overlayHouse,
         overlayHouseRuler: houseRuler(overlay.houses, placement.overlayHouse),

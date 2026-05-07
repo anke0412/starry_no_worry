@@ -57,9 +57,10 @@ test("calls the natal chart API and maps backend placements with localized label
           degree: 22,
           minute: 24,
           house: null,
+          retrograde: false,
         },
-        { body: "Moon", longitude: 40, sign: "Taurus", degree: 10, minute: 0, house: 1 },
-        { body: "Mercury", longitude: 60, sign: "Gemini", degree: 0, minute: 0, house: 1 },
+        { body: "Moon", longitude: 40, sign: "Taurus", degree: 10, minute: 0, house: 1, retrograde: false },
+        { body: "Mercury", longitude: 60, sign: "Gemini", degree: 0, minute: 0, house: 1, retrograde: true },
         { body: "Venus", longitude: 90, sign: "Cancer", degree: 0, minute: 0, house: 2 },
         { body: "Mars", longitude: 120, sign: "Leo", degree: 0, minute: 0, house: 3 },
         { body: "Jupiter", longitude: 150, sign: "Virgo", degree: 0, minute: 0, house: 4 },
@@ -128,6 +129,8 @@ test("calls the natal chart API and maps backend placements with localized label
   assert.equal(chart.placements[0].sign, "白羊");
   assert.equal(chart.placements[0].longitude, 22.4);
   assert.equal(chart.placements[0].minute, 24);
+  assert.equal(chart.placements[0].retrograde, false);
+  assert.equal(chart.placements[2].retrograde, true);
   assert.equal(chart.placements[10].planet, "北交点");
   assert.equal(chart.placements[10].sign, "巨蟹");
   assert.equal(chart.placements[11].planet, "南交点");

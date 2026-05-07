@@ -180,12 +180,34 @@ The product should move from a partially advanced astrology tool into a Phase 2-
   - frontend `npm run build`: pass
   - detailed record: `work/runs/2026-05-07-step2c-verification.md`
 
+### 2026-05-07 Slice D
+
+- selected capability: restore retrograde status as a real calculation and readable result-surface field
+- branch: `codex/phase2-full-rollout-step-2-retrograde-status`
+- bounded scope:
+  - populate `Placement.retrograde` from the backend ephemeris service
+  - preserve retrograde flags through overlay mapping and frontend API adapters
+  - render motion state in the result tables without changing interpretation-agent scope
+- out of scope for this slice:
+  - LLM-backed interpretation
+  - deeper chart-family math changes
+  - new chart categories
+- outcome:
+  - backend now returns real retrograde booleans for calculated placements
+  - frontend placement and overlay tables now expose `顺行` / `逆行`
+  - default verification matrix is green again after the retrograde rollout
+- verification snapshot:
+  - backend `../.venv312/bin/python -m pytest tests`: pass
+  - frontend `npm test`: pass
+  - frontend `npm run build`: pass
+  - detailed record: `work/runs/2026-05-07-step2d-verification.md`
+
 ## 13. Ordered Step Queue
 
 - [x] Step 1: Reconcile the current Phase 2 gap list against `plan.md` and current implemented chart families
 - [x] Step 2: Choose the next highest-priority unfinished Phase 2 capability and create its bounded implementation slice
 - [x] Step 3: Complete that bounded slice through `impl -> review -> verify`
-- [ ] Step 4: Close the git lifecycle for the completed slice
+- [x] Step 4: Close the git lifecycle for the completed slice
 - [ ] Step 5: Repeat from Step 2 until all remaining Phase 2 capabilities are complete
 
 ## 14. Active Step Rule
