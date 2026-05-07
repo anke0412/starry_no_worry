@@ -90,14 +90,43 @@ The product should move from a partially advanced astrology tool into a Phase 2-
 - stable product or architecture discoveries should be promoted into `docs/`
 - temporary local execution decisions belong in `work/decisions/`
 
-## 11. Ordered Step Queue
+## 11. 2026-05-06 Gap Snapshot
 
-- [ ] Step 1: Reconcile the current Phase 2 gap list against `plan.md` and current implemented chart families
+- confirmed source-complete Phase 2 settings surfaces:
+  - optional points
+  - multiple house systems
+  - configurable aspect sets and orb profiles
+  - element / modality / polarity / hemisphere statistics
+- confirmed source-complete chart families:
+  - natal
+  - synastry
+  - transit
+  - solar-return
+- partially implemented or currently broken Phase 2 surfaces:
+  - retrograde status is modeled but not calculated or rendered
+  - point visibility toggles and linked wheel/table highlighting are wired in `src/App.jsx` but the helper modules are missing from `src/lib/`
+  - the interpretation layer is still a deterministic frontend stub rather than a full AI interpretation agent
+- chart families currently declared in catalog, contracts, or tests but not source-complete in backend services:
+  - composite
+  - davison
+  - relationship-transit
+  - progression
+  - lunar-return
+- chart-family work still not started in the current source tree:
+  - midpoint composite workflows
+  - solar arc directions
+  - tertiary progression variants
+- review is complete for Step 1
+- verification snapshot is recorded in `work/runs/2026-05-06-step1-verification.md`
+
+## 12. Ordered Step Queue
+
+- [x] Step 1: Reconcile the current Phase 2 gap list against `plan.md` and current implemented chart families
 - [ ] Step 2: Choose the next highest-priority unfinished Phase 2 capability and create its bounded implementation slice
 - [ ] Step 3: Complete that bounded slice through `impl -> review -> verify`
 - [ ] Step 4: Close the git lifecycle for the completed slice
 - [ ] Step 5: Repeat from Step 2 until all remaining Phase 2 capabilities are complete
 
-## 12. Active Step Rule
+## 13. Active Step Rule
 
 The main agent must treat the first unfinished item in the ordered step queue as the current step unless a more specific active marker is written here later.
