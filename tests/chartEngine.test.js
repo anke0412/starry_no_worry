@@ -241,6 +241,28 @@ test("creates a progression request with forecast date and time", () => {
   assert.equal(request.forecastTime, "12:00");
 });
 
+test("creates a solar arc request with forecast date and time", () => {
+  const request = createChartRequest({
+    mode: "forecast",
+    category: "solar-arc",
+    primary: {
+      name: "Luna",
+      date: "1996-04-12",
+      time: "08:30",
+      location: "Shanghai",
+      latitude: "31.2304",
+      longitude: "121.4737",
+      timezone: "Asia/Shanghai",
+    },
+    forecastDate: "2026-05-01",
+    forecastTime: "12:00",
+  });
+
+  assert.equal(request.category, "solar-arc");
+  assert.equal(request.forecastDate, "2026-05-01");
+  assert.equal(request.forecastTime, "12:00");
+});
+
 test("creates a relationship transit request with a second person and forecast datetime", () => {
   const request = createChartRequest({
     mode: "couple",

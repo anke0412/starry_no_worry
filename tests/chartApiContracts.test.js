@@ -5,10 +5,11 @@ import {
   aspectSetOptions,
   buildCompositeChartPayload,
   buildDavisonChartPayload,
-  buildRelationshipTransitChartPayload,
-  buildProgressionChartPayload,
   buildLunarReturnChartPayload,
   buildNatalChartPayload,
+  buildProgressionChartPayload,
+  buildRelationshipTransitChartPayload,
+  buildSolarArcChartPayload,
   buildSolarReturnChartPayload,
   buildSynastryChartPayload,
   buildTransitChartPayload,
@@ -147,6 +148,16 @@ test("builds a progression chart API payload with target time", () => {
 
   assert.equal(payload.progressionDate, "2026-05-01");
   assert.equal(payload.progressionTime, "12:00");
+});
+
+test("builds a solar arc chart API payload with target time", () => {
+  const payload = buildSolarArcChartPayload(primary, {
+    solarArcDate: "2026-05-01",
+    solarArcTime: "12:00",
+  });
+
+  assert.equal(payload.solarArcDate, "2026-05-01");
+  assert.equal(payload.solarArcTime, "12:00");
 });
 
 test("builds a solar return chart API payload with anchor and return location", () => {

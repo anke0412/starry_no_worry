@@ -9,6 +9,7 @@ from app.models.chart import (
     NatalChartRequest,
     ProgressionChartRequest,
     RelationshipTransitChartRequest,
+    SolarArcChartRequest,
     SolarReturnChartRequest,
     SynastryChartRequest,
     TransitChartRequest,
@@ -133,6 +134,22 @@ def create_progression_chart(request: ProgressionChartRequest) -> ChartResult:
 
     try:
         return ProgressionChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
+@router.post("/solar-arc", response_model=ChartResult, response_model_by_alias=True)
+def create_solar_arc_chart(request: SolarArcChartRequest) -> ChartResult:
+    from app.services.solar_arc import SolarArcChartService
+
+    try:
+        return SolarArcChartService().calculate(request)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,

@@ -10,6 +10,7 @@ from app.models.chart import (
     MidpointCompositeChartRequest,
     NatalChartRequest,
     RelationshipTransitChartRequest,
+    SolarArcChartRequest,
 )
 
 
@@ -91,6 +92,18 @@ def test_relationship_transit_request_uses_default_chart_settings():
     assert request.model_dump(by_alias=True)["chartType"] == "relationshipTransit"
 
 
+def test_solar_arc_request_uses_default_chart_settings():
+    request = SolarArcChartRequest(
+        primary=birth_profile_payload("Luna"),
+        solarArcDate="2026-05-01",
+        solarArcTime="12:00",
+    )
+
+    assert request.chart_type == "solarArc"
+    assert request.settings == ChartSettings()
+    assert request.model_dump(by_alias=True)["chartType"] == "solarArc"
+
+
 def test_chart_endpoints_are_registered_in_openapi_schema():
     schema = client.get("/openapi.json").json()
 
@@ -101,6 +114,7 @@ def test_chart_endpoints_are_registered_in_openapi_schema():
     assert "/api/charts/composite" in schema["paths"]
     assert "/api/charts/davison" in schema["paths"]
     assert "/api/charts/midpoint-composite" in schema["paths"]
+    assert "/api/charts/solar-arc" in schema["paths"]
 
 
 def test_natal_endpoint_accepts_contract_and_returns_chart_result():
@@ -207,6 +221,12 @@ def test_transit_endpoint_requires_transit_date_and_time():
     assert response.status_code == 422
 
 
+def test_solar_arc_endpoint_requires_target_date_and_time():
+    response = client.post("/api/charts/solar-arc", json={"primary": birth_profile_payload()})
+
+    assert response.status_code == 422
+
+
 def test_transit_endpoint_accepts_contract_and_returns_chart_result():
     response = client.post(
         "/api/charts/transit",
@@ -219,6 +239,25 @@ def test_transit_endpoint_accepts_contract_and_returns_chart_result():
 
     assert response.status_code == 200
     assert response.json()["chartType"] == "transit"
+
+
+def test_solar_arc_endpoint_accepts_contract_and_returns_chart_result():
+    response = client.post(
+        "/api/charts/solar-arc",
+        json={
+            "primary": birth_profile_payload(),
+            "solarArcDate": "2026-05-01",
+            "solarArcTime": "12:00",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["chartType"] == "solarArc"
+    assert set(response.json()["relatedCharts"].keys()) == {
+        "primaryNatal",
+        "solarArcChart",
+        "solarArcOverlay",
+    }
 
 
 def test_relationship_transit_endpoint_requires_secondary_profile_and_transit_datetime():
