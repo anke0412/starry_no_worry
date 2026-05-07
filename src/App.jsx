@@ -616,6 +616,7 @@ function ChartPanel({ result, visibility, selectedPlacementKey, onPlacementSelec
                     <th>星体</th>
                     <th>星座</th>
                     <th>度数</th>
+                    <th>状态</th>
                     <th>宫位</th>
                   </tr>
                 </thead>
@@ -637,6 +638,7 @@ function ChartPanel({ result, visibility, selectedPlacementKey, onPlacementSelec
                       <td>
                         {placement.degree}°{placement.minute ? `${placement.minute}'` : ""}
                       </td>
+                      <td>{formatMotionState(placement.retrograde)}</td>
                       <td>第 {placement.house} 宫</td>
                     </tr>
                   ))}
@@ -695,6 +697,7 @@ function ChartPanel({ result, visibility, selectedPlacementKey, onPlacementSelec
                     <th>星体</th>
                     <th>星座</th>
                     <th>度数</th>
+                    <th>状态</th>
                     <th>{overlay.sourceHouseTitle ?? "原本宫位"}</th>
                     <th>飞入宫位</th>
                     <th>飞入宫位宫主星</th>
@@ -721,6 +724,7 @@ function ChartPanel({ result, visibility, selectedPlacementKey, onPlacementSelec
                       <td>
                         {placement.degree}°{placement.minute ? `${placement.minute}'` : ""}
                       </td>
+                      <td>{formatMotionState(placement.retrograde)}</td>
                       <td>{formatHouseValue(placement.sourceHouse)}</td>
                       <td>第 {placement.overlayHouse} 宫</td>
                       <td>{placement.overlayHouseRuler}</td>
@@ -798,6 +802,10 @@ function formatHouseValue(value) {
   }
 
   return `第 ${value} 宫`;
+}
+
+function formatMotionState(retrograde) {
+  return retrograde ? "逆行" : "顺行";
 }
 
 function AgentPanel({ report }) {

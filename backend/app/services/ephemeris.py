@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import ephem
@@ -83,6 +83,7 @@ def zodiac_position(longitude: float) -> ZodiacPosition:
 class EphemerisService:
     engine_name = "ephem"
     engine_version = ephem.__version__
+    retrograde_window = timedelta(hours=6)
 
     def normalize_profile_datetime(self, profile: BirthProfile) -> datetime:
         return normalize_birth_datetime(profile)
@@ -118,7 +119,19 @@ class EphemerisService:
             sign=position.sign,
             degree=position.degree,
             minute=position.minute,
+            retrograde=self.is_body_retrograde(utc_datetime, body),
         )
 
     def body_longitude(self, utc_datetime: datetime, body: str) -> float:
         return self.calculate_body(utc_datetime, body).longitude
+
+    def is_body_retrograde(self, utc_datetime: datetime, body: str) -> bool:
+        current_longitude = self._body_longitude_for_motion(utc_datetime, body)
+        next_longitude = self._body_longitude_for_motion(utc_datetime + self.retrograde_window, body)
+        longitudinal_delta = ((next_longitude - current_longitude + 540) % 360) - 180
+        return longitudinal_delta < 0
+
+    def _body_longitude_for_motion(self, utc_datetime: datetime, body: str) -> float:
+        ephem_body = BODY_CLASSES[body]()
+        ephem_body.compute(utc_datetime)
+        return float(ephem.Ecliptic(ephem_body).lon) * 180 / ephem.pi

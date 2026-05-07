@@ -2,7 +2,7 @@ from app.models.chart import ChartResult, HouseCusp, Placement
 from app.services.overlay import ChartOverlayService
 
 
-def placement(body: str, longitude: float, house: int | None = None) -> Placement:
+def placement(body: str, longitude: float, house: int | None = None, retrograde: bool | None = None) -> Placement:
     return Placement(
         body=body,
         longitude=longitude,
@@ -10,6 +10,7 @@ def placement(body: str, longitude: float, house: int | None = None) -> Placemen
         degree=0,
         minute=0,
         house=house,
+        retrograde=retrograde,
     )
 
 
@@ -50,7 +51,7 @@ def test_builds_overlay_placements_against_reference_houses_and_inter_chart_aspe
     overlay = chart(
         "natal-b",
         "B Natal Chart",
-        [placement("Venus", 70.5, house=2), placement("Mars", 200.2, house=7)],
+        [placement("Venus", 70.5, house=2, retrograde=True), placement("Mars", 200.2, house=7, retrograde=False)],
         [house_cusp(index + 1, index * 30) for index in range(12)],
     )
 
@@ -68,9 +69,11 @@ def test_builds_overlay_placements_against_reference_houses_and_inter_chart_aspe
     assert result.placements[0].body == "Venus"
     assert result.placements[0].source_house == 2
     assert result.placements[0].overlay_house == 3
+    assert result.placements[0].retrograde is True
     assert result.placements[1].body == "Mars"
     assert result.placements[1].source_house == 7
     assert result.placements[1].overlay_house == 7
+    assert result.placements[1].retrograde is False
     assert result.aspects[0].from_body == "Moon"
     assert result.aspects[0].to_body == "Mars"
     assert result.aspects[0].type == "trine"

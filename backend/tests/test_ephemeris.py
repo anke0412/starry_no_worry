@@ -55,6 +55,16 @@ def test_calculates_sun_position_for_known_utc_datetime():
     assert placement.longitude == pytest.approx(280.37, abs=0.05)
 
 
+def test_marks_mercury_retrograde_for_known_utc_datetime():
+    service = EphemerisService()
+
+    retrograde_mercury = service.calculate_body(datetime(2024, 4, 10, 12, 0, tzinfo=timezone.utc), "Mercury")
+    direct_mercury = service.calculate_body(datetime(2024, 5, 10, 12, 0, tzinfo=timezone.utc), "Mercury")
+
+    assert retrograde_mercury.retrograde is True
+    assert direct_mercury.retrograde is False
+
+
 def test_calculates_default_planet_positions_from_birth_profile():
     service = EphemerisService()
     profile = BirthProfile(

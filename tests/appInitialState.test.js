@@ -152,6 +152,7 @@ test("natal result page uses stacked interpretation layout and tables", () => {
   assert.match(appSource, />星体</);
   assert.match(appSource, />星座</);
   assert.match(appSource, />度数</);
+  assert.match(appSource, />状态</);
   assert.match(appSource, />宫位</);
   assert.match(appSource, /aspectColumnTitle\(visibleChart, "from"\)/);
   assert.match(appSource, /aspectColumnTitle\(visibleChart, "to"\)/);
