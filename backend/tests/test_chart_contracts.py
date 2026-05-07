@@ -7,6 +7,7 @@ from app.models.chart import (
     ChartSettings,
     CompositeChartRequest,
     DavisonChartRequest,
+    MidpointCompositeChartRequest,
     NatalChartRequest,
     RelationshipTransitChartRequest,
 )
@@ -66,6 +67,17 @@ def test_davison_request_uses_default_chart_settings():
     assert request.model_dump(by_alias=True)["chartType"] == "davison"
 
 
+def test_midpoint_composite_request_uses_default_chart_settings():
+    request = MidpointCompositeChartRequest(
+        primary=birth_profile_payload("Luna"),
+        secondary=birth_profile_payload("Sol"),
+    )
+
+    assert request.chart_type == "midpointComposite"
+    assert request.settings == ChartSettings()
+    assert request.model_dump(by_alias=True)["chartType"] == "midpointComposite"
+
+
 def test_relationship_transit_request_uses_default_chart_settings():
     request = RelationshipTransitChartRequest(
         primary=birth_profile_payload("Luna"),
@@ -88,6 +100,7 @@ def test_chart_endpoints_are_registered_in_openapi_schema():
     assert "/api/charts/relationship-transit" in schema["paths"]
     assert "/api/charts/composite" in schema["paths"]
     assert "/api/charts/davison" in schema["paths"]
+    assert "/api/charts/midpoint-composite" in schema["paths"]
 
 
 def test_natal_endpoint_accepts_contract_and_returns_chart_result():
@@ -111,6 +124,12 @@ def test_composite_endpoint_requires_secondary_profile():
 
 def test_davison_endpoint_requires_secondary_profile():
     response = client.post("/api/charts/davison", json={"primary": birth_profile_payload()})
+
+    assert response.status_code == 422
+
+
+def test_midpoint_composite_endpoint_requires_secondary_profile():
+    response = client.post("/api/charts/midpoint-composite", json={"primary": birth_profile_payload()})
 
     assert response.status_code == 422
 
@@ -148,6 +167,24 @@ def test_davison_endpoint_accepts_contract_and_returns_chart_result():
         "primaryNatal",
         "secondaryNatal",
         "davisonChart",
+    }
+
+
+def test_midpoint_composite_endpoint_accepts_contract_and_returns_chart_result():
+    response = client.post(
+        "/api/charts/midpoint-composite",
+        json={
+            "primary": birth_profile_payload("Luna"),
+            "secondary": birth_profile_payload("Sol"),
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["chartType"] == "midpointComposite"
+    assert set(response.json()["relatedCharts"].keys()) == {
+        "primaryNatal",
+        "secondaryNatal",
+        "midpointCompositeChart",
     }
 
 
