@@ -51,3 +51,7 @@ The next bounded implementation slice should restore the missing frontend intera
 - create `src/lib/chartSelection.js`
 - create `src/lib/chartVisibility.js`
 - verify the existing `src/App.jsx` and `src/components/chart/ChartWheel.jsx` interaction flow against those helpers
+
+## Activated Slice
+
+On `2026-05-07`, this recommendation became the active Step 2 slice on branch `codex/phase2-full-rollout-step-2-reading-helpers`.
