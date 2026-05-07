@@ -31,8 +31,13 @@ test("builds a relationship-specific interpretation report", () => {
   const report = createInterpretationReport(context);
 
   assert.equal(context.audience, "relationship");
+  assert.equal(report.chartId, chart.id);
+  assert.equal(report.mode, "agent");
+  assert.match(report.reportId, /^report-/);
+  assert.match(report.title, /解读报告/);
   assert.equal(report.sections.some((section) => section.id === "dynamic"), true);
   assert.match(report.summary, /关系互动/);
+  assert.doesNotMatch(report.sections[0].body, /占位解读/);
 });
 
 test("builds a timing section for forecast categories", () => {
@@ -54,4 +59,49 @@ test("builds a timing section for forecast categories", () => {
 
   assert.equal(report.sections.some((section) => section.id === "timing"), true);
   assert.match(report.recommendedQuestions.join(" "), /未来/);
+  assert.match(report.sections.map((section) => section.body).join(" "), /2026-06-01/);
+});
+
+test("uses chart placements and aspects as concrete interpretation signals", () => {
+  const context = buildInterpretationContext({
+    id: "chart-real-data",
+    mode: "single",
+    title: "小星 的本命星盘",
+    category: "natal",
+    categoryLabel: "本命盘",
+    people: [{ name: "小星" }],
+    focus: ["核心性格", "情绪需求", "事业方向", "关系模式"],
+    forecastDate: "",
+    placements: [
+      { planet: "太阳", sign: "白羊", house: 1, degree: 18, minute: 0 },
+      { planet: "月亮", sign: "巨蟹", house: 4, degree: 9, minute: 0 },
+    ],
+    aspects: [
+      { from: "太阳", to: "月亮", type: "trine", label: "拱相", orb: "0.30°" },
+    ],
+    statistics: {
+      totalBodies: 12,
+      sections: [
+        {
+          id: "elementCounts",
+          items: [
+            { key: "fire", label: "火象", count: 5 },
+            { key: "earth", label: "土象", count: 2 },
+            { key: "air", label: "风象", count: 3 },
+            { key: "water", label: "水象", count: 2 },
+          ],
+        },
+      ],
+    },
+    placementGroups: [],
+    overlays: [],
+  });
+
+  const report = createInterpretationReport(context);
+  const fullText = [report.summary, ...report.sections.map((section) => section.body), ...report.recommendedQuestions].join(" ");
+
+  assert.match(fullText, /太阳白羊/);
+  assert.match(fullText, /月亮巨蟹/);
+  assert.match(fullText, /拱相/);
+  assert.match(fullText, /火象/);
 });
