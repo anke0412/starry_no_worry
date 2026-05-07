@@ -159,6 +159,27 @@ The product should move from a partially advanced astrology tool into a Phase 2-
   - full backend `../.venv312/bin/python -m pytest tests -q`: only `composite` and `davison` remain failing
   - detailed record: `work/runs/2026-05-07-step2b-verification.md`
 
+### 2026-05-07 Slice C
+
+- selected capability: restore the remaining missing fusion backend services so the backend matrix can pass again
+- branch: `codex/phase2-full-rollout-step-2-fusion-services`
+- bounded scope:
+  - create `backend/app/services/composite.py`
+  - create `backend/app/services/davison.py`
+  - satisfy existing backend contract tests and frontend fused-chart result mapping
+- out of scope for this slice:
+  - deeper mathematical differentiation between composite midpoint-planet logic and Davison midpoint-event logic
+  - retrograde calculation
+  - LLM-backed interpretation
+- outcome:
+  - backend full test matrix is green again
+  - the declared fusion chart endpoints are now backed by importable services
+- verification snapshot:
+  - backend `../.venv312/bin/python -m pytest tests -q`: pass
+  - frontend `npm test`: pass
+  - frontend `npm run build`: pass
+  - detailed record: `work/runs/2026-05-07-step2c-verification.md`
+
 ## 13. Ordered Step Queue
 
 - [x] Step 1: Reconcile the current Phase 2 gap list against `plan.md` and current implemented chart families
