@@ -7,6 +7,7 @@ import {
   buildNatalChartPayload,
   buildProgressionChartPayload,
   buildRelationshipTransitChartPayload,
+  buildSolarArcChartPayload,
   buildSolarReturnChartPayload,
   buildSynastryChartPayload,
   buildTransitChartPayload,
@@ -25,6 +26,7 @@ const SUPPORTED_ENDPOINTS = {
   transit: "/api/charts/transit",
   "solar-return": "/api/charts/solar-return",
   "lunar-return": "/api/charts/lunar-return",
+  "solar-arc": "/api/charts/solar-arc",
   progression: "/api/charts/progression",
 };
 
@@ -222,6 +224,17 @@ function buildPayload(input) {
     );
   }
 
+  if (input.category === "solar-arc") {
+    return buildSolarArcChartPayload(
+      input.primary,
+      {
+        solarArcDate: input.forecastDate,
+        solarArcTime: input.forecastTime,
+      },
+      input.settings,
+    );
+  }
+
   return buildTransitChartPayload(
     input.primary,
     {
@@ -309,6 +322,13 @@ function mapPlacementGroups(result, input) {
     return [
       mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
       mapPlacementGroup(relatedCharts.progressedChart, "次限星体"),
+    ];
+  }
+
+  if (input.category === "solar-arc" && relatedCharts?.primaryNatal && relatedCharts?.solarArcChart) {
+    return [
+      mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
+      mapPlacementGroup(relatedCharts.solarArcChart, "太阳弧星体"),
     ];
   }
 
@@ -421,6 +441,13 @@ function mapAspectOwners(result, input) {
     };
   }
 
+  if (relatedCharts?.solarArcOverlay) {
+    return {
+      from: relatedCharts.solarArcOverlay.referenceName,
+      to: "太阳弧",
+    };
+  }
+
   return {
     from: input.primary.name,
     to: input.primary.name,
@@ -481,6 +508,7 @@ function mapOverlays(relatedCharts) {
     "secondaryTransitOverlay",
     "solarReturnOverlay",
     "lunarReturnOverlay",
+    "solarArcOverlay",
     "progressedOverlay",
   ]
     .map((key) => relatedCharts[key])
@@ -591,6 +619,10 @@ function overlayDisplayName(name) {
 
   if (typeof name === "string" && name.endsWith(" Progressed")) {
     return "次限星体";
+  }
+
+  if (typeof name === "string" && name.endsWith(" Solar Arc")) {
+    return "太阳弧星体";
   }
 
   return name;

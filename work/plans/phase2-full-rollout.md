@@ -226,6 +226,28 @@ Historical note: this section is the original 2026-05-06 reconciliation snapshot
   - frontend `npm run build`: pass
   - detailed record: `work/runs/2026-05-08-step2e-verification.md`
 
+### 2026-05-08 Slice F
+
+- selected capability: add solar arc directions as a first-class forecast chart family on the shared derived-chart framework
+- branch: `codex/phase2-full-rollout-step-2-solar-arc-directions`
+- bounded scope:
+  - add backend request, route, and service for `/api/charts/solar-arc`
+  - add frontend forecast catalog entry, payload builder, endpoint mapping, and derived-chart result mapping
+  - implement a shared solar-arc shift across natal placements and houses from the target Sun delta
+- out of scope for this slice:
+  - tertiary progression variants
+  - composite timing extensions
+  - LLM-backed interpretation
+- outcome:
+  - a new forecast-mode `太阳弧推运盘` category is now source-complete across backend, frontend, and tests
+  - solar-arc results expose natal, directed, and overlay reading surfaces in the same pattern as other derived charts
+  - default verification matrix remains green after adding solar-arc directions
+- verification snapshot:
+  - backend `../.venv312/bin/python -m pytest tests`: pass
+  - frontend `npm test`: pass
+  - frontend `npm run build`: pass
+  - detailed record: `work/runs/2026-05-08-step2f-verification.md`
+
 ## 13. Ordered Step Queue
 
 - [x] Step 1: Reconcile the current Phase 2 gap list against `plan.md` and current implemented chart families

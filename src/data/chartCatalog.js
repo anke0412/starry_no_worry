@@ -102,6 +102,15 @@ export const chartCategories = [
     focus: ["月度主题", "情绪节奏", "关系气候", "短期窗口"],
   },
   {
+    id: "solar-arc",
+    mode: "forecast",
+    label: "太阳弧推运盘",
+    outputTitle: "太阳弧推运盘",
+    requiresSecondPerson: false,
+    requiresForecastDate: true,
+    focus: ["方向位移", "长期推进", "触发窗口", "结构变化"],
+  },
+  {
     id: "progression",
     mode: "forecast",
     label: "次限推运盘",

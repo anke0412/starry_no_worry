@@ -398,6 +398,123 @@ test("maps progression results as a derived timing chart", async () => {
   assert.equal(chart.overlays[0].title, "次限星体 飞入 Luna");
 });
 
+test("routes solar arc requests to the solar arc endpoint", async () => {
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "forecast",
+      category: "solar-arc",
+      people: [primary],
+      primary,
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    async (url, options) => {
+      assert.equal(url, "http://localhost:8000/api/charts/solar-arc");
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "solar-arc-luna",
+            chartType: "solarArc",
+            title: "Luna Solar Arc Chart",
+            placements: [],
+            aspects: [],
+            relatedCharts: {
+              primaryNatal: {
+                profiles: [{ name: "Luna" }],
+                placements: [],
+                houses: [],
+                chartType: "natal",
+              },
+              solarArcChart: {
+                profiles: [{ name: "Luna Solar Arc" }],
+                placements: [],
+                houses: [],
+                chartType: "solarArcChart",
+              },
+              solarArcOverlay: {
+                overlayId: "solar-arc-in-natal",
+                label: "Solar arc chart in Luna houses",
+                referenceName: "Luna",
+                overlayName: "Luna Solar Arc",
+                houses: [],
+                placements: [],
+                aspects: [],
+              },
+            },
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(requestBody.solarArcDate, "2026-05-01");
+  assert.equal(requestBody.solarArcTime, "12:00");
+  assert.equal(requestBody.settings.houseSystem, "whole-sign");
+  assert.equal(requestBody.settings.aspectSet, "major_extended");
+  assert.equal(requestBody.settings.orbProfile, "tight");
+});
+
+test("maps solar arc results as a derived timing chart", async () => {
+  const chart = await calculateChart(
+    {
+      mode: "forecast",
+      category: "solar-arc",
+      people: [primary],
+      primary: { ...primary, name: "小星" },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    successfulFetch("/api/charts/solar-arc", {
+      chartId: "solar-arc-luna",
+      chartType: "solarArc",
+      title: "Luna Solar Arc Chart",
+      placements: [],
+      aspects: [],
+      relatedCharts: {
+        primaryNatal: {
+          chartId: "natal-luna",
+          profiles: [{ name: "Luna" }],
+          chartType: "natal",
+          placements: [{ body: "Sun", longitude: 22.4, sign: "Aries", degree: 22, minute: 24, house: 1 }],
+          houses: [],
+        },
+        solarArcChart: {
+          chartId: "solar-arc-luna",
+          profiles: [{ name: "Luna Solar Arc" }],
+          chartType: "solarArcChart",
+          placements: [{ body: "Moon", longitude: 133, sign: "Leo", degree: 13, minute: 0, house: 5 }],
+          houses: [],
+        },
+        solarArcOverlay: {
+          overlayId: "solar-arc-in-natal",
+          label: "Solar arc chart in Luna houses",
+          referenceName: "Luna",
+          overlayName: "Luna Solar Arc",
+          houses: [{ house: 1, sign: "Aries" }],
+          placements: [{ body: "Moon", longitude: 133, sign: "Leo", degree: 13, minute: 0, sourceHouse: 5, overlayHouse: 1 }],
+          aspects: [{ from: "Moon", to: "Sun", type: "trine", orb: 0.3 }],
+        },
+      },
+    }),
+  );
+
+  assert.equal(chart.title, "小星 的太阳弧推运盘");
+  assert.deepEqual(chart.placementGroups.map((group) => group.title), ["Luna 的本命星体", "太阳弧星体"]);
+  assert.equal(chart.aspectOwners.from, "Luna");
+  assert.equal(chart.aspectOwners.to, "太阳弧");
+  assert.equal(chart.overlays[0].title, "太阳弧星体 飞入 Luna");
+});
+
 test("calls the synastry chart API with custom settings", async () => {
   let requestBody;
 
@@ -1198,7 +1315,8 @@ test("chart catalog includes midpoint composite under couple mode", () => {
 test("forecast catalog only exposes chart types with live backend support", () => {
   const forecastCategories = categoriesForMode("forecast").map((category) => category.id);
 
-  assert.deepEqual(forecastCategories, ["transit", "solar-return", "lunar-return", "progression"]);
+  assert.deepEqual(forecastCategories, ["transit", "solar-return", "lunar-return", "solar-arc", "progression"]);
+  assert.equal(forecastCategories.includes("solar-arc"), true);
   assert.equal(forecastCategories.includes("progression"), true);
   assert.equal(forecastCategories.includes("relationship-transit"), false);
 });
