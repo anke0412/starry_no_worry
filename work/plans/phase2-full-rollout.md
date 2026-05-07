@@ -248,6 +248,28 @@ Historical note: this section is the original 2026-05-06 reconciliation snapshot
   - frontend `npm run build`: pass
   - detailed record: `work/runs/2026-05-08-step2f-verification.md`
 
+### 2026-05-08 Slice G
+
+- selected capability: add a tertiary progression chart family so Phase 2 timing coverage expands beyond direct progression and solar arc
+- branch: `codex/phase2-full-rollout-step-2-tertiary-progression`
+- bounded scope:
+  - add backend request, route, and service for `/api/charts/tertiary-progression`
+  - add frontend forecast catalog entry, payload builder, endpoint mapping, and derived-chart result mapping
+  - implement a tertiary-progressed profile derived from elapsed life days scaled by the lunar month length
+- out of scope for this slice:
+  - composite timing extensions
+  - LLM-backed interpretation
+  - broader progression-family math refactors
+- outcome:
+  - a new forecast-mode `三限推运盘` category is now source-complete across backend, frontend, and tests
+  - tertiary progression results expose natal, progressed, and overlay reading surfaces in the same derived-chart pattern as progression and solar-arc
+  - default verification matrix remains green after adding tertiary progression
+- verification snapshot:
+  - backend `../.venv312/bin/python -m pytest tests`: pass
+  - frontend `npm test`: pass
+  - frontend `npm run build`: pass
+  - detailed record: `work/runs/2026-05-08-step2g-verification.md`
+
 ## 13. Ordered Step Queue
 
 - [x] Step 1: Reconcile the current Phase 2 gap list against `plan.md` and current implemented chart families

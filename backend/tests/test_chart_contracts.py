@@ -11,6 +11,7 @@ from app.models.chart import (
     NatalChartRequest,
     RelationshipTransitChartRequest,
     SolarArcChartRequest,
+    TertiaryProgressionChartRequest,
 )
 
 
@@ -104,6 +105,18 @@ def test_solar_arc_request_uses_default_chart_settings():
     assert request.model_dump(by_alias=True)["chartType"] == "solarArc"
 
 
+def test_tertiary_progression_request_uses_default_chart_settings():
+    request = TertiaryProgressionChartRequest(
+        primary=birth_profile_payload("Luna"),
+        tertiaryDate="2026-05-01",
+        tertiaryTime="12:00",
+    )
+
+    assert request.chart_type == "tertiaryProgression"
+    assert request.settings == ChartSettings()
+    assert request.model_dump(by_alias=True)["chartType"] == "tertiaryProgression"
+
+
 def test_chart_endpoints_are_registered_in_openapi_schema():
     schema = client.get("/openapi.json").json()
 
@@ -115,6 +128,7 @@ def test_chart_endpoints_are_registered_in_openapi_schema():
     assert "/api/charts/davison" in schema["paths"]
     assert "/api/charts/midpoint-composite" in schema["paths"]
     assert "/api/charts/solar-arc" in schema["paths"]
+    assert "/api/charts/tertiary-progression" in schema["paths"]
 
 
 def test_natal_endpoint_accepts_contract_and_returns_chart_result():
@@ -227,6 +241,12 @@ def test_solar_arc_endpoint_requires_target_date_and_time():
     assert response.status_code == 422
 
 
+def test_tertiary_progression_endpoint_requires_target_date_and_time():
+    response = client.post("/api/charts/tertiary-progression", json={"primary": birth_profile_payload()})
+
+    assert response.status_code == 422
+
+
 def test_transit_endpoint_accepts_contract_and_returns_chart_result():
     response = client.post(
         "/api/charts/transit",
@@ -257,6 +277,25 @@ def test_solar_arc_endpoint_accepts_contract_and_returns_chart_result():
         "primaryNatal",
         "solarArcChart",
         "solarArcOverlay",
+    }
+
+
+def test_tertiary_progression_endpoint_accepts_contract_and_returns_chart_result():
+    response = client.post(
+        "/api/charts/tertiary-progression",
+        json={
+            "primary": birth_profile_payload(),
+            "tertiaryDate": "2026-05-01",
+            "tertiaryTime": "12:00",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["chartType"] == "tertiaryProgression"
+    assert set(response.json()["relatedCharts"].keys()) == {
+        "primaryNatal",
+        "tertiaryProgressedChart",
+        "tertiaryProgressedOverlay",
     }
 
 

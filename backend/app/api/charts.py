@@ -12,6 +12,7 @@ from app.models.chart import (
     SolarArcChartRequest,
     SolarReturnChartRequest,
     SynastryChartRequest,
+    TertiaryProgressionChartRequest,
     TransitChartRequest,
 )
 from app.services.natal import NatalChartService
@@ -150,6 +151,22 @@ def create_solar_arc_chart(request: SolarArcChartRequest) -> ChartResult:
 
     try:
         return SolarArcChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
+@router.post("/tertiary-progression", response_model=ChartResult, response_model_by_alias=True)
+def create_tertiary_progression_chart(request: TertiaryProgressionChartRequest) -> ChartResult:
+    from app.services.tertiary_progression import TertiaryProgressionChartService
+
+    try:
+        return TertiaryProgressionChartService().calculate(request)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,

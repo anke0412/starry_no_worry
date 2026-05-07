@@ -91,6 +91,15 @@ export function buildSolarArcChartPayload(primary, solarArc, settings = defaultC
   };
 }
 
+export function buildTertiaryProgressionChartPayload(primary, tertiary, settings = defaultChartSettings) {
+  return {
+    primary: normalizeBirthProfile(primary),
+    tertiaryDate: tertiary.tertiaryDate,
+    tertiaryTime: tertiary.tertiaryTime,
+    settings: normalizeSettings(settings),
+  };
+}
+
 export function buildSolarReturnChartPayload(primary, solarReturn, settings = defaultChartSettings) {
   return {
     primary: normalizeBirthProfile(primary),

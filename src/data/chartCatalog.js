@@ -119,6 +119,15 @@ export const chartCategories = [
     requiresForecastDate: true,
     focus: ["阶段主题", "内在成熟", "情绪推进", "人生节奏"],
   },
+  {
+    id: "tertiary-progression",
+    mode: "forecast",
+    label: "三限推运盘",
+    outputTitle: "三限推运盘",
+    requiresSecondPerson: false,
+    requiresForecastDate: true,
+    focus: ["月相推进", "短周期变化", "情绪转折", "阶段触发"],
+  },
 ];
 
 export function categoriesForMode(mode) {
