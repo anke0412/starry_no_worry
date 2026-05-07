@@ -705,12 +705,12 @@ function ChartPanel({ result, visibility, selectedPlacementKey, onPlacementSelec
                     <tr
                       className={
                         highlightedPlacementKeys.length &&
-                        highlightedPlacementKeys.join("|") === buildOverlaySelectionKeys(placement, visibleChart.placementGroups).join("|")
+                        highlightedPlacementKeys.join("|") === buildOverlaySelectionKeys(placement, overlay, visibleChart.placementGroups).join("|")
                           ? "overlay-row-active"
                           : undefined
                       }
                       key={`${overlay.id}-${placement.planet}-${index}`}
-                      onMouseEnter={() => setHighlightedPlacementKeys(buildOverlaySelectionKeys(placement, visibleChart.placementGroups))}
+                      onMouseEnter={() => setHighlightedPlacementKeys(buildOverlaySelectionKeys(placement, overlay, visibleChart.placementGroups))}
                       onMouseLeave={() => {
                         setHighlightedPlacementKeys([]);
                         onPlacementSelect(null);

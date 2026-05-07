@@ -119,14 +119,34 @@ The product should move from a partially advanced astrology tool into a Phase 2-
 - review is complete for Step 1
 - verification snapshot is recorded in `work/runs/2026-05-06-step1-verification.md`
 
-## 12. Ordered Step Queue
+## 12. Current Step 2 Slice
+
+- selected capability: restore the existing Phase 2 linked-reading and visibility surfaces so the frontend can build again
+- branch: `codex/phase2-full-rollout-step-2-reading-helpers`
+- bounded scope:
+  - create `src/lib/chartSelection.js`
+  - create `src/lib/chartVisibility.js`
+  - keep the change limited to the already-declared frontend interaction flow in `src/App.jsx` and `src/components/chart/ChartWheel.jsx`
+- out of scope for this slice:
+  - backend missing chart-family services
+  - retrograde calculation
+  - LLM-backed interpretation
+- review outcome:
+  - overlay hover matching was tightened so overlay rows no longer fan out to unrelated same-named bodies across multiple groups
+- verification snapshot:
+  - frontend `npm test`: pass
+  - frontend `npm run build`: pass
+  - backend `../.venv312/bin/python -m pytest tests`: still blocked by the pre-existing missing `app.services.lunar_return` import during collection
+  - detailed record: `work/runs/2026-05-07-step2-verification.md`
+
+## 13. Ordered Step Queue
 
 - [x] Step 1: Reconcile the current Phase 2 gap list against `plan.md` and current implemented chart families
-- [ ] Step 2: Choose the next highest-priority unfinished Phase 2 capability and create its bounded implementation slice
-- [ ] Step 3: Complete that bounded slice through `impl -> review -> verify`
+- [x] Step 2: Choose the next highest-priority unfinished Phase 2 capability and create its bounded implementation slice
+- [x] Step 3: Complete that bounded slice through `impl -> review -> verify`
 - [ ] Step 4: Close the git lifecycle for the completed slice
 - [ ] Step 5: Repeat from Step 2 until all remaining Phase 2 capabilities are complete
 
-## 13. Active Step Rule
+## 14. Active Step Rule
 
 The main agent must treat the first unfinished item in the ordered step queue as the current step unless a more specific active marker is written here later.

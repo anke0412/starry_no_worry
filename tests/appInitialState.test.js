@@ -190,7 +190,7 @@ test("aspect rows can highlight the linked placements on the wheel", () => {
 });
 
 test("overlay rows can highlight the linked placements on the wheel", () => {
-  assert.match(appSource, /buildOverlaySelectionKeys\(placement, visibleChart\.placementGroups\)/);
+  assert.match(appSource, /buildOverlaySelectionKeys\(placement, overlay, visibleChart\.placementGroups\)/);
   assert.match(appSource, /overlay-row-active/);
 });
 

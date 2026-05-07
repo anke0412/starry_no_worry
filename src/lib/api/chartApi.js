@@ -469,6 +469,8 @@ function mapOverlays(relatedCharts) {
       houseTableTitle: `${overlayDisplayName(overlay.overlayName)} 飞入 ${overlay.referenceName} 的宫位`,
       referenceName: overlay.referenceName,
       overlayName: overlayDisplayName(overlay.overlayName),
+      referenceChartId: overlay.referenceChartId,
+      overlayChartId: overlay.overlayChartId,
       placements: overlay.placements.map((placement) => ({
         planet: localizeBody(placement.body),
         sign: localizeSign(placement.sign),
