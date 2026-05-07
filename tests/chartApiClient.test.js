@@ -1187,6 +1187,14 @@ test("chart catalog includes davison under couple mode", () => {
   assert.equal(categoriesForMode("couple").some((category) => category.id === "davison"), true);
 });
 
+test("chart catalog includes midpoint composite under couple mode", () => {
+  const midpointComposite = chartCategories.find((category) => category.id === "midpoint-composite");
+
+  assert.ok(midpointComposite);
+  assert.equal(midpointComposite.mode, "couple");
+  assert.equal(categoriesForMode("couple").some((category) => category.id === "midpoint-composite"), true);
+});
+
 test("forecast catalog only exposes chart types with live backend support", () => {
   const forecastCategories = categoriesForMode("forecast").map((category) => category.id);
 
@@ -1251,6 +1259,52 @@ test("calculateChart routes davison requests to the davison endpoint", async () 
   assert.equal(requestBody.settings.orbProfile, "tight");
 });
 
+test("calculateChart routes midpoint composite requests to the midpoint composite endpoint", async () => {
+  let capturedUrl;
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "couple",
+      category: "midpoint-composite",
+      people: [primary],
+      primary,
+      secondary: { ...primary, name: "Sol" },
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
+      forecastDate: "",
+      forecastTime: "12:00",
+    },
+    async (url, options) => {
+      capturedUrl = url;
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "midpoint-composite-luna-sol",
+            chartType: "midpointComposite",
+            title: "Luna × Sol Midpoint Composite Chart",
+            placements: [],
+            aspects: [],
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(capturedUrl, "http://localhost:8000/api/charts/midpoint-composite");
+  assert.equal(requestBody.primary.name, "Luna");
+  assert.equal(requestBody.secondary.name, "Sol");
+  assert.equal(requestBody.settings.houseSystem, "whole-sign");
+  assert.equal(requestBody.settings.aspectSet, "major_extended");
+  assert.equal(requestBody.settings.orbProfile, "tight");
+});
+
 test("maps davison results as a fused relationship chart", async () => {
   const chart = await calculateChart(
     {
@@ -1299,6 +1353,57 @@ test("maps davison results as a fused relationship chart", async () => {
   assert.equal(chart.placementGroups[0].placements[0].planet, "太阳");
   assert.equal(chart.aspectOwners.from, "时空中点盘");
   assert.equal(chart.aspectOwners.to, "时空中点盘");
+  assert.equal(chart.overlays.length, 0);
+});
+
+test("maps midpoint composite results as a fused relationship chart", async () => {
+  const chart = await calculateChart(
+    {
+      mode: "couple",
+      category: "midpoint-composite",
+      people: [primary],
+      primary: { ...primary, name: "小星" },
+      secondary: { ...primary, name: "小月" },
+      forecastDate: "",
+      forecastTime: "12:00",
+    },
+    successfulFetch("/api/charts/midpoint-composite", {
+      chartId: "midpoint-composite-luna-sol",
+      chartType: "midpointComposite",
+      title: "Luna × Sol Midpoint Composite Chart",
+      placements: [
+        { body: "Sun", longitude: 19, sign: "Aries", degree: 19, minute: 0, house: 1 },
+      ],
+      aspects: [{ from: "Sun", to: "Moon", type: "trine", orb: 0.8 }],
+      relatedCharts: {
+        primaryNatal: {
+          chartId: "natal-luna",
+          profiles: [{ name: "Luna" }],
+          placements: [{ body: "Sun", sign: "Aries", degree: 1, minute: 0, house: 1 }],
+          houses: [],
+        },
+        secondaryNatal: {
+          chartId: "natal-sol",
+          profiles: [{ name: "Sol" }],
+          placements: [{ body: "Moon", sign: "Taurus", degree: 2, minute: 0, house: 2 }],
+          houses: [],
+        },
+        midpointCompositeChart: {
+          chartId: "midpoint-composite-core",
+          profiles: [{ name: "Midpoint Composite Chart" }],
+          placements: [{ body: "Sun", sign: "Aries", degree: 19, minute: 0, house: 1 }],
+          houses: [],
+        },
+      },
+    }),
+  );
+
+  assert.equal(chart.title, "小星 × 小月 的中点组合盘");
+  assert.equal(chart.placementGroups[0].title, "中点组合盘星体");
+  assert.equal(chart.placementGroups.length, 1);
+  assert.equal(chart.placementGroups[0].placements[0].planet, "太阳");
+  assert.equal(chart.aspectOwners.from, "中点组合盘");
+  assert.equal(chart.aspectOwners.to, "中点组合盘");
   assert.equal(chart.overlays.length, 0);
 });
 

@@ -92,6 +92,8 @@ The product should move from a partially advanced astrology tool into a Phase 2-
 
 ## 11. 2026-05-06 Gap Snapshot
 
+Historical note: this section is the original 2026-05-06 reconciliation snapshot. Later slices in Section 12 supersede specific gap details as capabilities land.
+
 - confirmed source-complete Phase 2 settings surfaces:
   - optional points
   - multiple house systems
@@ -201,6 +203,28 @@ The product should move from a partially advanced astrology tool into a Phase 2-
   - frontend `npm test`: pass
   - frontend `npm run build`: pass
   - detailed record: `work/runs/2026-05-07-step2d-verification.md`
+
+### 2026-05-08 Slice E
+
+- selected capability: add a distinct midpoint composite workflow so Phase 2 relationship chart coverage expands beyond the existing composite / davison pair
+- branch: `codex/phase2-full-rollout-step-2-midpoint-composite`
+- bounded scope:
+  - add backend request, route, and service for `/api/charts/midpoint-composite`
+  - add frontend category, payload builder, endpoint mapping, and fused-chart result mapping
+  - distinguish midpoint-composite planetary longitudes from the Davison midpoint-event chart
+- out of scope for this slice:
+  - solar arc directions
+  - tertiary progression variants
+  - LLM-backed interpretation
+- outcome:
+  - a new couple-mode `中点组合盘` category is now source-complete across backend, frontend, and tests
+  - midpoint-composite fused placements are no longer aliases of the Davison event chart
+  - default verification matrix remains green after adding the new chart family
+- verification snapshot:
+  - backend `../.venv312/bin/python -m pytest tests`: pass
+  - frontend `npm test`: pass
+  - frontend `npm run build`: pass
+  - detailed record: `work/runs/2026-05-08-step2e-verification.md`
 
 ## 13. Ordered Step Queue
 

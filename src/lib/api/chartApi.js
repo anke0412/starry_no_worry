@@ -3,6 +3,7 @@ import {
   buildCompositeChartPayload,
   buildDavisonChartPayload,
   buildLunarReturnChartPayload,
+  buildMidpointCompositeChartPayload,
   buildNatalChartPayload,
   buildProgressionChartPayload,
   buildRelationshipTransitChartPayload,
@@ -19,6 +20,7 @@ const SUPPORTED_ENDPOINTS = {
   synastry: "/api/charts/synastry",
   composite: "/api/charts/composite",
   davison: "/api/charts/davison",
+  "midpoint-composite": "/api/charts/midpoint-composite",
   "relationship-transit": "/api/charts/relationship-transit",
   transit: "/api/charts/transit",
   "solar-return": "/api/charts/solar-return",
@@ -169,6 +171,10 @@ function buildPayload(input) {
     return buildDavisonChartPayload(input.primary, input.secondary, input.settings);
   }
 
+  if (input.category === "midpoint-composite") {
+    return buildMidpointCompositeChartPayload(input.primary, input.secondary, input.settings);
+  }
+
   if (input.category === "relationship-transit") {
     return buildRelationshipTransitChartPayload(
       input.primary,
@@ -314,6 +320,10 @@ function mapPlacementGroups(result, input) {
     return [mapPlacementGroup(relatedCharts.davisonChart, "时空中点盘星体")];
   }
 
+  if (input.category === "midpoint-composite" && relatedCharts?.midpointCompositeChart) {
+    return [mapPlacementGroup(relatedCharts.midpointCompositeChart, "中点组合盘星体")];
+  }
+
   return [
     {
       id: result.chartId,
@@ -359,6 +369,13 @@ function mapAspectOwners(result, input) {
     return {
       from: "时空中点盘",
       to: "时空中点盘",
+    };
+  }
+
+  if (input.category === "midpoint-composite") {
+    return {
+      from: "中点组合盘",
+      to: "中点组合盘",
     };
   }
 
@@ -449,6 +466,10 @@ function mapOverlays(relatedCharts) {
   }
 
   if (relatedCharts.compositeChart) {
+    return [];
+  }
+
+  if (relatedCharts.midpointCompositeChart) {
     return [];
   }
 

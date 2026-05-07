@@ -5,6 +5,7 @@ from app.models.chart import (
     CompositeChartRequest,
     DavisonChartRequest,
     LunarReturnChartRequest,
+    MidpointCompositeChartRequest,
     NatalChartRequest,
     ProgressionChartRequest,
     RelationshipTransitChartRequest,
@@ -70,6 +71,22 @@ def create_davison_chart(request: DavisonChartRequest) -> ChartResult:
 
     try:
         return DavisonChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
+@router.post("/midpoint-composite", response_model=ChartResult, response_model_by_alias=True)
+def create_midpoint_composite_chart(request: MidpointCompositeChartRequest) -> ChartResult:
+    from app.services.midpoint_composite import MidpointCompositeChartService
+
+    try:
+        return MidpointCompositeChartService().calculate(request)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
