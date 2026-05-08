@@ -15,8 +15,10 @@
 13. 后端统一生成框架已经落地：单体衍生、双体比较、双体融合三类生成器方向明确。
 14. 共享 chart generation framework 已建立；高级盘型的实际 rollout 状态以当前 active Phase 2 plan 与 `work/decisions/` 为准，不要仅凭旧 spec 或旧记忆假设某个声明盘型已经源码完整。
 15. 第二阶段稳定公共能力已经覆盖：可选点位、多宫制、相位集合/容许度、统计面板，以及消费真实盘面数据的本地解读 agent；更细的盘型完成度与交互缺口应回看当前 active plan。
-16. 中文术语必须严格统一：人名用用户输入，行星名、星座名、相位/宫位/overlay 表述都要专业且精确。
-17. 用户非常在意前端细节，尤其是 tooltip、相位描述、轮盘标注和表格可读性。
-18. backend 测试环境以 `.venv312` 为准；测试基线优先记录可复核方式：当前在 `backend` 目录执行 `../.venv312/bin/python -m pytest --collect-only -q` 可收集 `100 tests`，不要只记固定 passed 数。
-19. 协作运行约定：主 agent 负责先读项目记忆与当前 task/plan，再决定下一任务，派发 `implement` / `review` / `verify` 三类子 agent，汇总结果并回写计划勾选，同时维护测试基线和审阅结论。
-20. 子代理命名必须带功能目标，方便人工审阅，例如：`impl_transit_generator`、`review_synastry_adapter`、`verify_backend_chart_suite`。
+16. `phase2-full-rollout` 已完成，当前执行入口已切换到 `work/plans/phase3-bootstrap.md`；仓库已具备日返、月返、太阳弧、中点组合盘、三限推运等原本列在后续阶段的部分盘型能力。
+17. 进入第三阶段 bootstrap 后，最明确且不需要改 roadmap 顺序的产品缺口之一是内建地点预设仍主要停留在中国 / 美国两组城市，尚未扩展到更多常用国家与城市。
+18. 中文术语必须严格统一：人名用用户输入，行星名、星座名、相位/宫位/overlay 表述都要专业且精确。
+19. 用户非常在意前端细节，尤其是 tooltip、相位描述、轮盘标注和表格可读性。
+20. backend 测试环境以 `.venv312` 为准；测试基线优先记录可复核方式：当前在 `backend` 目录执行 `../.venv312/bin/python -m pytest --collect-only -q` 可收集 `100 tests`，不要只记固定 passed 数。
+21. 协作运行约定：主 agent 负责先读项目记忆与当前 task/plan，再决定下一任务，派发 `implement` / `review` / `verify` 三类子 agent，汇总结果并回写计划勾选，同时维护测试基线和审阅结论。
+22. 子代理命名必须带功能目标，方便人工审阅，例如：`impl_transit_generator`、`review_synastry_adapter`、`verify_backend_chart_suite`。

@@ -119,6 +119,14 @@
 - 本地 interpretation agent 已升级为 chart-aware 版本：
   - 会消费真实 placements / aspects / statistics
   - 会输出带 `reportId`、`chartId`、`mode`、`title` 的结构化报告
+- `phase2-full-rollout` 已完成，当前执行入口已切换到 `work/plans/phase3-bootstrap.md`
+- 仓库已经源码具备多项原本列在后续阶段的盘型能力：
+  - 日返盘
+  - 月返盘
+  - 太阳弧推运
+  - 中点组合盘
+  - 三限推运
+- 进入第三阶段 bootstrap 后，最明确且不需要改 roadmap 顺序的产品缺口之一是地点预设目录仍主要停留在中国 / 美国，尚未扩展到更多常用国家与城市
 - 更细的盘型完成度与交互缺口应回看当前 active plan / `work/decisions/`，避免把短期审计状态误当成长久记忆
 - 在前端测试、tooltip、可视化修正时，要默认用户会检查很细的小问题
 - backend 测试环境以 `.venv312` 为准
