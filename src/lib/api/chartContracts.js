@@ -45,28 +45,9 @@ export function buildDavisonChartPayload(primary, secondary, settings = defaultC
   return buildSynastryChartPayload(primary, secondary, settings);
 }
 
-export function buildMidpointCompositeChartPayload(primary, secondary, settings = defaultChartSettings) {
-  return buildSynastryChartPayload(primary, secondary, settings);
-}
-
 export function buildTransitChartPayload(primary, transit, settings = defaultChartSettings) {
   return {
     primary: normalizeBirthProfile(primary),
-    transitDate: transit.transitDate,
-    transitTime: transit.transitTime,
-    settings: normalizeSettings(settings),
-  };
-}
-
-export function buildRelationshipTransitChartPayload(
-  primary,
-  secondary,
-  transit,
-  settings = defaultChartSettings,
-) {
-  return {
-    primary: normalizeBirthProfile(primary),
-    secondary: normalizeBirthProfile(secondary),
     transitDate: transit.transitDate,
     transitTime: transit.transitTime,
     settings: normalizeSettings(settings),

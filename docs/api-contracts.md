@@ -96,7 +96,6 @@ This is an internal orchestration change only.
 - `/api/charts/synastry` response shape is unchanged
 - `/api/charts/composite` is a fused chart response whose top-level placements, houses, and aspects come from the composite chart itself
 - `/api/charts/davison` is a fused chart response whose top-level placements, houses, and aspects come from the midpoint event chart rather than midpoint planetary longitudes
-- `/api/charts/midpoint-composite` is a fused chart response whose top-level placements use pairwise midpoint longitudes while houses and angles still come from the midpoint event scaffold
 - future derived and fusion chart families should reuse the same service layer
 
 ## Chart Endpoints
@@ -293,53 +292,6 @@ The top-level Davison `chartId` is pair-order-invariant and should change when e
 
 `primaryNatal` and `secondaryNatal` are the source natal charts. `davisonChart` is the internal natal snapshot generated from the midpoint instant and midpoint coordinates that powers the top-level fused response.
 
-### POST /api/charts/midpoint-composite
-
-Request:
-
-```json
-{
-  "primary": {
-    "name": "Luna",
-    "date": "1996-04-12",
-    "time": "08:30",
-    "locationName": "Shanghai",
-    "latitude": 31.2304,
-    "longitude": 121.4737,
-    "timezone": "Asia/Shanghai"
-  },
-  "secondary": {
-    "name": "Sol",
-    "date": "1993-09-07",
-    "time": "21:10",
-    "locationName": "Beijing",
-    "latitude": 39.9042,
-    "longitude": 116.4074,
-    "timezone": "Asia/Shanghai"
-  },
-  "settings": {
-    "houseSystem": "placidus",
-    "zodiac": "tropical",
-    "aspectSet": "major",
-    "orbProfile": "default"
-  }
-}
-```
-
-Response: `ChartResult`.
-
-The midpoint composite response is a fused chart result. The top-level `placements` average the source pair's longitude for each shared body across the 360-degree circle, while `houses` and angle scaffolding come from the midpoint event profile used to anchor the workflow.
-
-The top-level midpoint composite `chartId` is pair-order-invariant and should change when either source profile identity changes in a way that would change the fused chart input.
-
-`relatedCharts` includes:
-
-- `primaryNatal`
-- `secondaryNatal`
-- `midpointCompositeChart`
-
-`primaryNatal` and `secondaryNatal` are the source natal charts. `midpointCompositeChart` is the internal fused midpoint chart snapshot used to generate the top-level response.
-
 ### POST /api/charts/transit
 
 Request:
@@ -374,59 +326,6 @@ The transit response includes the primary natal planetary placements, transit-sk
 - `transitSky`
 
 `primaryNatal` includes houses, Ascendant, and Midheaven. `transitSky` remains a sky snapshot without houses.
-
-### POST /api/charts/relationship-transit
-
-Request:
-
-```json
-{
-  "primary": {
-    "name": "Luna",
-    "date": "1996-04-12",
-    "time": "08:30",
-    "locationName": "Shanghai",
-    "latitude": 31.2304,
-    "longitude": 121.4737,
-    "timezone": "Asia/Shanghai"
-  },
-  "secondary": {
-    "name": "Sol",
-    "date": "1993-09-07",
-    "time": "21:10",
-    "locationName": "Beijing",
-    "latitude": 39.9042,
-    "longitude": 116.4074,
-    "timezone": "Asia/Shanghai"
-  },
-  "transitDate": "2026-05-01",
-  "transitTime": "12:00",
-  "settings": {
-    "houseSystem": "placidus",
-    "zodiac": "tropical",
-    "aspectSet": "major",
-    "orbProfile": "default"
-  }
-}
-```
-
-Response: `ChartResult`.
-
-The relationship-transit response combines two source natal charts with one shared transit-sky snapshot for the requested target instant.
-
-`relatedCharts` includes:
-
-- `primaryNatal`
-- `secondaryNatal`
-- `transitSky`
-- `primaryTransitOverlay`
-- `secondaryTransitOverlay`
-
-`transitDate` and `transitTime` are interpreted in `primary.timezone`, then used to calculate one shared transit sky that is compared against both natal charts.
-
-`primaryTransitOverlay` and `secondaryTransitOverlay` are the canonical aspect-bearing structures for this chart family. The top-level `aspects` list is intentionally empty so clients do not lose which natal owner a given transit aspect belongs to.
-
-`secondaryTransitOverlay` intentionally omits `sourceHouse` because the shared transit sky is not recalculated in a separate secondary-location frame.
 
 ### POST /api/charts/progression
 
