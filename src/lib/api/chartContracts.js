@@ -45,6 +45,10 @@ export function buildDavisonChartPayload(primary, secondary, settings = defaultC
   return buildSynastryChartPayload(primary, secondary, settings);
 }
 
+export function buildMarxChartPayload(primary, secondary, settings = defaultChartSettings) {
+  return buildSynastryChartPayload(primary, secondary, settings);
+}
+
 export function buildTransitChartPayload(primary, transit, settings = defaultChartSettings) {
   return {
     primary: normalizeBirthProfile(primary),

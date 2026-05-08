@@ -96,6 +96,7 @@ This is an internal orchestration change only.
 - `/api/charts/synastry` response shape is unchanged
 - `/api/charts/composite` is a fused chart response whose top-level placements, houses, and aspects come from the composite chart itself
 - `/api/charts/davison` is a fused chart response whose top-level placements, houses, and aspects come from the midpoint event chart rather than midpoint planetary longitudes
+- `/api/charts/marx` is a dual-result relationship response whose `relatedCharts` carry the pair's shared davison chart plus one marx chart from each natal perspective
 - future derived and fusion chart families should reuse the same service layer
 
 ## Chart Endpoints
@@ -291,6 +292,56 @@ The top-level Davison `chartId` is pair-order-invariant and should change when e
 - `davisonChart`
 
 `primaryNatal` and `secondaryNatal` are the source natal charts. `davisonChart` is the internal natal snapshot generated from the midpoint instant and midpoint coordinates that powers the top-level fused response.
+
+### POST /api/charts/marx
+
+Request:
+
+```json
+{
+  "primary": {
+    "name": "Luna",
+    "date": "1996-04-12",
+    "time": "08:30",
+    "locationName": "Shanghai",
+    "latitude": 31.2304,
+    "longitude": 121.4737,
+    "timezone": "Asia/Shanghai"
+  },
+  "secondary": {
+    "name": "Sol",
+    "date": "1993-09-07",
+    "time": "21:10",
+    "locationName": "Beijing",
+    "latitude": 39.9042,
+    "longitude": 116.4074,
+    "timezone": "Asia/Shanghai"
+  },
+  "settings": {
+    "houseSystem": "placidus",
+    "zodiac": "tropical",
+    "aspectSet": "major",
+    "orbProfile": "default"
+  }
+}
+```
+
+Response: `ChartResult`.
+
+The marx response is a dual-perspective relationship result. It first derives the pair's shared `davisonChart`, then derives:
+
+- `primaryMarxChart`: midpoint of `primaryNatal` and `davisonChart`
+- `secondaryMarxChart`: midpoint of `secondaryNatal` and `davisonChart`
+
+The top-level `ChartResult` keeps `placements`, `houses`, and `aspects` empty so clients can treat the dual marx charts explicitly instead of collapsing them into one misleading wheel.
+
+`relatedCharts` includes:
+
+- `primaryNatal`
+- `secondaryNatal`
+- `davisonChart`
+- `primaryMarxChart`
+- `secondaryMarxChart`
 
 ### POST /api/charts/transit
 

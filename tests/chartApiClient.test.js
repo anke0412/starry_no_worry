@@ -1225,6 +1225,14 @@ test("chart catalog includes davison under couple mode", () => {
   assert.equal(categoriesForMode("couple").some((category) => category.id === "davison"), true);
 });
 
+test("chart catalog includes marx under couple mode", () => {
+  const marx = chartCategories.find((category) => category.id === "marx");
+
+  assert.ok(marx);
+  assert.equal(marx.mode, "couple");
+  assert.equal(categoriesForMode("couple").some((category) => category.id === "marx"), true);
+});
+
 test("forecast catalog only exposes chart types with live backend support", () => {
   const forecastCategories = categoriesForMode("forecast").map((category) => category.id);
 
@@ -1273,6 +1281,56 @@ test("calculateChart routes davison requests to the davison endpoint", async () 
   );
 
   assert.equal(capturedUrl, "http://localhost:8000/api/charts/davison");
+  assert.equal(requestBody.primary.name, "Luna");
+  assert.equal(requestBody.secondary.name, "Sol");
+  assert.equal(requestBody.settings.houseSystem, "whole-sign");
+  assert.equal(requestBody.settings.aspectSet, "major_extended");
+  assert.equal(requestBody.settings.orbProfile, "tight");
+});
+
+test("calculateChart routes marx requests to the marx endpoint", async () => {
+  let capturedUrl;
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "couple",
+      category: "marx",
+      people: [primary],
+      primary,
+      secondary: { ...primary, name: "Sol" },
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
+      forecastDate: "",
+      forecastTime: "12:00",
+    },
+    async (url, options) => {
+      capturedUrl = url;
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "marx-luna-sol",
+            chartType: "marx",
+            title: "Luna × Sol Marx Chart",
+            placements: [],
+            aspects: [],
+            relatedCharts: {
+              primaryMarxChart: { chartId: "marx-primary", placements: [], houses: [] },
+              secondaryMarxChart: { chartId: "marx-secondary", placements: [], houses: [] },
+            },
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(capturedUrl, "http://localhost:8000/api/charts/marx");
   assert.equal(requestBody.primary.name, "Luna");
   assert.equal(requestBody.secondary.name, "Sol");
   assert.equal(requestBody.settings.houseSystem, "whole-sign");
@@ -1329,6 +1387,95 @@ test("maps davison results as a fused relationship chart", async () => {
   assert.equal(chart.aspectOwners.from, "时空中点盘");
   assert.equal(chart.aspectOwners.to, "时空中点盘");
   assert.equal(chart.overlays.length, 0);
+});
+
+test("maps marx results as a dual relationship chart", async () => {
+  const chart = await calculateChart(
+    {
+      mode: "couple",
+      category: "marx",
+      people: [primary],
+      primary: { ...primary, name: "小星" },
+      secondary: { ...primary, name: "小月" },
+      forecastDate: "",
+      forecastTime: "12:00",
+    },
+    successfulFetch("/api/charts/marx", {
+      chartId: "marx-luna-sol",
+      chartType: "marx",
+      title: "Luna × Sol Marx Chart",
+      placements: [],
+      aspects: [],
+      relatedCharts: {
+        primaryNatal: {
+          chartId: "natal-luna",
+          profiles: [{ name: "Luna" }],
+          placements: [{ body: "Sun", sign: "Aries", degree: 1, minute: 0, house: 1 }],
+          houses: [],
+        },
+        secondaryNatal: {
+          chartId: "natal-sol",
+          profiles: [{ name: "Sol" }],
+          placements: [{ body: "Moon", sign: "Taurus", degree: 2, minute: 0, house: 2 }],
+          houses: [],
+        },
+        davisonChart: {
+          chartId: "davison-core",
+          profiles: [{ name: "Davison Chart" }],
+          placements: [{ body: "Sun", sign: "Aries", degree: 23, minute: 0, house: 1 }],
+          houses: [],
+        },
+        primaryMarxChart: {
+          chartId: "marx-primary",
+          profiles: [{ name: "Luna Marx Chart" }],
+          placements: [
+            { body: "Sun", longitude: 19, sign: "Aries", degree: 19, minute: 0, house: 1 },
+            { body: "Ascendant", longitude: 11, sign: "Aries", degree: 11, minute: 0, house: 1 },
+          ],
+          houses: Array.from({ length: 12 }, (_, index) => ({ house: index + 1, longitude: index * 30, sign: "Aries", degree: 0, minute: 0 })),
+          aspects: [{ from: "Sun", to: "Moon", type: "trine", orb: 0.8 }],
+          statistics: {
+            totalBodies: 12,
+            elementCounts: { fire: 4, earth: 2, air: 3, water: 3 },
+            modalityCounts: { cardinal: 4, fixed: 5, mutable: 3 },
+            polarityCounts: { yang: 7, yin: 5 },
+            hemisphereCounts: { northern: 6, southern: 6, eastern: 5, western: 7 },
+          },
+        },
+        secondaryMarxChart: {
+          chartId: "marx-secondary",
+          profiles: [{ name: "Sol Marx Chart" }],
+          placements: [
+            { body: "Sun", longitude: 5, sign: "Taurus", degree: 5, minute: 0, house: 2 },
+            { body: "Ascendant", longitude: 44, sign: "Taurus", degree: 14, minute: 0, house: 2 },
+          ],
+          houses: Array.from({ length: 12 }, (_, index) => ({ house: index + 1, longitude: index * 30, sign: "Taurus", degree: 0, minute: 0 })),
+          aspects: [{ from: "Sun", to: "Mars", type: "square", orb: 1.2 }],
+          statistics: {
+            totalBodies: 12,
+            elementCounts: { fire: 2, earth: 4, air: 3, water: 3 },
+            modalityCounts: { cardinal: 3, fixed: 5, mutable: 4 },
+            polarityCounts: { yang: 5, yin: 7 },
+            hemisphereCounts: { northern: 7, southern: 5, eastern: 6, western: 6 },
+          },
+        },
+      },
+    }),
+  );
+
+  assert.equal(chart.title, "小星 × 小月 的马克思盘");
+  assert.equal(chart.placementGroups.length, 2);
+  assert.equal(chart.placementGroups[0].title, "小星 视角马克思盘星体");
+  assert.equal(chart.placementGroups[1].title, "小月 视角马克思盘星体");
+  assert.equal(chart.placementGroups[0].placements[0].planet, "太阳");
+  assert.equal(chart.placementGroups[1].placements[0].planet, "太阳");
+  assert.equal(chart.aspects.length, 2);
+  assert.equal(chart.aspects[0].fromOwner, "小星 视角");
+  assert.equal(chart.aspects[1].fromOwner, "小月 视角");
+  assert.equal(chart.aspectOwners.from, "马克思盘");
+  assert.equal(chart.aspectOwners.to, "马克思盘");
+  assert.equal(chart.overlays.length, 0);
+  assert.equal(chart.statistics, null);
 });
 
 test("maps composite results as a fused relationship chart", async () => {

@@ -6,6 +6,7 @@ import {
   buildCompositeChartPayload,
   buildDavisonChartPayload,
   buildLunarReturnChartPayload,
+  buildMarxChartPayload,
   buildNatalChartPayload,
   buildProgressionChartPayload,
   buildSolarArcChartPayload,
@@ -92,6 +93,30 @@ test("builds composite payload from two birth profiles", () => {
 
 test("builds davison payload from two birth profiles", () => {
   assert.deepEqual(buildDavisonChartPayload(primary, secondary), {
+    primary: {
+      name: "Luna",
+      date: "1996-04-12",
+      time: "08:30",
+      locationName: "Shanghai",
+      latitude: 31.2304,
+      longitude: 121.4737,
+      timezone: "Asia/Shanghai",
+    },
+    secondary: {
+      name: "Sol",
+      date: "1993-09-07",
+      time: "21:10",
+      locationName: "Beijing",
+      latitude: 39.9042,
+      longitude: 116.4074,
+      timezone: "Asia/Shanghai",
+    },
+    settings: defaultChartSettings,
+  });
+});
+
+test("builds marx payload from two birth profiles", () => {
+  assert.deepEqual(buildMarxChartPayload(primary, secondary), {
     primary: {
       name: "Luna",
       date: "1996-04-12",

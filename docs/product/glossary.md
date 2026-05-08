@@ -4,6 +4,7 @@
 - `比较盘`: synastry chart
 - `组合盘`: composite chart
 - `时空中点盘`: davison chart
+- `马克思盘`: dual-perspective marx chart
 - `流年盘`: transit chart
 - `日返盘`: solar return chart
 

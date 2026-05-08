@@ -304,7 +304,11 @@ function formatDegree(placement) {
 }
 
 function housesFromChart(chart) {
-  const houses = chart.rawResult?.houses ?? chart.rawResult?.relatedCharts?.primaryNatal?.houses ?? [];
+  const houses =
+    chart.rawResult?.houses
+    ?? chart.rawResult?.relatedCharts?.primaryMarxChart?.houses
+    ?? chart.rawResult?.relatedCharts?.primaryNatal?.houses
+    ?? [];
 
   if (houses.length >= 12) {
     return houses.slice(0, 12).map((house) => ({

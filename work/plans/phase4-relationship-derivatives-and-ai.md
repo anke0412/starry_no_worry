@@ -63,7 +63,7 @@ The product should move from the closed Phase 3 bootstrap into a Phase 4 chart-r
 - [x] Step 1: Record the Phase 4 reframe, close the old Phase 3 bootstrap ledger, and align stable docs with the new active execution stage
 - [x] Step 2: Reconcile the current codebase against the approved Phase 4 relationship-chart scope and capture any implementation gaps or contract risks
 - [x] Step 3: Remove `中点组合盘` and `关系流年盘` from backend, frontend, docs, and tests through `impl -> review -> verify`
-- [ ] Step 4: Implement `马克思盘` as a supported relationship chart family through `impl -> review -> verify`
+- [x] Step 4: Implement `马克思盘` as a supported relationship chart family through `impl -> review -> verify`
 - [ ] Step 5: Implement `时空中点盘` and `组合盘` `次限/三限` derivatives and expose them under `流年推运盘`
 - [ ] Step 6: Implement `马克思盘` `次限/三限` derivatives and expose them under `流年推运盘`
 - [ ] Step 7: Establish the reusable AI/RAG interpretation contract, retrieval library structure, and frontend extension points through `impl -> review -> verify`
@@ -103,6 +103,13 @@ The product should move from the closed Phase 3 bootstrap into a Phase 4 chart-r
 ### Step 4
 
 - `马克思盘` should be documented as a relationship chart derived from the `时空中点盘` base plus natal-chart combination logic for long-term relationship reading
+- completed on `2026-05-09`
+- dual-result definition recorded in `work/decisions/2026-05-09-phase4-step4-marx-dual-definition.md`
+- verification recorded in `work/runs/2026-05-09-phase4-step4-marx-chart.md`
+- delivered across:
+  - frontend chart catalog, payload routing, dual-result placement/aspect mapping, and wheel fallback support
+  - backend request model, `/api/charts/marx` route, and dual-result relationship chart service
+  - stable API/docs updates so later derivative work can build on `primaryMarxChart` and `secondaryMarxChart` instead of a synthetic merged chart
 
 ### Step 5
 
