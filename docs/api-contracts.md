@@ -98,6 +98,7 @@ This is an internal orchestration change only.
 - `/api/charts/davison` is a fused chart response whose top-level placements, houses, and aspects come from the midpoint event chart rather than midpoint planetary longitudes
 - `/api/charts/marx` is a dual-result relationship response whose `relatedCharts` carry the pair's shared davison chart plus one marx chart from each natal perspective
 - `/api/charts/composite-progression`, `/api/charts/davison-progression`, `/api/charts/composite-tertiary-progression`, and `/api/charts/davison-tertiary-progression` all follow the same rule: build the base relationship chart first, then derive the requested progression layer and overlay it back into the base relationship houses
+- `/api/charts/marx-progression` and `/api/charts/marx-tertiary-progression` preserve the dual-perspective Marx contract: they keep the top-level shell empty and expose per-perspective base charts, derived charts, and overlays inside `relatedCharts`
 - future derived and fusion chart families should reuse the same service layer
 
 ## Chart Endpoints
@@ -447,6 +448,24 @@ Response: `ChartResult`.
 - `progressedChart`
 - `progressedOverlay`
 
+### POST /api/charts/marx-progression
+
+Request: same payload shape as `POST /api/charts/composite-progression`.
+
+Response: `ChartResult`.
+
+Unlike the single-base relationship progression endpoints, the Marx progression response preserves the existing dual-perspective Marx contract. The top-level shell keeps `placements`, `houses`, and `aspects` empty, while `relatedCharts` includes:
+
+- `primaryNatal`
+- `secondaryNatal`
+- `davisonChart`
+- `primaryMarxChart`
+- `secondaryMarxChart`
+- `primaryProgressedMarxChart`
+- `secondaryProgressedMarxChart`
+- `primaryProgressedMarxOverlay`
+- `secondaryProgressedMarxOverlay`
+
 ### POST /api/charts/solar-arc
 
 Request:
@@ -552,6 +571,24 @@ Response: `ChartResult`.
 - `davisonChart`
 - `tertiaryProgressedChart`
 - `tertiaryProgressedOverlay`
+
+### POST /api/charts/marx-tertiary-progression
+
+Request: same payload shape as `POST /api/charts/composite-tertiary-progression`.
+
+Response: `ChartResult`.
+
+`relatedCharts` includes:
+
+- `primaryNatal`
+- `secondaryNatal`
+- `davisonChart`
+- `primaryMarxChart`
+- `secondaryMarxChart`
+- `primaryTertiaryProgressedMarxChart`
+- `secondaryTertiaryProgressedMarxChart`
+- `primaryTertiaryProgressedMarxOverlay`
+- `secondaryTertiaryProgressedMarxOverlay`
 
 ### POST /api/charts/solar-return
 

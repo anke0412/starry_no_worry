@@ -129,6 +129,15 @@ export const chartCategories = [
     focus: ["关系时机", "长期推进", "情绪触发", "共同命题"],
   },
   {
+    id: "marx-progression",
+    mode: "forecast",
+    label: "马克思盘次限盘",
+    outputTitle: "马克思盘次限盘",
+    requiresSecondPerson: true,
+    requiresForecastDate: true,
+    focus: ["长期关系推进", "深层情绪", "关系黏性", "阶段成长"],
+  },
+  {
     id: "tertiary-progression",
     mode: "forecast",
     label: "三限推运盘",
@@ -154,6 +163,15 @@ export const chartCategories = [
     requiresSecondPerson: true,
     requiresForecastDate: true,
     focus: ["短周期时机", "事件触发", "情绪起伏", "关系节律"],
+  },
+  {
+    id: "marx-tertiary-progression",
+    mode: "forecast",
+    label: "马克思盘三限盘",
+    outputTitle: "马克思盘三限盘",
+    requiresSecondPerson: true,
+    requiresForecastDate: true,
+    focus: ["短周期关系气候", "情绪波动", "深层触发", "关系转折"],
   },
 ];
 

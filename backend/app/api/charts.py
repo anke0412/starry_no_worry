@@ -10,6 +10,8 @@ from app.models.chart import (
     DavisonChartRequest,
     LunarReturnChartRequest,
     MarxChartRequest,
+    MarxProgressionChartRequest,
+    MarxTertiaryProgressionChartRequest,
     NatalChartRequest,
     ProgressionChartRequest,
     SolarArcChartRequest,
@@ -134,6 +136,22 @@ def create_davison_progression_chart(request: DavisonProgressionChartRequest) ->
         ) from error
 
 
+@router.post("/marx-progression", response_model=ChartResult, response_model_by_alias=True)
+def create_marx_progression_chart(request: MarxProgressionChartRequest) -> ChartResult:
+    from app.services.marx_progression import MarxProgressionChartService
+
+    try:
+        return MarxProgressionChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
 @router.post("/transit", response_model=ChartResult, response_model_by_alias=True)
 def create_transit_chart(request: TransitChartRequest) -> ChartResult:
     try:
@@ -217,6 +235,22 @@ def create_davison_tertiary_progression_chart(request: DavisonTertiaryProgressio
 
     try:
         return DavisonTertiaryProgressionChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
+@router.post("/marx-tertiary-progression", response_model=ChartResult, response_model_by_alias=True)
+def create_marx_tertiary_progression_chart(request: MarxTertiaryProgressionChartRequest) -> ChartResult:
+    from app.services.marx_progression import MarxTertiaryProgressionChartService
+
+    try:
+        return MarxTertiaryProgressionChartService().calculate(request)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,

@@ -12,6 +12,8 @@ from app.models.chart import (
     DavisonTertiaryProgressionChartRequest,
     DavisonChartRequest,
     MarxChartRequest,
+    MarxProgressionChartRequest,
+    MarxTertiaryProgressionChartRequest,
     NatalChartRequest,
     SolarArcChartRequest,
     TertiaryProgressionChartRequest,
@@ -109,6 +111,19 @@ def test_davison_progression_request_uses_default_chart_settings():
     assert request.model_dump(by_alias=True)["chartType"] == "davisonProgression"
 
 
+def test_marx_progression_request_uses_default_chart_settings():
+    request = MarxProgressionChartRequest(
+        primary=birth_profile_payload("Luna"),
+        secondary=birth_profile_payload("Sol"),
+        progressionDate="2026-05-01",
+        progressionTime="12:00",
+    )
+
+    assert request.chart_type == "marxProgression"
+    assert request.settings == ChartSettings()
+    assert request.model_dump(by_alias=True)["chartType"] == "marxProgression"
+
+
 def test_solar_arc_request_uses_default_chart_settings():
     request = SolarArcChartRequest(
         primary=birth_profile_payload("Luna"),
@@ -159,6 +174,19 @@ def test_davison_tertiary_progression_request_uses_default_chart_settings():
     assert request.model_dump(by_alias=True)["chartType"] == "davisonTertiaryProgression"
 
 
+def test_marx_tertiary_progression_request_uses_default_chart_settings():
+    request = MarxTertiaryProgressionChartRequest(
+        primary=birth_profile_payload("Luna"),
+        secondary=birth_profile_payload("Sol"),
+        tertiaryDate="2026-05-01",
+        tertiaryTime="12:00",
+    )
+
+    assert request.chart_type == "marxTertiaryProgression"
+    assert request.settings == ChartSettings()
+    assert request.model_dump(by_alias=True)["chartType"] == "marxTertiaryProgression"
+
+
 def test_chart_endpoints_are_registered_in_openapi_schema():
     schema = client.get("/openapi.json").json()
 
@@ -170,10 +198,12 @@ def test_chart_endpoints_are_registered_in_openapi_schema():
     assert "/api/charts/marx" in schema["paths"]
     assert "/api/charts/composite-progression" in schema["paths"]
     assert "/api/charts/davison-progression" in schema["paths"]
+    assert "/api/charts/marx-progression" in schema["paths"]
     assert "/api/charts/solar-arc" in schema["paths"]
     assert "/api/charts/tertiary-progression" in schema["paths"]
     assert "/api/charts/composite-tertiary-progression" in schema["paths"]
     assert "/api/charts/davison-tertiary-progression" in schema["paths"]
+    assert "/api/charts/marx-tertiary-progression" in schema["paths"]
 
 
 def test_natal_endpoint_accepts_contract_and_returns_chart_result():
@@ -223,6 +253,19 @@ def test_composite_progression_endpoint_requires_secondary_profile():
 def test_davison_progression_endpoint_requires_secondary_profile():
     response = client.post(
         "/api/charts/davison-progression",
+        json={
+            "primary": birth_profile_payload(),
+            "progressionDate": "2026-05-01",
+            "progressionTime": "12:00",
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_marx_progression_endpoint_requires_secondary_profile():
+    response = client.post(
+        "/api/charts/marx-progression",
         json={
             "primary": birth_profile_payload(),
             "progressionDate": "2026-05-01",
@@ -333,6 +376,32 @@ def test_davison_progression_endpoint_accepts_contract_and_returns_chart_result(
     }
 
 
+def test_marx_progression_endpoint_accepts_contract_and_returns_chart_result():
+    response = client.post(
+        "/api/charts/marx-progression",
+        json={
+            "primary": birth_profile_payload("Luna"),
+            "secondary": birth_profile_payload("Sol"),
+            "progressionDate": "2026-05-01",
+            "progressionTime": "12:00",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["chartType"] == "marxProgression"
+    assert set(response.json()["relatedCharts"].keys()) == {
+        "primaryNatal",
+        "secondaryNatal",
+        "davisonChart",
+        "primaryMarxChart",
+        "secondaryMarxChart",
+        "primaryProgressedMarxChart",
+        "secondaryProgressedMarxChart",
+        "primaryProgressedMarxOverlay",
+        "secondaryProgressedMarxOverlay",
+    }
+
+
 def test_synastry_endpoint_accepts_contract_and_returns_chart_result():
     response = client.post(
         "/api/charts/synastry",
@@ -379,6 +448,18 @@ def test_composite_tertiary_progression_endpoint_requires_target_date_and_time()
 def test_davison_tertiary_progression_endpoint_requires_target_date_and_time():
     response = client.post(
         "/api/charts/davison-tertiary-progression",
+        json={
+            "primary": birth_profile_payload(),
+            "secondary": birth_profile_payload("Sol"),
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_marx_tertiary_progression_endpoint_requires_target_date_and_time():
+    response = client.post(
+        "/api/charts/marx-tertiary-progression",
         json={
             "primary": birth_profile_payload(),
             "secondary": birth_profile_payload("Sol"),
@@ -481,4 +562,30 @@ def test_davison_tertiary_progression_endpoint_accepts_contract_and_returns_char
         "davisonChart",
         "tertiaryProgressedChart",
         "tertiaryProgressedOverlay",
+    }
+
+
+def test_marx_tertiary_progression_endpoint_accepts_contract_and_returns_chart_result():
+    response = client.post(
+        "/api/charts/marx-tertiary-progression",
+        json={
+            "primary": birth_profile_payload("Luna"),
+            "secondary": birth_profile_payload("Sol"),
+            "tertiaryDate": "2026-05-01",
+            "tertiaryTime": "12:00",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["chartType"] == "marxTertiaryProgression"
+    assert set(response.json()["relatedCharts"].keys()) == {
+        "primaryNatal",
+        "secondaryNatal",
+        "davisonChart",
+        "primaryMarxChart",
+        "secondaryMarxChart",
+        "primaryTertiaryProgressedMarxChart",
+        "secondaryTertiaryProgressedMarxChart",
+        "primaryTertiaryProgressedMarxOverlay",
+        "secondaryTertiaryProgressedMarxOverlay",
     }

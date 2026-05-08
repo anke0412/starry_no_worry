@@ -462,6 +462,133 @@ test("routes davison progression requests to the davison progression endpoint", 
   assert.equal(requestBody.progressionTime, "12:00");
 });
 
+test("routes marx progression requests to the marx progression endpoint", async () => {
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "forecast",
+      category: "marx-progression",
+      people: [primary],
+      primary,
+      secondary: { ...primary, name: "Sol" },
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    async (url, options) => {
+      assert.equal(url, "http://localhost:8000/api/charts/marx-progression");
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "marx-progression-luna-sol",
+            chartType: "marxProgression",
+            title: "Luna × Sol Marx Progression Chart",
+            placements: [],
+            aspects: [],
+            relatedCharts: {
+              primaryMarxChart: { chartId: "marx-primary", profiles: [{ name: "Luna Marx Chart" }], placements: [], houses: [], chartType: "marxChart" },
+              secondaryMarxChart: { chartId: "marx-secondary", profiles: [{ name: "Sol Marx Chart" }], placements: [], houses: [], chartType: "marxChart" },
+              primaryProgressedMarxChart: { chartId: "marx-primary-progressed", profiles: [{ name: "Luna Marx Chart Progressed" }], placements: [], houses: [], chartType: "progressedChart" },
+              secondaryProgressedMarxChart: { chartId: "marx-secondary-progressed", profiles: [{ name: "Sol Marx Chart Progressed" }], placements: [], houses: [], chartType: "progressedChart" },
+              primaryProgressedMarxOverlay: { overlayId: "primary-progressed-in-marx", label: "", referenceName: "Luna Marx Chart", overlayName: "Luna Marx Chart Progressed", houses: [], placements: [], aspects: [] },
+              secondaryProgressedMarxOverlay: { overlayId: "secondary-progressed-in-marx", label: "", referenceName: "Sol Marx Chart", overlayName: "Sol Marx Chart Progressed", houses: [], placements: [], aspects: [] },
+            },
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(requestBody.secondary.name, "Sol");
+  assert.equal(requestBody.progressionDate, "2026-05-01");
+  assert.equal(requestBody.progressionTime, "12:00");
+});
+
+test("maps marx progression results as a dual-perspective timing chart", async () => {
+  const chart = await calculateChart(
+    {
+      mode: "forecast",
+      category: "marx-progression",
+      people: [primary],
+      primary: { ...primary, name: "小星" },
+      secondary: { ...primary, name: "小月" },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    successfulFetch("/api/charts/marx-progression", {
+      chartId: "marx-progression-luna-sol",
+      chartType: "marxProgression",
+      title: "Luna × Sol Marx Progression Chart",
+      placements: [],
+      aspects: [],
+      relatedCharts: {
+        primaryMarxChart: {
+          chartId: "marx-primary",
+          profiles: [{ name: "Luna Marx Chart" }],
+          chartType: "marxChart",
+          placements: [{ body: "Sun", longitude: 19, sign: "Aries", degree: 19, minute: 0, house: 1 }],
+          houses: Array.from({ length: 12 }, (_, index) => ({ house: index + 1, longitude: index * 30, sign: "Aries", degree: 0, minute: 0 })),
+        },
+        secondaryMarxChart: {
+          chartId: "marx-secondary",
+          profiles: [{ name: "Sol Marx Chart" }],
+          chartType: "marxChart",
+          placements: [{ body: "Sun", longitude: 5, sign: "Taurus", degree: 5, minute: 0, house: 2 }],
+          houses: Array.from({ length: 12 }, (_, index) => ({ house: index + 1, longitude: index * 30, sign: "Taurus", degree: 0, minute: 0 })),
+        },
+        primaryProgressedMarxChart: {
+          chartId: "marx-primary-progressed",
+          profiles: [{ name: "Luna Marx Chart Progressed" }],
+          chartType: "progressedChart",
+          placements: [{ body: "Moon", longitude: 130, sign: "Leo", degree: 10, minute: 0, house: 5 }],
+          houses: [],
+        },
+        secondaryProgressedMarxChart: {
+          chartId: "marx-secondary-progressed",
+          profiles: [{ name: "Sol Marx Chart Progressed" }],
+          chartType: "progressedChart",
+          placements: [{ body: "Moon", longitude: 141, sign: "Virgo", degree: 21, minute: 0, house: 6 }],
+          houses: [],
+        },
+        primaryProgressedMarxOverlay: {
+          overlayId: "primary-progressed-in-marx",
+          label: "Luna Marx Chart Progressed in Luna Marx Chart houses",
+          referenceName: "Luna Marx Chart",
+          overlayName: "Luna Marx Chart Progressed",
+          houses: [{ house: 1, sign: "Aries" }],
+          placements: [{ body: "Moon", longitude: 130, sign: "Leo", degree: 10, minute: 0, sourceHouse: 5, overlayHouse: 1 }],
+          aspects: [{ from: "Moon", to: "Sun", type: "trine", orb: 0.3 }],
+        },
+        secondaryProgressedMarxOverlay: {
+          overlayId: "secondary-progressed-in-marx",
+          label: "Sol Marx Chart Progressed in Sol Marx Chart houses",
+          referenceName: "Sol Marx Chart",
+          overlayName: "Sol Marx Chart Progressed",
+          houses: [{ house: 1, sign: "Taurus" }],
+          placements: [{ body: "Moon", longitude: 141, sign: "Virgo", degree: 21, minute: 0, sourceHouse: 6, overlayHouse: 1 }],
+          aspects: [{ from: "Moon", to: "Sun", type: "square", orb: 1.1 }],
+        },
+      },
+    }),
+  );
+
+  assert.equal(chart.title, "小星 × 小月 的马克思盘次限盘");
+  assert.deepEqual(chart.placementGroups.map((group) => group.title), ["小星 视角次限星体", "小月 视角次限星体"]);
+  assert.equal(chart.aspects.length, 2);
+  assert.equal(chart.overlays.length, 2);
+  assert.equal(chart.overlays[0].title, "次限星体 飞入 Luna 视角马克思盘");
+  assert.equal(chart.overlays[1].title, "次限星体 飞入 Sol 视角马克思盘");
+  assert.equal(chart.statistics, null);
+});
+
 test("routes solar arc requests to the solar arc endpoint", async () => {
   let requestBody;
 
@@ -795,6 +922,56 @@ test("maps davison tertiary progression results as a relationship timing chart",
   assert.equal(chart.aspectOwners.from, "时空中点盘");
   assert.equal(chart.aspectOwners.to, "三限");
   assert.equal(chart.overlays[0].title, "三限星体 飞入 时空中点盘");
+});
+
+test("routes marx tertiary progression requests to the marx tertiary progression endpoint", async () => {
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "forecast",
+      category: "marx-tertiary-progression",
+      people: [primary],
+      primary,
+      secondary: { ...primary, name: "Sol" },
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    async (url, options) => {
+      assert.equal(url, "http://localhost:8000/api/charts/marx-tertiary-progression");
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "marx-tertiary-progression-luna-sol",
+            chartType: "marxTertiaryProgression",
+            title: "Luna × Sol Marx Tertiary Progression Chart",
+            placements: [],
+            aspects: [],
+            relatedCharts: {
+              primaryMarxChart: { chartId: "marx-primary", profiles: [{ name: "Luna Marx Chart" }], placements: [], houses: [], chartType: "marxChart" },
+              secondaryMarxChart: { chartId: "marx-secondary", profiles: [{ name: "Sol Marx Chart" }], placements: [], houses: [], chartType: "marxChart" },
+              primaryTertiaryProgressedMarxChart: { chartId: "marx-primary-tertiary", profiles: [{ name: "Luna Marx Chart Tertiary Progressed" }], placements: [], houses: [], chartType: "tertiaryProgressedChart" },
+              secondaryTertiaryProgressedMarxChart: { chartId: "marx-secondary-tertiary", profiles: [{ name: "Sol Marx Chart Tertiary Progressed" }], placements: [], houses: [], chartType: "tertiaryProgressedChart" },
+              primaryTertiaryProgressedMarxOverlay: { overlayId: "primary-tertiary-progressed-in-marx", label: "", referenceName: "Luna Marx Chart", overlayName: "Luna Marx Chart Tertiary Progressed", houses: [], placements: [], aspects: [] },
+              secondaryTertiaryProgressedMarxOverlay: { overlayId: "secondary-tertiary-progressed-in-marx", label: "", referenceName: "Sol Marx Chart", overlayName: "Sol Marx Chart Tertiary Progressed", houses: [], placements: [], aspects: [] },
+            },
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(requestBody.secondary.name, "Sol");
+  assert.equal(requestBody.tertiaryDate, "2026-05-01");
+  assert.equal(requestBody.tertiaryTime, "12:00");
 });
 
 test("calls the synastry chart API with custom settings", async () => {
@@ -1493,17 +1670,21 @@ test("forecast catalog only exposes chart types with live backend support", () =
     "progression",
     "composite-progression",
     "davison-progression",
+    "marx-progression",
     "tertiary-progression",
     "composite-tertiary-progression",
     "davison-tertiary-progression",
+    "marx-tertiary-progression",
   ]);
   assert.equal(forecastCategories.includes("solar-arc"), true);
   assert.equal(forecastCategories.includes("progression"), true);
   assert.equal(forecastCategories.includes("composite-progression"), true);
   assert.equal(forecastCategories.includes("davison-progression"), true);
+  assert.equal(forecastCategories.includes("marx-progression"), true);
   assert.equal(forecastCategories.includes("tertiary-progression"), true);
   assert.equal(forecastCategories.includes("composite-tertiary-progression"), true);
   assert.equal(forecastCategories.includes("davison-tertiary-progression"), true);
+  assert.equal(forecastCategories.includes("marx-tertiary-progression"), true);
 });
 
 test("calculateChart routes davison requests to the davison endpoint", async () => {
