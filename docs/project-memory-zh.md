@@ -119,16 +119,30 @@
 - 本地 interpretation agent 已升级为 chart-aware 版本：
   - 会消费真实 placements / aspects / statistics
   - 会输出带 `reportId`、`chartId`、`mode`、`title` 的结构化报告
-- `phase2-full-rollout` 已完成，当前执行入口已切换到 `work/plans/phase3-bootstrap.md`
+- `phase2-full-rollout` 已完成，旧 `phase3-bootstrap` 已关闭，当前执行入口已切换到 `work/plans/phase4-relationship-derivatives-and-ai.md`
 - 仓库已经源码具备多项原本列在后续阶段的盘型能力：
   - 日返盘
   - 月返盘
   - 太阳弧推运
   - 中点组合盘
   - 三限推运
-- 第三阶段首个已落地平台切片是地点预设扩展：
+- 旧 Phase 3 引导阶段首个已落地切片是地点预设扩展：
   - 内建地点已从中国 / 美国扩展到日本、韩国、新加坡、英国、加拿大、澳大利亚
   - 仍保留自定义地点回退
+- Phase 4 当前主线已经切换到关系盘体系纠偏与扩展：
+  - 删除错误的 `中点组合盘`
+  - 删除错误的 `关系流年盘`
+  - 新增 `马克思盘`
+  - 新增 `时空中点盘`、`组合盘`、`马克思盘` 的双人 `次限/三限` 变体
+- 这些双人 `次限/三限` 的统一口径是：
+  - 先生成基础双人盘
+  - 再对该基础盘做对应的 `次限` 或 `三限`
+  - 前端入口统一收纳到 `流年推运盘`
+- Phase 4 还要把本地 chart-aware interpretation agent 演进成可扩展 AI 解读链路：
+  - 围绕宫位、相位、落星体、盘型联动建立 RAG library
+  - 先为少量代表性盘型跑通完整 agent 链路
+  - 再逐步推广到所有相关盘型
+  - 为未来用户问答保留稳定的 chart context 和 retrieval 接口
 - 更细的盘型完成度与交互缺口应回看当前 active plan / `work/decisions/`，避免把短期审计状态误当成长久记忆
 - 在前端测试、tooltip、可视化修正时，要默认用户会检查很细的小问题
 - backend 测试环境以 `.venv312` 为准

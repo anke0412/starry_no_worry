@@ -2,9 +2,9 @@
 
 ## In Scope Right Now
 
-- execute the active Phase 3 bootstrap plan from `work/plans/`
-- choose bounded platform slices that do not require roadmap reordering
-- keep interpretation downstream of chart math while platform surfaces expand around the chart engine
+- execute the active Phase 4 relationship-chart and AI plan from `work/plans/`
+- remove incorrect relationship chart families and add the newly approved relationship derivatives
+- keep interpretation downstream of chart math while expanding the retrieval-backed agent surface around structured chart contracts
 
 ## Out Of Scope Right Now
 
