@@ -50,13 +50,13 @@ Code changes must be managed through branches.
 - after verify passes, update the plan, commit, push, merge into `main`, pull latest `main`, and only then continue
 - if push, merge, or pull fails, stop and report
 
-## Phase 3 Operating Rule
+## Phase 4 Operating Rule
 
-This repo is currently inside Phase 3 bootstrap.
+This repo is currently inside Phase 4 execution.
 
 - treat `plan.md` as the product roadmap
-- treat `work/plans/phase3-bootstrap.md` as the current active execution ledger unless a newer active plan replaces it
-- use `work/decisions/` to keep the Phase 3 reconciliation ledger and bounded slice choices auditable
+- treat `work/plans/phase4-relationship-derivatives-and-ai.md` as the current active execution ledger unless a newer active plan replaces it
+- use `work/decisions/` to keep the Phase 4 scope shifts, bounded slice choices, and execution history auditable
 
 ## Escalate To The Human When
 
@@ -73,4 +73,4 @@ This repo is currently inside Phase 3 bootstrap.
 - `docs/harness/gates.md`
 - `docs/harness/continuous-execution.md`
 - `docs/harness/git-lifecycle.md`
-- `work/plans/phase3-bootstrap.md`
+- `work/plans/phase4-relationship-derivatives-and-ai.md`

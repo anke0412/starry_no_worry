@@ -15,10 +15,13 @@
 13. 后端统一生成框架已经落地：单体衍生、双体比较、双体融合三类生成器方向明确。
 14. 共享 chart generation framework 已建立；高级盘型的实际 rollout 状态以当前 active Phase 2 plan 与 `work/decisions/` 为准，不要仅凭旧 spec 或旧记忆假设某个声明盘型已经源码完整。
 15. 第二阶段稳定公共能力已经覆盖：可选点位、多宫制、相位集合/容许度、统计面板，以及消费真实盘面数据的本地解读 agent；更细的盘型完成度与交互缺口应回看当前 active plan。
-16. `phase2-full-rollout` 已完成，当前执行入口已切换到 `work/plans/phase3-bootstrap.md`；仓库已具备日返、月返、太阳弧、中点组合盘、三限推运等原本列在后续阶段的部分盘型能力。
-17. 第三阶段首个已落地平台切片是地点预设扩展：内建地点已从中国 / 美国扩展到日本、韩国、新加坡、英国、加拿大、澳大利亚，并继续保留自定义地点回退。
-18. 中文术语必须严格统一：人名用用户输入，行星名、星座名、相位/宫位/overlay 表述都要专业且精确。
-19. 用户非常在意前端细节，尤其是 tooltip、相位描述、轮盘标注和表格可读性。
-20. backend 测试环境以 `.venv312` 为准；测试基线优先记录可复核方式：当前在 `backend` 目录执行 `../.venv312/bin/python -m pytest --collect-only -q` 可收集 `100 tests`，不要只记固定 passed 数。
-21. 协作运行约定：主 agent 负责先读项目记忆与当前 task/plan，再决定下一任务，派发 `implement` / `review` / `verify` 三类子 agent，汇总结果并回写计划勾选，同时维护测试基线和审阅结论。
-22. 子代理命名必须带功能目标，方便人工审阅，例如：`impl_transit_generator`、`review_synastry_adapter`、`verify_backend_chart_suite`。
+16. `phase2-full-rollout` 已完成，原 `phase3-bootstrap` 已关闭；当前执行入口切换到 `work/plans/phase4-relationship-derivatives-and-ai.md`。
+17. 已完成的旧 Phase 3 引导切片包括地点预设扩展：内建地点已从中国 / 美国扩展到日本、韩国、新加坡、英国、加拿大、澳大利亚，并继续保留自定义地点回退。
+18. Phase 4 当前主线是关系盘体系纠偏与扩展：删除错误的 `中点组合盘`、`关系流年盘`，新增 `马克思盘`，并补齐 `时空中点盘`、`组合盘`、`马克思盘` 的双人 `次限/三限` 变体。
+19. 这些双人 `次限/三限` 统一放在前端 `流年推运盘` 入口下，计算口径是“先生成基础双人盘，再对该盘做对应推运”。
+20. Phase 4 同时要建立可扩展的 AI agent 解读底座：围绕宫位、相位、落星体、盘型联动建立 RAG library、检索层和结构化报告链路，并为以后用户问答预留接口。
+21. 中文术语必须严格统一：人名用用户输入，行星名、星座名、相位/宫位/overlay 表述都要专业且精确。
+22. 用户非常在意前端细节，尤其是 tooltip、相位描述、轮盘标注和表格可读性。
+23. backend 测试环境以 `.venv312` 为准；测试基线优先记录可复核方式：当前在 `backend` 目录执行 `../.venv312/bin/python -m pytest --collect-only -q` 可收集 `100 tests`，不要只记固定 passed 数。
+24. 协作运行约定：主 agent 负责先读项目记忆与当前 task/plan，再决定下一任务，派发 `implement` / `review` / `verify` 三类子 agent，汇总结果并回写计划勾选，同时维护测试基线和审阅结论。
+25. 子代理命名必须带功能目标，方便人工审阅，例如：`impl_transit_generator`、`review_synastry_adapter`、`verify_backend_chart_suite`。

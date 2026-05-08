@@ -11,8 +11,8 @@ This project is already active. This file is the one-page summary the main agent
 
 - project: `Starry No Worry`
 - repo type: React frontend + FastAPI backend
-- current stage: Phase 3 bootstrap
-- main goal: reconcile the Phase 3 roadmap against the now-expanded chart platform, then advance the first bounded platform slice without breaking the existing calculation foundation
+- current stage: Phase 4 relationship derivatives and AI
+- main goal: remove incorrect relationship-chart families, add Marx relationship derivatives, and establish an extensible AI interpretation pipeline that can first land on a bounded subset and then expand across all supported relationship charts
 
 ## Operating Assumptions
 
