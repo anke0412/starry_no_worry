@@ -45,8 +45,8 @@ The product should move from a Phase 2-complete astrology tool into a Phase 3 pl
 
 - [x] Step 1: Reconcile the current repository against the Phase 3 additions listed in `plan.md`
 - [x] Step 2: Choose the first bounded Phase 3 implementation slice that is safe to execute without roadmap changes
-- [ ] Step 3: Complete that slice through `impl -> review -> verify`
-- [ ] Step 4: Close the git lifecycle for the completed slice
+- [x] Step 3: Complete that slice through `impl -> review -> verify`
+- [x] Step 4: Close the git lifecycle for the completed slice
 - [ ] Step 5: Repeat until the next coherent Phase 3 milestone is complete
 
 ## 7. Step Notes
@@ -64,6 +64,24 @@ The product should move from a Phase 2-complete astrology tool into a Phase 3 pl
 - slice selection recorded in `work/decisions/2026-05-08-phase3-first-slice-selection.md`
 - verification recorded in `work/runs/2026-05-08-phase3-step2-selection.md`
 - selected slice: expand built-in location coverage beyond the current China / United States preset baseline while preserving custom-location fallback
+
+### Step 3
+
+- completed on `2026-05-08`
+- implementation branch: `codex/phase3-bootstrap-step-3-location-catalog-expansion`
+- delivered countries beyond the original baseline:
+  - Japan
+  - South Korea
+  - Singapore
+  - United Kingdom
+  - Canada
+  - Australia
+- verification recorded in `work/runs/2026-05-08-phase3-step3-location-verification.md`
+
+### Step 4
+
+- completed on `2026-05-08`
+- git lifecycle for the location-coverage slice was closed immediately after Step 3 verification
 
 ## 8. Active Step Rule
 

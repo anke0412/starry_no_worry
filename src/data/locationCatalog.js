@@ -25,6 +25,69 @@ const LOCATION_CATALOG = [
     ],
   },
   {
+    id: "japan",
+    label: "日本",
+    timezone: "Asia/Tokyo",
+    cities: [
+      { id: "tokyo", label: "东京", locationName: "Tokyo", latitude: "35.6762", longitude: "139.6503", timezone: "Asia/Tokyo" },
+      { id: "osaka", label: "大阪", locationName: "Osaka", latitude: "34.6937", longitude: "135.5023", timezone: "Asia/Tokyo" },
+      { id: "kyoto", label: "京都", locationName: "Kyoto", latitude: "35.0116", longitude: "135.7681", timezone: "Asia/Tokyo" },
+      { id: "fukuoka", label: "福冈", locationName: "Fukuoka", latitude: "33.5904", longitude: "130.4017", timezone: "Asia/Tokyo" },
+    ],
+  },
+  {
+    id: "south-korea",
+    label: "韩国",
+    timezone: "Asia/Seoul",
+    cities: [
+      { id: "seoul", label: "首尔", locationName: "Seoul", latitude: "37.5665", longitude: "126.9780", timezone: "Asia/Seoul" },
+      { id: "busan", label: "釜山", locationName: "Busan", latitude: "35.1796", longitude: "129.0756", timezone: "Asia/Seoul" },
+      { id: "incheon", label: "仁川", locationName: "Incheon", latitude: "37.4563", longitude: "126.7052", timezone: "Asia/Seoul" },
+      { id: "jeju", label: "济州", locationName: "Jeju", latitude: "33.4996", longitude: "126.5312", timezone: "Asia/Seoul" },
+    ],
+  },
+  {
+    id: "singapore",
+    label: "新加坡",
+    timezone: "Asia/Singapore",
+    cities: [
+      { id: "singapore", label: "新加坡", locationName: "Singapore", latitude: "1.3521", longitude: "103.8198", timezone: "Asia/Singapore" },
+    ],
+  },
+  {
+    id: "united-kingdom",
+    label: "英国",
+    timezone: "Europe/London",
+    cities: [
+      { id: "london", label: "伦敦", locationName: "London", latitude: "51.5072", longitude: "-0.1276", timezone: "Europe/London" },
+      { id: "manchester", label: "曼彻斯特", locationName: "Manchester", latitude: "53.4808", longitude: "-2.2426", timezone: "Europe/London" },
+      { id: "edinburgh", label: "爱丁堡", locationName: "Edinburgh", latitude: "55.9533", longitude: "-3.1883", timezone: "Europe/London" },
+      { id: "birmingham", label: "伯明翰", locationName: "Birmingham", latitude: "52.4862", longitude: "-1.8904", timezone: "Europe/London" },
+    ],
+  },
+  {
+    id: "canada",
+    label: "加拿大",
+    timezone: "America/Toronto",
+    cities: [
+      { id: "toronto", label: "多伦多", locationName: "Toronto", latitude: "43.6532", longitude: "-79.3832", timezone: "America/Toronto" },
+      { id: "vancouver", label: "温哥华", locationName: "Vancouver", latitude: "49.2827", longitude: "-123.1207", timezone: "America/Vancouver" },
+      { id: "montreal", label: "蒙特利尔", locationName: "Montreal", latitude: "45.5017", longitude: "-73.5673", timezone: "America/Toronto" },
+      { id: "calgary", label: "卡尔加里", locationName: "Calgary", latitude: "51.0447", longitude: "-114.0719", timezone: "America/Edmonton" },
+    ],
+  },
+  {
+    id: "australia",
+    label: "澳大利亚",
+    timezone: "Australia/Sydney",
+    cities: [
+      { id: "sydney", label: "悉尼", locationName: "Sydney", latitude: "-33.8688", longitude: "151.2093", timezone: "Australia/Sydney" },
+      { id: "melbourne", label: "墨尔本", locationName: "Melbourne", latitude: "-37.8136", longitude: "144.9631", timezone: "Australia/Melbourne" },
+      { id: "brisbane", label: "布里斯班", locationName: "Brisbane", latitude: "-27.4698", longitude: "153.0251", timezone: "Australia/Brisbane" },
+      { id: "perth", label: "珀斯", locationName: "Perth", latitude: "-31.9523", longitude: "115.8613", timezone: "Australia/Perth" },
+    ],
+  },
+  {
     id: CUSTOM_COUNTRY_ID,
     label: "自定义地点",
     timezone: "Asia/Shanghai",
