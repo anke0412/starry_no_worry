@@ -84,6 +84,10 @@ export function buildDavisonProgressionChartPayload(primary, secondary, progress
   return buildRelationshipProgressionPayload(primary, secondary, progression, settings);
 }
 
+export function buildMarxProgressionChartPayload(primary, secondary, progression, settings = defaultChartSettings) {
+  return buildRelationshipProgressionPayload(primary, secondary, progression, settings);
+}
+
 export function buildSolarArcChartPayload(primary, solarArc, settings = defaultChartSettings) {
   return {
     primary: normalizeBirthProfile(primary),
@@ -107,6 +111,10 @@ export function buildCompositeTertiaryProgressionChartPayload(primary, secondary
 }
 
 export function buildDavisonTertiaryProgressionChartPayload(primary, secondary, tertiary, settings = defaultChartSettings) {
+  return buildRelationshipProgressionPayload(primary, secondary, tertiary, settings);
+}
+
+export function buildMarxTertiaryProgressionChartPayload(primary, secondary, tertiary, settings = defaultChartSettings) {
   return buildRelationshipProgressionPayload(primary, secondary, tertiary, settings);
 }
 

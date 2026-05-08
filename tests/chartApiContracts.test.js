@@ -11,6 +11,8 @@ import {
   buildDavisonTertiaryProgressionChartPayload,
   buildLunarReturnChartPayload,
   buildMarxChartPayload,
+  buildMarxProgressionChartPayload,
+  buildMarxTertiaryProgressionChartPayload,
   buildNatalChartPayload,
   buildProgressionChartPayload,
   buildSolarArcChartPayload,
@@ -185,6 +187,17 @@ test("builds a davison progression chart API payload with target time", () => {
   assert.equal(payload.progressionTime, "12:00");
 });
 
+test("builds a marx progression chart API payload with target time", () => {
+  const payload = buildMarxProgressionChartPayload(primary, secondary, {
+    progressionDate: "2026-05-01",
+    progressionTime: "12:00",
+  });
+
+  assert.equal(payload.secondary.name, "Sol");
+  assert.equal(payload.progressionDate, "2026-05-01");
+  assert.equal(payload.progressionTime, "12:00");
+});
+
 test("builds a solar arc chart API payload with target time", () => {
   const payload = buildSolarArcChartPayload(primary, {
     solarArcDate: "2026-05-01",
@@ -218,6 +231,17 @@ test("builds a composite tertiary progression chart API payload with target time
 
 test("builds a davison tertiary progression chart API payload with target time", () => {
   const payload = buildDavisonTertiaryProgressionChartPayload(primary, secondary, {
+    tertiaryDate: "2026-05-01",
+    tertiaryTime: "12:00",
+  });
+
+  assert.equal(payload.secondary.name, "Sol");
+  assert.equal(payload.tertiaryDate, "2026-05-01");
+  assert.equal(payload.tertiaryTime, "12:00");
+});
+
+test("builds a marx tertiary progression chart API payload with target time", () => {
+  const payload = buildMarxTertiaryProgressionChartPayload(primary, secondary, {
     tertiaryDate: "2026-05-01",
     tertiaryTime: "12:00",
   });

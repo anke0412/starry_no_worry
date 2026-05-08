@@ -8,6 +8,8 @@ import {
   buildDavisonTertiaryProgressionChartPayload,
   buildLunarReturnChartPayload,
   buildMarxChartPayload,
+  buildMarxProgressionChartPayload,
+  buildMarxTertiaryProgressionChartPayload,
   buildNatalChartPayload,
   buildProgressionChartPayload,
   buildSolarArcChartPayload,
@@ -33,9 +35,11 @@ const SUPPORTED_ENDPOINTS = {
   progression: "/api/charts/progression",
   "composite-progression": "/api/charts/composite-progression",
   "davison-progression": "/api/charts/davison-progression",
+  "marx-progression": "/api/charts/marx-progression",
   "tertiary-progression": "/api/charts/tertiary-progression",
   "composite-tertiary-progression": "/api/charts/composite-tertiary-progression",
   "davison-tertiary-progression": "/api/charts/davison-tertiary-progression",
+  "marx-tertiary-progression": "/api/charts/marx-tertiary-progression",
 };
 
 const BODY_LABELS = {
@@ -244,6 +248,18 @@ function buildPayload(input) {
     );
   }
 
+  if (input.category === "marx-progression") {
+    return buildMarxProgressionChartPayload(
+      input.primary,
+      input.secondary,
+      {
+        progressionDate: input.forecastDate,
+        progressionTime: input.forecastTime,
+      },
+      input.settings,
+    );
+  }
+
   if (input.category === "solar-arc") {
     return buildSolarArcChartPayload(
       input.primary,
@@ -280,6 +296,18 @@ function buildPayload(input) {
 
   if (input.category === "davison-tertiary-progression") {
     return buildDavisonTertiaryProgressionChartPayload(
+      input.primary,
+      input.secondary,
+      {
+        tertiaryDate: input.forecastDate,
+        tertiaryTime: input.forecastTime,
+      },
+      input.settings,
+    );
+  }
+
+  if (input.category === "marx-tertiary-progression") {
+    return buildMarxTertiaryProgressionChartPayload(
       input.primary,
       input.secondary,
       {
@@ -430,6 +458,32 @@ function mapPlacementGroups(result, input) {
     ];
   }
 
+  if (
+    input.category === "marx-progression"
+    && relatedCharts?.primaryMarxChart
+    && relatedCharts?.primaryProgressedMarxChart
+    && relatedCharts?.secondaryMarxChart
+    && relatedCharts?.secondaryProgressedMarxChart
+  ) {
+    return [
+      mapPlacementGroup(relatedCharts.primaryProgressedMarxChart, `${input.primary.name} 视角次限星体`),
+      mapPlacementGroup(relatedCharts.secondaryProgressedMarxChart, `${input.secondary.name} 视角次限星体`),
+    ];
+  }
+
+  if (
+    input.category === "marx-tertiary-progression"
+    && relatedCharts?.primaryMarxChart
+    && relatedCharts?.primaryTertiaryProgressedMarxChart
+    && relatedCharts?.secondaryMarxChart
+    && relatedCharts?.secondaryTertiaryProgressedMarxChart
+  ) {
+    return [
+      mapPlacementGroup(relatedCharts.primaryTertiaryProgressedMarxChart, `${input.primary.name} 视角三限星体`),
+      mapPlacementGroup(relatedCharts.secondaryTertiaryProgressedMarxChart, `${input.secondary.name} 视角三限星体`),
+    ];
+  }
+
   return [
     {
       id: result.chartId,
@@ -482,6 +536,13 @@ function mapAspectOwners(result, input) {
     return {
       from: "马克思盘",
       to: "马克思盘",
+    };
+  }
+
+  if (input.category === "marx-progression") {
+    return {
+      from: "马克思盘",
+      to: "次限",
     };
   }
 
@@ -548,6 +609,13 @@ function mapAspectOwners(result, input) {
     };
   }
 
+  if (input.category === "marx-tertiary-progression") {
+    return {
+      from: "马克思盘",
+      to: "三限",
+    };
+  }
+
   if (relatedCharts?.solarArcOverlay) {
     return {
       from: relatedCharts.solarArcOverlay.referenceName,
@@ -571,6 +639,14 @@ function mapAspectOwners(result, input) {
 function mapWorkspaceAspects(result, input) {
   if (input.category === "marx") {
     return mapMarxAspects(result.relatedCharts, input);
+  }
+
+  if (input.category === "marx-progression") {
+    return mapMarxDerivedAspects(result.relatedCharts, input, "progression");
+  }
+
+  if (input.category === "marx-tertiary-progression") {
+    return mapMarxDerivedAspects(result.relatedCharts, input, "tertiary");
   }
 
   return sortAspectsByBodyOrder(result.aspects).map(mapAspect);
@@ -604,6 +680,42 @@ function mapMarxAspects(relatedCharts, input) {
   ];
 }
 
+function mapMarxDerivedAspects(relatedCharts, input, timingKind) {
+  const primaryOverlay = timingKind === "progression"
+    ? relatedCharts?.primaryProgressedMarxOverlay
+    : relatedCharts?.primaryTertiaryProgressedMarxOverlay;
+  const secondaryOverlay = timingKind === "progression"
+    ? relatedCharts?.secondaryProgressedMarxOverlay
+    : relatedCharts?.secondaryTertiaryProgressedMarxOverlay;
+  const primaryDerived = timingKind === "progression"
+    ? relatedCharts?.primaryProgressedMarxChart
+    : relatedCharts?.primaryTertiaryProgressedMarxChart;
+  const secondaryDerived = timingKind === "progression"
+    ? relatedCharts?.secondaryProgressedMarxChart
+    : relatedCharts?.secondaryTertiaryProgressedMarxChart;
+  const derivedLabel = timingKind === "progression" ? "次限" : "三限";
+
+  return [
+    ...mapDerivedOverlayAspects(primaryOverlay, primaryDerived, `${input.primary.name} 视角马克思盘`, `${input.primary.name} 视角${derivedLabel}`),
+    ...mapDerivedOverlayAspects(secondaryOverlay, secondaryDerived, `${input.secondary.name} 视角马克思盘`, `${input.secondary.name} 视角${derivedLabel}`),
+  ];
+}
+
+function mapDerivedOverlayAspects(overlay, overlayChart, fromOwner, toOwner) {
+  if (!overlay || !overlayChart) {
+    return [];
+  }
+
+  return sortAspectsByBodyOrder(overlay.aspects ?? []).map((aspect) =>
+    mapAspect(aspect, {
+      fromGroupId: overlayChart.chartId,
+      toGroupId: overlayChart.chartId,
+      fromOwner,
+      toOwner,
+    }),
+  );
+}
+
 function mapOverlays(relatedCharts, input) {
   if (!relatedCharts) {
     return [];
@@ -622,6 +734,10 @@ function mapOverlays(relatedCharts, input) {
     "solarArcOverlay",
     "progressedOverlay",
     "tertiaryProgressedOverlay",
+    "primaryProgressedMarxOverlay",
+    "secondaryProgressedMarxOverlay",
+    "primaryTertiaryProgressedMarxOverlay",
+    "secondaryTertiaryProgressedMarxOverlay",
   ]
     .map((key) => relatedCharts[key])
     .filter(Boolean)
@@ -673,13 +789,39 @@ function mapWorkspacePlacements(result, input) {
     ];
   }
 
+  if (
+    input.category === "marx-progression"
+    && result.relatedCharts?.primaryMarxChart
+    && result.relatedCharts?.primaryProgressedMarxChart
+    && result.relatedCharts?.secondaryMarxChart
+    && result.relatedCharts?.secondaryProgressedMarxChart
+  ) {
+    return [
+      ...result.relatedCharts.primaryProgressedMarxChart.placements.map(mapPlacement),
+      ...result.relatedCharts.secondaryProgressedMarxChart.placements.map(mapPlacement),
+    ];
+  }
+
+  if (
+    input.category === "marx-tertiary-progression"
+    && result.relatedCharts?.primaryMarxChart
+    && result.relatedCharts?.primaryTertiaryProgressedMarxChart
+    && result.relatedCharts?.secondaryMarxChart
+    && result.relatedCharts?.secondaryTertiaryProgressedMarxChart
+  ) {
+    return [
+      ...result.relatedCharts.primaryTertiaryProgressedMarxChart.placements.map(mapPlacement),
+      ...result.relatedCharts.secondaryTertiaryProgressedMarxChart.placements.map(mapPlacement),
+    ];
+  }
+
   return result.placements.map((placement) => ({
     ...mapPlacement(placement),
   }));
 }
 
 function mapWorkspaceStatistics(result, input) {
-  if (input.category === "marx") {
+  if (input.category === "marx" || input.category === "marx-progression" || input.category === "marx-tertiary-progression") {
     return null;
   }
 
@@ -749,6 +891,10 @@ function referenceDisplayName(name) {
 
   if (name === "Davison Chart") {
     return "时空中点盘";
+  }
+
+  if (typeof name === "string" && name.endsWith(" Marx Chart")) {
+    return name.replace(" Marx Chart", " 视角马克思盘");
   }
 
   return name;
