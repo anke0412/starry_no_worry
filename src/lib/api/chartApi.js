@@ -3,6 +3,7 @@ import {
   buildCompositeChartPayload,
   buildDavisonChartPayload,
   buildLunarReturnChartPayload,
+  buildMarxChartPayload,
   buildNatalChartPayload,
   buildProgressionChartPayload,
   buildSolarArcChartPayload,
@@ -20,6 +21,7 @@ const SUPPORTED_ENDPOINTS = {
   synastry: "/api/charts/synastry",
   composite: "/api/charts/composite",
   davison: "/api/charts/davison",
+  marx: "/api/charts/marx",
   transit: "/api/charts/transit",
   "solar-return": "/api/charts/solar-return",
   "lunar-return": "/api/charts/lunar-return",
@@ -171,6 +173,10 @@ function buildPayload(input) {
     return buildDavisonChartPayload(input.primary, input.secondary, input.settings);
   }
 
+  if (input.category === "marx") {
+    return buildMarxChartPayload(input.primary, input.secondary, input.settings);
+  }
+
   if (input.category === "solar-return") {
     return buildSolarReturnChartPayload(
       input.primary,
@@ -250,14 +256,12 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
     people,
     forecastDate: input.category === "solar-return" || input.category === "lunar-return" ? input.solarReturnAnchorDate : input.forecastDate,
     focus: category.focus,
-    placements: result.placements.map((placement) => ({
-      ...mapPlacement(placement),
-    })),
+    placements: mapWorkspacePlacements(result, input),
     placementGroups: mapPlacementGroups(result, input),
     aspectOwners: mapAspectOwners(result, input),
     aspects: mapWorkspaceAspects(result, input),
     overlays: mapOverlays(result.relatedCharts),
-    statistics: mapStatistics(result.statistics),
+    statistics: mapWorkspaceStatistics(result, input),
     houseNotes: category.focus.map((item, index) => ({
       house: index + 1,
       theme: item,
@@ -327,6 +331,13 @@ function mapPlacementGroups(result, input) {
     return [mapPlacementGroup(relatedCharts.davisonChart, "时空中点盘星体")];
   }
 
+  if (input.category === "marx" && relatedCharts?.primaryMarxChart && relatedCharts?.secondaryMarxChart) {
+    return [
+      mapPlacementGroup(relatedCharts.primaryMarxChart, `${input.primary.name} 视角马克思盘星体`),
+      mapPlacementGroup(relatedCharts.secondaryMarxChart, `${input.secondary.name} 视角马克思盘星体`),
+    ];
+  }
+
   return [
     {
       id: result.chartId,
@@ -372,6 +383,13 @@ function mapAspectOwners(result, input) {
     return {
       from: "时空中点盘",
       to: "时空中点盘",
+    };
+  }
+
+  if (input.category === "marx") {
+    return {
+      from: "马克思盘",
+      to: "马克思盘",
     };
   }
 
@@ -430,8 +448,40 @@ function mapAspectOwners(result, input) {
   };
 }
 
-function mapWorkspaceAspects(result) {
+function mapWorkspaceAspects(result, input) {
+  if (input.category === "marx") {
+    return mapMarxAspects(result.relatedCharts, input);
+  }
+
   return sortAspectsByBodyOrder(result.aspects).map(mapAspect);
+}
+
+function mapMarxAspects(relatedCharts, input) {
+  if (!relatedCharts?.primaryMarxChart || !relatedCharts?.secondaryMarxChart) {
+    return [];
+  }
+
+  const primaryOwner = `${input.primary.name} 视角`;
+  const secondaryOwner = `${input.secondary.name} 视角`;
+
+  return [
+    ...sortAspectsByBodyOrder(relatedCharts.primaryMarxChart.aspects ?? []).map((aspect) =>
+      mapAspect(aspect, {
+        fromGroupId: relatedCharts.primaryMarxChart.chartId,
+        toGroupId: relatedCharts.primaryMarxChart.chartId,
+        fromOwner: primaryOwner,
+        toOwner: primaryOwner,
+      }),
+    ),
+    ...sortAspectsByBodyOrder(relatedCharts.secondaryMarxChart.aspects ?? []).map((aspect) =>
+      mapAspect(aspect, {
+        fromGroupId: relatedCharts.secondaryMarxChart.chartId,
+        toGroupId: relatedCharts.secondaryMarxChart.chartId,
+        fromOwner: secondaryOwner,
+        toOwner: secondaryOwner,
+      }),
+    ),
+  ];
 }
 
 function mapOverlays(relatedCharts) {
@@ -479,8 +529,9 @@ function mapOverlays(relatedCharts) {
     }));
 }
 
-function mapAspect(aspect) {
+function mapAspect(aspect, extras = {}) {
   return {
+    ...extras,
     from: localizeBody(aspect.from),
     to: localizeBody(aspect.to),
     type: aspect.type,
@@ -488,6 +539,31 @@ function mapAspect(aspect) {
     tone: aspectTone(aspect.type),
     orb: formatAspectOrb(aspect.orb),
   };
+}
+
+function mapWorkspacePlacements(result, input) {
+  if (
+    input.category === "marx"
+    && result.relatedCharts?.primaryMarxChart
+    && result.relatedCharts?.secondaryMarxChart
+  ) {
+    return [
+      ...result.relatedCharts.primaryMarxChart.placements.map(mapPlacement),
+      ...result.relatedCharts.secondaryMarxChart.placements.map(mapPlacement),
+    ];
+  }
+
+  return result.placements.map((placement) => ({
+    ...mapPlacement(placement),
+  }));
+}
+
+function mapWorkspaceStatistics(result, input) {
+  if (input.category === "marx") {
+    return null;
+  }
+
+  return mapStatistics(result.statistics);
 }
 
 function mapStatistics(statistics) {

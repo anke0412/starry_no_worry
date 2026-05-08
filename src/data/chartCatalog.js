@@ -57,6 +57,15 @@ export const chartCategories = [
     focus: ["关系基调", "共同节奏", "事件时机", "长期课题"],
   },
   {
+    id: "marx",
+    mode: "couple",
+    label: "马克思盘",
+    outputTitle: "马克思盘",
+    requiresSecondPerson: true,
+    requiresForecastDate: false,
+    focus: ["长期关系", "情感深度", "关系粘性", "共同命题"],
+  },
+  {
     id: "transit",
     mode: "forecast",
     label: "流年盘",

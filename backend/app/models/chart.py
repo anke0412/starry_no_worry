@@ -111,6 +111,11 @@ class DavisonChartRequest(BaseChartRequest):
     secondary: BirthProfile
 
 
+class MarxChartRequest(BaseChartRequest):
+    chart_type: Literal["marx"] = Field(default="marx", alias="chartType")
+    secondary: BirthProfile
+
+
 class TransitChartRequest(BaseChartRequest):
     chart_type: Literal["transit"] = Field(default="transit", alias="chartType")
     transit_date: str = Field(alias="transitDate")
