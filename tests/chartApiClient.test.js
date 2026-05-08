@@ -314,6 +314,154 @@ test("maps progression results as a derived timing chart", async () => {
   assert.equal(chart.overlays[0].title, "次限星体 飞入 Luna");
 });
 
+test("routes composite progression requests to the composite progression endpoint", async () => {
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "forecast",
+      category: "composite-progression",
+      people: [primary],
+      primary,
+      secondary: { ...primary, name: "Sol" },
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    async (url, options) => {
+      assert.equal(url, "http://localhost:8000/api/charts/composite-progression");
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "composite-progression-luna-sol",
+            chartType: "compositeProgression",
+            title: "Luna × Sol Composite Progression Chart",
+            placements: [],
+            aspects: [],
+            relatedCharts: {
+              compositeChart: { profiles: [{ name: "Composite Chart" }], placements: [], houses: [], chartType: "compositeChart" },
+              progressedChart: { profiles: [{ name: "Composite Progressed" }], placements: [], houses: [], chartType: "progressedChart" },
+              progressedOverlay: { overlayId: "progressed-in-composite", label: "", referenceName: "Composite Chart", overlayName: "Composite Progressed", houses: [], placements: [], aspects: [] },
+            },
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(requestBody.secondary.name, "Sol");
+  assert.equal(requestBody.progressionDate, "2026-05-01");
+  assert.equal(requestBody.progressionTime, "12:00");
+});
+
+test("maps composite progression results as a relationship timing chart", async () => {
+  const chart = await calculateChart(
+    {
+      mode: "forecast",
+      category: "composite-progression",
+      people: [primary],
+      primary: { ...primary, name: "小星" },
+      secondary: { ...primary, name: "小月" },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    successfulFetch("/api/charts/composite-progression", {
+      chartId: "composite-progression-luna-sol",
+      chartType: "compositeProgression",
+      title: "Luna × Sol Composite Progression Chart",
+      placements: [],
+      aspects: [],
+      relatedCharts: {
+        primaryNatal: { chartId: "natal-luna", profiles: [{ name: "Luna" }], chartType: "natal", placements: [], houses: [] },
+        secondaryNatal: { chartId: "natal-sol", profiles: [{ name: "Sol" }], chartType: "natal", placements: [], houses: [] },
+        compositeChart: {
+          chartId: "composite-core",
+          profiles: [{ name: "Composite Chart" }],
+          chartType: "compositeChart",
+          placements: [{ body: "Sun", longitude: 22.4, sign: "Aries", degree: 22, minute: 24, house: 1 }],
+          houses: [{ house: 1, longitude: 0, sign: "Aries", degree: 0, minute: 0 }],
+        },
+        progressedChart: {
+          chartId: "composite-progressed",
+          profiles: [{ name: "Composite Progressed" }],
+          chartType: "progressedChart",
+          placements: [{ body: "Moon", longitude: 130, sign: "Leo", degree: 10, minute: 0, house: 5 }],
+          houses: [{ house: 1, longitude: 0, sign: "Aries", degree: 0, minute: 0 }],
+        },
+        progressedOverlay: {
+          overlayId: "progressed-in-composite",
+          label: "Composite Progressed in Composite Chart houses",
+          referenceName: "Composite Chart",
+          overlayName: "Composite Progressed",
+          houses: [{ house: 1, sign: "Aries" }],
+          placements: [{ body: "Moon", longitude: 130, sign: "Leo", degree: 10, minute: 0, sourceHouse: 5, overlayHouse: 1 }],
+          aspects: [{ from: "Moon", to: "Sun", type: "trine", orb: 0.3 }],
+        },
+      },
+    }),
+  );
+
+  assert.equal(chart.title, "小星 × 小月 的组合盘次限盘");
+  assert.deepEqual(chart.placementGroups.map((group) => group.title), ["组合盘星体", "次限星体"]);
+  assert.equal(chart.aspectOwners.from, "组合盘");
+  assert.equal(chart.aspectOwners.to, "次限");
+  assert.equal(chart.overlays[0].title, "次限星体 飞入 组合盘");
+});
+
+test("routes davison progression requests to the davison progression endpoint", async () => {
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "forecast",
+      category: "davison-progression",
+      people: [primary],
+      primary,
+      secondary: { ...primary, name: "Sol" },
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    async (url, options) => {
+      assert.equal(url, "http://localhost:8000/api/charts/davison-progression");
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "davison-progression-luna-sol",
+            chartType: "davisonProgression",
+            title: "Luna × Sol Davison Progression Chart",
+            placements: [],
+            aspects: [],
+            relatedCharts: {
+              davisonChart: { profiles: [{ name: "Davison Chart" }], placements: [], houses: [], chartType: "davisonChart" },
+              progressedChart: { profiles: [{ name: "Davison Progressed" }], placements: [], houses: [], chartType: "progressedChart" },
+              progressedOverlay: { overlayId: "progressed-in-davison", label: "", referenceName: "Davison Chart", overlayName: "Davison Progressed", houses: [], placements: [], aspects: [] },
+            },
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(requestBody.secondary.name, "Sol");
+  assert.equal(requestBody.progressionDate, "2026-05-01");
+  assert.equal(requestBody.progressionTime, "12:00");
+});
+
 test("routes solar arc requests to the solar arc endpoint", async () => {
   let requestBody;
 
@@ -546,6 +694,107 @@ test("maps tertiary progression results as a derived timing chart", async () => 
   assert.equal(chart.aspectOwners.from, "Luna");
   assert.equal(chart.aspectOwners.to, "三限");
   assert.equal(chart.overlays[0].title, "三限星体 飞入 Luna");
+});
+
+test("routes composite tertiary progression requests to the composite tertiary progression endpoint", async () => {
+  let requestBody;
+
+  await calculateChart(
+    {
+      mode: "forecast",
+      category: "composite-tertiary-progression",
+      people: [primary],
+      primary,
+      secondary: { ...primary, name: "Sol" },
+      settings: {
+        houseSystem: "whole-sign",
+        aspectSet: "major_extended",
+        orbProfile: "tight",
+      },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    async (url, options) => {
+      assert.equal(url, "http://localhost:8000/api/charts/composite-tertiary-progression");
+      requestBody = JSON.parse(options.body);
+
+      return {
+        ok: true,
+        async json() {
+          return {
+            chartId: "composite-tertiary-progression-luna-sol",
+            chartType: "compositeTertiaryProgression",
+            title: "Luna × Sol Composite Tertiary Progression Chart",
+            placements: [],
+            aspects: [],
+            relatedCharts: {
+              compositeChart: { profiles: [{ name: "Composite Chart" }], placements: [], houses: [], chartType: "compositeChart" },
+              tertiaryProgressedChart: { profiles: [{ name: "Composite Tertiary Progressed" }], placements: [], houses: [], chartType: "tertiaryProgressedChart" },
+              tertiaryProgressedOverlay: { overlayId: "tertiary-progressed-in-composite", label: "", referenceName: "Composite Chart", overlayName: "Composite Tertiary Progressed", houses: [], placements: [], aspects: [] },
+            },
+          };
+        },
+      };
+    },
+  );
+
+  assert.equal(requestBody.secondary.name, "Sol");
+  assert.equal(requestBody.tertiaryDate, "2026-05-01");
+  assert.equal(requestBody.tertiaryTime, "12:00");
+});
+
+test("maps davison tertiary progression results as a relationship timing chart", async () => {
+  const chart = await calculateChart(
+    {
+      mode: "forecast",
+      category: "davison-tertiary-progression",
+      people: [primary],
+      primary: { ...primary, name: "小星" },
+      secondary: { ...primary, name: "小月" },
+      forecastDate: "2026-05-01",
+      forecastTime: "12:00",
+    },
+    successfulFetch("/api/charts/davison-tertiary-progression", {
+      chartId: "davison-tertiary-progression-luna-sol",
+      chartType: "davisonTertiaryProgression",
+      title: "Luna × Sol Davison Tertiary Progression Chart",
+      placements: [],
+      aspects: [],
+      relatedCharts: {
+        primaryNatal: { chartId: "natal-luna", profiles: [{ name: "Luna" }], chartType: "natal", placements: [], houses: [] },
+        secondaryNatal: { chartId: "natal-sol", profiles: [{ name: "Sol" }], chartType: "natal", placements: [], houses: [] },
+        davisonChart: {
+          chartId: "davison-core",
+          profiles: [{ name: "Davison Chart" }],
+          chartType: "davisonChart",
+          placements: [{ body: "Sun", longitude: 22.4, sign: "Aries", degree: 22, minute: 24, house: 1 }],
+          houses: [{ house: 1, longitude: 0, sign: "Aries", degree: 0, minute: 0 }],
+        },
+        tertiaryProgressedChart: {
+          chartId: "davison-tertiary-progressed",
+          profiles: [{ name: "Davison Tertiary Progressed" }],
+          chartType: "tertiaryProgressedChart",
+          placements: [{ body: "Moon", longitude: 141, sign: "Leo", degree: 21, minute: 0, house: 5 }],
+          houses: [{ house: 1, longitude: 0, sign: "Aries", degree: 0, minute: 0 }],
+        },
+        tertiaryProgressedOverlay: {
+          overlayId: "tertiary-progressed-in-davison",
+          label: "Davison Tertiary Progressed in Davison Chart houses",
+          referenceName: "Davison Chart",
+          overlayName: "Davison Tertiary Progressed",
+          houses: [{ house: 1, sign: "Aries" }],
+          placements: [{ body: "Moon", longitude: 141, sign: "Leo", degree: 21, minute: 0, sourceHouse: 5, overlayHouse: 1 }],
+          aspects: [{ from: "Moon", to: "Sun", type: "trine", orb: 0.3 }],
+        },
+      },
+    }),
+  );
+
+  assert.equal(chart.title, "小星 × 小月 的时空中点盘三限盘");
+  assert.deepEqual(chart.placementGroups.map((group) => group.title), ["时空中点盘星体", "三限星体"]);
+  assert.equal(chart.aspectOwners.from, "时空中点盘");
+  assert.equal(chart.aspectOwners.to, "三限");
+  assert.equal(chart.overlays[0].title, "三限星体 飞入 时空中点盘");
 });
 
 test("calls the synastry chart API with custom settings", async () => {
@@ -1236,10 +1485,25 @@ test("chart catalog includes marx under couple mode", () => {
 test("forecast catalog only exposes chart types with live backend support", () => {
   const forecastCategories = categoriesForMode("forecast").map((category) => category.id);
 
-  assert.deepEqual(forecastCategories, ["transit", "solar-return", "lunar-return", "solar-arc", "progression", "tertiary-progression"]);
+  assert.deepEqual(forecastCategories, [
+    "transit",
+    "solar-return",
+    "lunar-return",
+    "solar-arc",
+    "progression",
+    "composite-progression",
+    "davison-progression",
+    "tertiary-progression",
+    "composite-tertiary-progression",
+    "davison-tertiary-progression",
+  ]);
   assert.equal(forecastCategories.includes("solar-arc"), true);
   assert.equal(forecastCategories.includes("progression"), true);
+  assert.equal(forecastCategories.includes("composite-progression"), true);
+  assert.equal(forecastCategories.includes("davison-progression"), true);
   assert.equal(forecastCategories.includes("tertiary-progression"), true);
+  assert.equal(forecastCategories.includes("composite-tertiary-progression"), true);
+  assert.equal(forecastCategories.includes("davison-tertiary-progression"), true);
 });
 
 test("calculateChart routes davison requests to the davison endpoint", async () => {

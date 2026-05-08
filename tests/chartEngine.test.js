@@ -241,6 +241,38 @@ test("creates a progression request with forecast date and time", () => {
   assert.equal(request.forecastTime, "12:00");
 });
 
+test("creates a composite progression request with second person and forecast time", () => {
+  const request = createChartRequest({
+    mode: "forecast",
+    category: "composite-progression",
+    primary: {
+      name: "Luna",
+      date: "1996-04-12",
+      time: "08:30",
+      location: "Shanghai",
+      latitude: "31.2304",
+      longitude: "121.4737",
+      timezone: "Asia/Shanghai",
+    },
+    secondary: {
+      name: "Sol",
+      date: "1993-09-07",
+      time: "21:10",
+      location: "Beijing",
+      latitude: "39.9042",
+      longitude: "116.4074",
+      timezone: "Asia/Shanghai",
+    },
+    forecastDate: "2026-05-01",
+    forecastTime: "12:00",
+  });
+
+  assert.equal(request.category, "composite-progression");
+  assert.equal(request.secondary.name, "Sol");
+  assert.equal(request.forecastDate, "2026-05-01");
+  assert.equal(request.forecastTime, "12:00");
+});
+
 test("creates a solar arc request with forecast date and time", () => {
   const request = createChartRequest({
     mode: "forecast",
@@ -281,6 +313,38 @@ test("creates a tertiary progression request with forecast date and time", () =>
   });
 
   assert.equal(request.category, "tertiary-progression");
+  assert.equal(request.forecastDate, "2026-05-01");
+  assert.equal(request.forecastTime, "12:00");
+});
+
+test("creates a davison tertiary progression request with second person and forecast time", () => {
+  const request = createChartRequest({
+    mode: "forecast",
+    category: "davison-tertiary-progression",
+    primary: {
+      name: "Luna",
+      date: "1996-04-12",
+      time: "08:30",
+      location: "Shanghai",
+      latitude: "31.2304",
+      longitude: "121.4737",
+      timezone: "Asia/Shanghai",
+    },
+    secondary: {
+      name: "Sol",
+      date: "1993-09-07",
+      time: "21:10",
+      location: "Beijing",
+      latitude: "39.9042",
+      longitude: "116.4074",
+      timezone: "Asia/Shanghai",
+    },
+    forecastDate: "2026-05-01",
+    forecastTime: "12:00",
+  });
+
+  assert.equal(request.category, "davison-tertiary-progression");
+  assert.equal(request.secondary.name, "Sol");
   assert.equal(request.forecastDate, "2026-05-01");
   assert.equal(request.forecastTime, "12:00");
 });

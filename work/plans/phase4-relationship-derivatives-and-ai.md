@@ -64,7 +64,7 @@ The product should move from the closed Phase 3 bootstrap into a Phase 4 chart-r
 - [x] Step 2: Reconcile the current codebase against the approved Phase 4 relationship-chart scope and capture any implementation gaps or contract risks
 - [x] Step 3: Remove `中点组合盘` and `关系流年盘` from backend, frontend, docs, and tests through `impl -> review -> verify`
 - [x] Step 4: Implement `马克思盘` as a supported relationship chart family through `impl -> review -> verify`
-- [ ] Step 5: Implement `时空中点盘` and `组合盘` `次限/三限` derivatives and expose them under `流年推运盘`
+- [x] Step 5: Implement `时空中点盘` and `组合盘` `次限/三限` derivatives and expose them under `流年推运盘`
 - [ ] Step 6: Implement `马克思盘` `次限/三限` derivatives and expose them under `流年推运盘`
 - [ ] Step 7: Establish the reusable AI/RAG interpretation contract, retrieval library structure, and frontend extension points through `impl -> review -> verify`
 - [ ] Step 8: Connect the full AI interpretation pipeline for the first bounded subset of relationship charts through `impl -> review -> verify`
@@ -114,6 +114,13 @@ The product should move from the closed Phase 3 bootstrap into a Phase 4 chart-r
 ### Step 5
 
 - these derivatives belong to the `流年推运盘` entry in the frontend rather than the relationship-chart entry itself
+- completed on `2026-05-09`
+- execution-path decision recorded in `work/decisions/2026-05-09-phase4-step5-relationship-progression-path.md`
+- verification recorded in `work/runs/2026-05-09-phase4-step5-relationship-progressions.md`
+- delivered across:
+  - backend request models, routes, and a reusable fused-base relationship progression generator path
+  - frontend forecast catalog entries, payload routing, placement/aspect mapping, overlay localization, and wheel-house fallback for relationship timing charts
+  - stable API/docs updates so Step 6 can extend the same contract to `马克思盘`
 
 ### Step 6
 

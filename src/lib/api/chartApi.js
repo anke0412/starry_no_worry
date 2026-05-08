@@ -1,7 +1,11 @@
 import { findCategory } from "../../data/chartCatalog.js";
 import {
   buildCompositeChartPayload,
+  buildCompositeProgressionChartPayload,
+  buildCompositeTertiaryProgressionChartPayload,
   buildDavisonChartPayload,
+  buildDavisonProgressionChartPayload,
+  buildDavisonTertiaryProgressionChartPayload,
   buildLunarReturnChartPayload,
   buildMarxChartPayload,
   buildNatalChartPayload,
@@ -27,7 +31,11 @@ const SUPPORTED_ENDPOINTS = {
   "lunar-return": "/api/charts/lunar-return",
   "solar-arc": "/api/charts/solar-arc",
   progression: "/api/charts/progression",
+  "composite-progression": "/api/charts/composite-progression",
+  "davison-progression": "/api/charts/davison-progression",
   "tertiary-progression": "/api/charts/tertiary-progression",
+  "composite-tertiary-progression": "/api/charts/composite-tertiary-progression",
+  "davison-tertiary-progression": "/api/charts/davison-tertiary-progression",
 };
 
 const BODY_LABELS = {
@@ -212,6 +220,30 @@ function buildPayload(input) {
     );
   }
 
+  if (input.category === "composite-progression") {
+    return buildCompositeProgressionChartPayload(
+      input.primary,
+      input.secondary,
+      {
+        progressionDate: input.forecastDate,
+        progressionTime: input.forecastTime,
+      },
+      input.settings,
+    );
+  }
+
+  if (input.category === "davison-progression") {
+    return buildDavisonProgressionChartPayload(
+      input.primary,
+      input.secondary,
+      {
+        progressionDate: input.forecastDate,
+        progressionTime: input.forecastTime,
+      },
+      input.settings,
+    );
+  }
+
   if (input.category === "solar-arc") {
     return buildSolarArcChartPayload(
       input.primary,
@@ -226,6 +258,30 @@ function buildPayload(input) {
   if (input.category === "tertiary-progression") {
     return buildTertiaryProgressionChartPayload(
       input.primary,
+      {
+        tertiaryDate: input.forecastDate,
+        tertiaryTime: input.forecastTime,
+      },
+      input.settings,
+    );
+  }
+
+  if (input.category === "composite-tertiary-progression") {
+    return buildCompositeTertiaryProgressionChartPayload(
+      input.primary,
+      input.secondary,
+      {
+        tertiaryDate: input.forecastDate,
+        tertiaryTime: input.forecastTime,
+      },
+      input.settings,
+    );
+  }
+
+  if (input.category === "davison-tertiary-progression") {
+    return buildDavisonTertiaryProgressionChartPayload(
+      input.primary,
+      input.secondary,
       {
         tertiaryDate: input.forecastDate,
         tertiaryTime: input.forecastTime,
@@ -260,7 +316,7 @@ export function mapChartResultToWorkspaceChart(result, input, category = findCat
     placementGroups: mapPlacementGroups(result, input),
     aspectOwners: mapAspectOwners(result, input),
     aspects: mapWorkspaceAspects(result, input),
-    overlays: mapOverlays(result.relatedCharts),
+    overlays: mapOverlays(result.relatedCharts, input),
     statistics: mapWorkspaceStatistics(result, input),
     houseNotes: category.focus.map((item, index) => ({
       house: index + 1,
@@ -309,6 +365,20 @@ function mapPlacementGroups(result, input) {
     ];
   }
 
+  if (input.category === "composite-progression" && relatedCharts?.compositeChart && relatedCharts?.progressedChart) {
+    return [
+      mapPlacementGroup(relatedCharts.compositeChart, "组合盘星体"),
+      mapPlacementGroup(relatedCharts.progressedChart, "次限星体"),
+    ];
+  }
+
+  if (input.category === "davison-progression" && relatedCharts?.davisonChart && relatedCharts?.progressedChart) {
+    return [
+      mapPlacementGroup(relatedCharts.davisonChart, "时空中点盘星体"),
+      mapPlacementGroup(relatedCharts.progressedChart, "次限星体"),
+    ];
+  }
+
   if (input.category === "solar-arc" && relatedCharts?.primaryNatal && relatedCharts?.solarArcChart) {
     return [
       mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
@@ -319,6 +389,28 @@ function mapPlacementGroups(result, input) {
   if (input.category === "tertiary-progression" && relatedCharts?.primaryNatal && relatedCharts?.tertiaryProgressedChart) {
     return [
       mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
+      mapPlacementGroup(relatedCharts.tertiaryProgressedChart, "三限星体"),
+    ];
+  }
+
+  if (
+    input.category === "composite-tertiary-progression"
+    && relatedCharts?.compositeChart
+    && relatedCharts?.tertiaryProgressedChart
+  ) {
+    return [
+      mapPlacementGroup(relatedCharts.compositeChart, "组合盘星体"),
+      mapPlacementGroup(relatedCharts.tertiaryProgressedChart, "三限星体"),
+    ];
+  }
+
+  if (
+    input.category === "davison-tertiary-progression"
+    && relatedCharts?.davisonChart
+    && relatedCharts?.tertiaryProgressedChart
+  ) {
+    return [
+      mapPlacementGroup(relatedCharts.davisonChart, "时空中点盘星体"),
       mapPlacementGroup(relatedCharts.tertiaryProgressedChart, "三限星体"),
     ];
   }
@@ -393,6 +485,20 @@ function mapAspectOwners(result, input) {
     };
   }
 
+  if (input.category === "composite-progression") {
+    return {
+      from: "组合盘",
+      to: "次限",
+    };
+  }
+
+  if (input.category === "davison-progression") {
+    return {
+      from: "时空中点盘",
+      to: "次限",
+    };
+  }
+
   if (relatedCharts?.primaryOverlay) {
     return {
       from: relatedCharts.primaryOverlay.referenceName,
@@ -425,6 +531,20 @@ function mapAspectOwners(result, input) {
     return {
       from: relatedCharts.progressedOverlay.referenceName,
       to: "次限",
+    };
+  }
+
+  if (input.category === "composite-tertiary-progression") {
+    return {
+      from: "组合盘",
+      to: "三限",
+    };
+  }
+
+  if (input.category === "davison-tertiary-progression") {
+    return {
+      from: "时空中点盘",
+      to: "三限",
     };
   }
 
@@ -484,12 +604,12 @@ function mapMarxAspects(relatedCharts, input) {
   ];
 }
 
-function mapOverlays(relatedCharts) {
+function mapOverlays(relatedCharts, input) {
   if (!relatedCharts) {
     return [];
   }
 
-  if (relatedCharts.compositeChart) {
+  if (input.category === "composite" || input.category === "davison" || input.category === "marx") {
     return [];
   }
 
@@ -507,9 +627,9 @@ function mapOverlays(relatedCharts) {
     .filter(Boolean)
     .map((overlay) => ({
       id: overlay.overlayId,
-      title: `${overlayDisplayName(overlay.overlayName)} 飞入 ${overlay.referenceName}`,
-      houseTableTitle: `${overlayDisplayName(overlay.overlayName)} 飞入 ${overlay.referenceName} 的宫位`,
-      referenceName: overlay.referenceName,
+      title: `${overlayDisplayName(overlay.overlayName)} 飞入 ${referenceDisplayName(overlay.referenceName)}`,
+      houseTableTitle: `${overlayDisplayName(overlay.overlayName)} 飞入 ${referenceDisplayName(overlay.referenceName)} 的宫位`,
+      referenceName: referenceDisplayName(overlay.referenceName),
       overlayName: overlayDisplayName(overlay.overlayName),
       referenceChartId: overlay.referenceChartId,
       overlayChartId: overlay.overlayChartId,
@@ -620,6 +740,18 @@ function bodyOrder(body) {
 
 function chartProfileName(chart, fallback) {
   return chart.profiles?.[0]?.name ?? fallback;
+}
+
+function referenceDisplayName(name) {
+  if (name === "Composite Chart") {
+    return "组合盘";
+  }
+
+  if (name === "Davison Chart") {
+    return "时空中点盘";
+  }
+
+  return name;
 }
 
 function overlayDisplayName(name) {
