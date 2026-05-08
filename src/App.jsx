@@ -778,10 +778,6 @@ function statisticsSectionTitle(sectionId) {
 }
 
 function aspectColumnTitle(chart, side) {
-  if (chart.category === "relationship-transit") {
-    return side === "from" ? "本命侧星体" : "流年侧星体";
-  }
-
   return `${chart.aspectOwners[side]} 的星体`;
 }
 

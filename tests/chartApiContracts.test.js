@@ -8,7 +8,6 @@ import {
   buildLunarReturnChartPayload,
   buildNatalChartPayload,
   buildProgressionChartPayload,
-  buildRelationshipTransitChartPayload,
   buildSolarArcChartPayload,
   buildSolarReturnChartPayload,
   buildSynastryChartPayload,
@@ -121,22 +120,6 @@ test("builds a transit chart API payload with transit target time", () => {
     transitTime: "12:00",
   });
 
-  assert.equal(payload.transitDate, "2026-05-01");
-  assert.equal(payload.transitTime, "12:00");
-});
-
-test("builds a relationship transit payload with two profiles and transit target time", () => {
-  const payload = buildRelationshipTransitChartPayload(
-    primary,
-    secondary,
-    {
-      transitDate: "2026-05-01",
-      transitTime: "12:00",
-    },
-  );
-
-  assert.equal(payload.primary.name, "Luna");
-  assert.equal(payload.secondary.name, "Sol");
   assert.equal(payload.transitDate, "2026-05-01");
   assert.equal(payload.transitTime, "12:00");
 });

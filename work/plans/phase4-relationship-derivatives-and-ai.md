@@ -62,7 +62,7 @@ The product should move from the closed Phase 3 bootstrap into a Phase 4 chart-r
 
 - [x] Step 1: Record the Phase 4 reframe, close the old Phase 3 bootstrap ledger, and align stable docs with the new active execution stage
 - [x] Step 2: Reconcile the current codebase against the approved Phase 4 relationship-chart scope and capture any implementation gaps or contract risks
-- [ ] Step 3: Remove `中点组合盘` and `关系流年盘` from backend, frontend, docs, and tests through `impl -> review -> verify`
+- [x] Step 3: Remove `中点组合盘` and `关系流年盘` from backend, frontend, docs, and tests through `impl -> review -> verify`
 - [ ] Step 4: Implement `马克思盘` as a supported relationship chart family through `impl -> review -> verify`
 - [ ] Step 5: Implement `时空中点盘` and `组合盘` `次限/三限` derivatives and expose them under `流年推运盘`
 - [ ] Step 6: Implement `马克思盘` `次限/三限` derivatives and expose them under `流年推运盘`
@@ -92,7 +92,13 @@ The product should move from the closed Phase 3 bootstrap into a Phase 4 chart-r
 
 ### Step 3
 
-- removal must include category catalogs, form options, API request builders, backend services/routes if present, report labeling, docs, and tests
+- completed on `2026-05-08`
+- removal decision recorded in `work/decisions/2026-05-08-phase4-step3-removal.md`
+- verification recorded in `work/runs/2026-05-08-phase4-step3-removal.md`
+- delivered removals across:
+  - frontend catalog, payload routing, result mapping, and category-specific UI behavior
+  - backend request models, routes, services, and dedicated tests
+  - API contract docs and stable project memory references that would otherwise keep the deleted families marked as source-complete
 
 ### Step 4
 

@@ -3,10 +3,8 @@ import {
   buildCompositeChartPayload,
   buildDavisonChartPayload,
   buildLunarReturnChartPayload,
-  buildMidpointCompositeChartPayload,
   buildNatalChartPayload,
   buildProgressionChartPayload,
-  buildRelationshipTransitChartPayload,
   buildSolarArcChartPayload,
   buildSolarReturnChartPayload,
   buildSynastryChartPayload,
@@ -22,8 +20,6 @@ const SUPPORTED_ENDPOINTS = {
   synastry: "/api/charts/synastry",
   composite: "/api/charts/composite",
   davison: "/api/charts/davison",
-  "midpoint-composite": "/api/charts/midpoint-composite",
-  "relationship-transit": "/api/charts/relationship-transit",
   transit: "/api/charts/transit",
   "solar-return": "/api/charts/solar-return",
   "lunar-return": "/api/charts/lunar-return",
@@ -175,22 +171,6 @@ function buildPayload(input) {
     return buildDavisonChartPayload(input.primary, input.secondary, input.settings);
   }
 
-  if (input.category === "midpoint-composite") {
-    return buildMidpointCompositeChartPayload(input.primary, input.secondary, input.settings);
-  }
-
-  if (input.category === "relationship-transit") {
-    return buildRelationshipTransitChartPayload(
-      input.primary,
-      input.secondary,
-      {
-        transitDate: input.forecastDate,
-        transitTime: input.forecastTime,
-      },
-      input.settings,
-    );
-  }
-
   if (input.category === "solar-return") {
     return buildSolarReturnChartPayload(
       input.primary,
@@ -304,19 +284,6 @@ function mapPlacementGroups(result, input) {
     ];
   }
 
-  if (
-    input.category === "relationship-transit"
-    && relatedCharts?.primaryNatal
-    && relatedCharts?.secondaryNatal
-    && relatedCharts?.transitSky
-  ) {
-    return [
-      mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
-      mapPlacementGroup(relatedCharts.secondaryNatal, `${chartProfileName(relatedCharts.secondaryNatal, input.secondary.name)} 的本命星体`),
-      mapPlacementGroup(relatedCharts.transitSky, "流年天象星体"),
-    ];
-  }
-
   if (input.category === "solar-return" && relatedCharts?.primaryNatal && relatedCharts?.solarReturn) {
     return [
       mapPlacementGroup(relatedCharts.primaryNatal, `${chartProfileName(relatedCharts.primaryNatal, input.primary.name)} 的本命星体`),
@@ -358,10 +325,6 @@ function mapPlacementGroups(result, input) {
 
   if (input.category === "davison" && relatedCharts?.davisonChart) {
     return [mapPlacementGroup(relatedCharts.davisonChart, "时空中点盘星体")];
-  }
-
-  if (input.category === "midpoint-composite" && relatedCharts?.midpointCompositeChart) {
-    return [mapPlacementGroup(relatedCharts.midpointCompositeChart, "中点组合盘星体")];
   }
 
   return [
@@ -409,20 +372,6 @@ function mapAspectOwners(result, input) {
     return {
       from: "时空中点盘",
       to: "时空中点盘",
-    };
-  }
-
-  if (input.category === "midpoint-composite") {
-    return {
-      from: "中点组合盘",
-      to: "中点组合盘",
-    };
-  }
-
-  if (input.category === "relationship-transit") {
-    return {
-      from: "关系",
-      to: "流年",
     };
   }
 
@@ -481,37 +430,8 @@ function mapAspectOwners(result, input) {
   };
 }
 
-function mapWorkspaceAspects(result, input) {
-  if (input.category === "relationship-transit") {
-    return mapRelationshipTransitAspects(result.relatedCharts);
-  }
-
+function mapWorkspaceAspects(result) {
   return sortAspectsByBodyOrder(result.aspects).map(mapAspect);
-}
-
-function mapRelationshipTransitAspects(relatedCharts) {
-  if (!relatedCharts?.transitSky) {
-    return [];
-  }
-
-  return [
-    ...mapRelationshipOverlayAspects(relatedCharts.primaryTransitOverlay, relatedCharts.primaryNatal, relatedCharts.transitSky),
-    ...mapRelationshipOverlayAspects(relatedCharts.secondaryTransitOverlay, relatedCharts.secondaryNatal, relatedCharts.transitSky),
-  ];
-}
-
-function mapRelationshipOverlayAspects(overlay, referenceChart, transitSky) {
-  if (!overlay || !referenceChart || !transitSky) {
-    return [];
-  }
-
-  return sortAspectsByBodyOrder(overlay.aspects ?? []).map((aspect) => ({
-    ...mapAspect(aspect),
-    fromGroupId: referenceChart.chartId,
-    toGroupId: transitSky.chartId,
-    fromOwner: overlay.referenceName,
-    toOwner: "流年",
-  }));
 }
 
 function mapOverlays(relatedCharts) {
@@ -523,16 +443,10 @@ function mapOverlays(relatedCharts) {
     return [];
   }
 
-  if (relatedCharts.midpointCompositeChart) {
-    return [];
-  }
-
   return [
     "primaryOverlay",
     "secondaryOverlay",
     "transitOverlay",
-    "primaryTransitOverlay",
-    "secondaryTransitOverlay",
     "solarReturnOverlay",
     "lunarReturnOverlay",
     "solarArcOverlay",

@@ -111,20 +111,8 @@ class DavisonChartRequest(BaseChartRequest):
     secondary: BirthProfile
 
 
-class MidpointCompositeChartRequest(BaseChartRequest):
-    chart_type: Literal["midpointComposite"] = Field(default="midpointComposite", alias="chartType")
-    secondary: BirthProfile
-
-
 class TransitChartRequest(BaseChartRequest):
     chart_type: Literal["transit"] = Field(default="transit", alias="chartType")
-    transit_date: str = Field(alias="transitDate")
-    transit_time: str = Field(alias="transitTime")
-
-
-class RelationshipTransitChartRequest(BaseChartRequest):
-    chart_type: Literal["relationshipTransit"] = Field(default="relationshipTransit", alias="chartType")
-    secondary: BirthProfile
     transit_date: str = Field(alias="transitDate")
     transit_time: str = Field(alias="transitTime")
 
