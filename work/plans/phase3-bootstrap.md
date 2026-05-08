@@ -83,6 +83,13 @@ The product should move from a Phase 2-complete astrology tool into a Phase 3 pl
 - completed on `2026-05-08`
 - git lifecycle for the location-coverage slice was closed immediately after Step 3 verification
 
+### Step 5
+
+- pending human escalation as of `2026-05-08`
+- escalation note recorded in `work/decisions/2026-05-08-phase3-next-slice-escalation.md`
+- escalation check recorded in `work/runs/2026-05-08-phase3-step5-escalation.md`
+- reason: remaining Phase 3 work now forks across timing systems, accounts/cloud assets, sharing/export, and commercial/admin/privacy tracks, and selecting one would materially set product direction
+
 ## 8. Active Step Rule
 
 The main agent must treat the first unfinished item in the ordered step queue as the current step unless a more specific active marker is written here later.
