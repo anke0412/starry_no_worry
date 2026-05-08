@@ -49,6 +49,15 @@ export function buildMarxChartPayload(primary, secondary, settings = defaultChar
   return buildSynastryChartPayload(primary, secondary, settings);
 }
 
+function buildRelationshipProgressionPayload(primary, secondary, timing, settings = defaultChartSettings) {
+  return {
+    primary: normalizeBirthProfile(primary),
+    secondary: normalizeBirthProfile(secondary),
+    ...timing,
+    settings: normalizeSettings(settings),
+  };
+}
+
 export function buildTransitChartPayload(primary, transit, settings = defaultChartSettings) {
   return {
     primary: normalizeBirthProfile(primary),
@@ -67,6 +76,14 @@ export function buildProgressionChartPayload(primary, progression, settings = de
   };
 }
 
+export function buildCompositeProgressionChartPayload(primary, secondary, progression, settings = defaultChartSettings) {
+  return buildRelationshipProgressionPayload(primary, secondary, progression, settings);
+}
+
+export function buildDavisonProgressionChartPayload(primary, secondary, progression, settings = defaultChartSettings) {
+  return buildRelationshipProgressionPayload(primary, secondary, progression, settings);
+}
+
 export function buildSolarArcChartPayload(primary, solarArc, settings = defaultChartSettings) {
   return {
     primary: normalizeBirthProfile(primary),
@@ -83,6 +100,14 @@ export function buildTertiaryProgressionChartPayload(primary, tertiary, settings
     tertiaryTime: tertiary.tertiaryTime,
     settings: normalizeSettings(settings),
   };
+}
+
+export function buildCompositeTertiaryProgressionChartPayload(primary, secondary, tertiary, settings = defaultChartSettings) {
+  return buildRelationshipProgressionPayload(primary, secondary, tertiary, settings);
+}
+
+export function buildDavisonTertiaryProgressionChartPayload(primary, secondary, tertiary, settings = defaultChartSettings) {
+  return buildRelationshipProgressionPayload(primary, secondary, tertiary, settings);
 }
 
 export function buildSolarReturnChartPayload(primary, solarReturn, settings = defaultChartSettings) {

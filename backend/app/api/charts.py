@@ -2,7 +2,11 @@ from fastapi import APIRouter, HTTPException, status
 
 from app.models.chart import (
     ChartResult,
+    CompositeProgressionChartRequest,
+    CompositeTertiaryProgressionChartRequest,
     CompositeChartRequest,
+    DavisonProgressionChartRequest,
+    DavisonTertiaryProgressionChartRequest,
     DavisonChartRequest,
     LunarReturnChartRequest,
     MarxChartRequest,
@@ -98,6 +102,38 @@ def create_marx_chart(request: MarxChartRequest) -> ChartResult:
         ) from error
 
 
+@router.post("/composite-progression", response_model=ChartResult, response_model_by_alias=True)
+def create_composite_progression_chart(request: CompositeProgressionChartRequest) -> ChartResult:
+    from app.services.relationship_progression import CompositeProgressionChartService
+
+    try:
+        return CompositeProgressionChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
+@router.post("/davison-progression", response_model=ChartResult, response_model_by_alias=True)
+def create_davison_progression_chart(request: DavisonProgressionChartRequest) -> ChartResult:
+    from app.services.relationship_progression import DavisonProgressionChartService
+
+    try:
+        return DavisonProgressionChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
 @router.post("/transit", response_model=ChartResult, response_model_by_alias=True)
 def create_transit_chart(request: TransitChartRequest) -> ChartResult:
     try:
@@ -149,6 +185,38 @@ def create_tertiary_progression_chart(request: TertiaryProgressionChartRequest) 
 
     try:
         return TertiaryProgressionChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
+@router.post("/composite-tertiary-progression", response_model=ChartResult, response_model_by_alias=True)
+def create_composite_tertiary_progression_chart(request: CompositeTertiaryProgressionChartRequest) -> ChartResult:
+    from app.services.relationship_progression import CompositeTertiaryProgressionChartService
+
+    try:
+        return CompositeTertiaryProgressionChartService().calculate(request)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "invalid_chart_request",
+                "message": str(error),
+            },
+        ) from error
+
+
+@router.post("/davison-tertiary-progression", response_model=ChartResult, response_model_by_alias=True)
+def create_davison_tertiary_progression_chart(request: DavisonTertiaryProgressionChartRequest) -> ChartResult:
+    from app.services.relationship_progression import DavisonTertiaryProgressionChartService
+
+    try:
+        return DavisonTertiaryProgressionChartService().calculate(request)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,

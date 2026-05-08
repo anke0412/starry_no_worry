@@ -97,6 +97,7 @@ This is an internal orchestration change only.
 - `/api/charts/composite` is a fused chart response whose top-level placements, houses, and aspects come from the composite chart itself
 - `/api/charts/davison` is a fused chart response whose top-level placements, houses, and aspects come from the midpoint event chart rather than midpoint planetary longitudes
 - `/api/charts/marx` is a dual-result relationship response whose `relatedCharts` carry the pair's shared davison chart plus one marx chart from each natal perspective
+- `/api/charts/composite-progression`, `/api/charts/davison-progression`, `/api/charts/composite-tertiary-progression`, and `/api/charts/davison-tertiary-progression` all follow the same rule: build the base relationship chart first, then derive the requested progression layer and overlay it back into the base relationship houses
 - future derived and fusion chart families should reuse the same service layer
 
 ## Chart Endpoints
@@ -416,6 +417,36 @@ The progression response includes the primary natal placements, a progressed-cha
 
 `progressionDate` and `progressionTime` are interpreted in the source profile timezone and used as the progression target instant.
 
+### POST /api/charts/composite-progression
+
+Request: same as `POST /api/charts/progression`, but includes `secondary` and targets the pair's composite base chart first.
+
+Response: `ChartResult`.
+
+The response includes the pair's source natal charts, `compositeChart`, the progressed relationship chart in `progressedChart`, and the inter-chart overlay in `progressedOverlay`.
+
+`relatedCharts` includes:
+
+- `primaryNatal`
+- `secondaryNatal`
+- `compositeChart`
+- `progressedChart`
+- `progressedOverlay`
+
+### POST /api/charts/davison-progression
+
+Request: same as `POST /api/charts/composite-progression`, but the base relationship chart is the pair's `davisonChart`.
+
+Response: `ChartResult`.
+
+`relatedCharts` includes:
+
+- `primaryNatal`
+- `secondaryNatal`
+- `davisonChart`
+- `progressedChart`
+- `progressedOverlay`
+
 ### POST /api/charts/solar-arc
 
 Request:
@@ -493,6 +524,34 @@ The tertiary progression response includes the primary natal placements, a terti
 `tertiaryDate` and `tertiaryTime` are interpreted in the source profile timezone and converted into a tertiary-progressed datetime by scaling elapsed life days against the lunar month length.
 
 `progressedChart` includes its own houses, Ascendant, and Midheaven. `progressedOverlay` describes progressed placements flying into natal houses.
+
+### POST /api/charts/composite-tertiary-progression
+
+Request: same as `POST /api/charts/tertiary-progression`, but includes `secondary` and derives the tertiary-progressed chart from the pair's `compositeChart`.
+
+Response: `ChartResult`.
+
+`relatedCharts` includes:
+
+- `primaryNatal`
+- `secondaryNatal`
+- `compositeChart`
+- `tertiaryProgressedChart`
+- `tertiaryProgressedOverlay`
+
+### POST /api/charts/davison-tertiary-progression
+
+Request: same as `POST /api/charts/composite-tertiary-progression`, but the base relationship chart is the pair's `davisonChart`.
+
+Response: `ChartResult`.
+
+`relatedCharts` includes:
+
+- `primaryNatal`
+- `secondaryNatal`
+- `davisonChart`
+- `tertiaryProgressedChart`
+- `tertiaryProgressedOverlay`
 
 ### POST /api/charts/solar-return
 

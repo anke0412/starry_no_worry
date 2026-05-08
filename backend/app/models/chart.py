@@ -116,6 +116,20 @@ class MarxChartRequest(BaseChartRequest):
     secondary: BirthProfile
 
 
+class CompositeProgressionChartRequest(BaseChartRequest):
+    chart_type: Literal["compositeProgression"] = Field(default="compositeProgression", alias="chartType")
+    secondary: BirthProfile
+    progression_date: str = Field(alias="progressionDate")
+    progression_time: str = Field(alias="progressionTime")
+
+
+class DavisonProgressionChartRequest(BaseChartRequest):
+    chart_type: Literal["davisonProgression"] = Field(default="davisonProgression", alias="chartType")
+    secondary: BirthProfile
+    progression_date: str = Field(alias="progressionDate")
+    progression_time: str = Field(alias="progressionTime")
+
+
 class TransitChartRequest(BaseChartRequest):
     chart_type: Literal["transit"] = Field(default="transit", alias="chartType")
     transit_date: str = Field(alias="transitDate")
@@ -136,6 +150,20 @@ class SolarArcChartRequest(BaseChartRequest):
 
 class TertiaryProgressionChartRequest(BaseChartRequest):
     chart_type: Literal["tertiaryProgression"] = Field(default="tertiaryProgression", alias="chartType")
+    tertiary_date: str = Field(alias="tertiaryDate")
+    tertiary_time: str = Field(alias="tertiaryTime")
+
+
+class CompositeTertiaryProgressionChartRequest(BaseChartRequest):
+    chart_type: Literal["compositeTertiaryProgression"] = Field(default="compositeTertiaryProgression", alias="chartType")
+    secondary: BirthProfile
+    tertiary_date: str = Field(alias="tertiaryDate")
+    tertiary_time: str = Field(alias="tertiaryTime")
+
+
+class DavisonTertiaryProgressionChartRequest(BaseChartRequest):
+    chart_type: Literal["davisonTertiaryProgression"] = Field(default="davisonTertiaryProgression", alias="chartType")
+    secondary: BirthProfile
     tertiary_date: str = Field(alias="tertiaryDate")
     tertiary_time: str = Field(alias="tertiaryTime")
 

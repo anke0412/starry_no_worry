@@ -307,6 +307,8 @@ function housesFromChart(chart) {
   const houses =
     chart.rawResult?.houses
     ?? chart.rawResult?.relatedCharts?.primaryMarxChart?.houses
+    ?? chart.rawResult?.relatedCharts?.compositeChart?.houses
+    ?? chart.rawResult?.relatedCharts?.davisonChart?.houses
     ?? chart.rawResult?.relatedCharts?.primaryNatal?.houses
     ?? [];
 
