@@ -50,13 +50,13 @@ Code changes must be managed through branches.
 - after verify passes, update the plan, commit, push, merge into `main`, pull latest `main`, and only then continue
 - if push, merge, or pull fails, stop and report
 
-## Phase 2 Operating Rule
+## Phase 3 Operating Rule
 
-This repo is currently inside Phase 2.
+This repo is currently inside Phase 3 bootstrap.
 
 - treat `plan.md` as the product roadmap
-- treat `work/plans/phase2-full-rollout.md` as the current active execution ledger unless a newer active plan replaces it
-- treat `docs/superpowers/plans/2026-04-28-phase2-subagent-orchestration.md` as the specialized Phase 2 subagent protocol when it exists and is relevant
+- treat `work/plans/phase3-bootstrap.md` as the current active execution ledger unless a newer active plan replaces it
+- use `work/decisions/` to keep the Phase 3 reconciliation ledger and bounded slice choices auditable
 
 ## Escalate To The Human When
 
@@ -73,4 +73,4 @@ This repo is currently inside Phase 2.
 - `docs/harness/gates.md`
 - `docs/harness/continuous-execution.md`
 - `docs/harness/git-lifecycle.md`
-- `work/plans/phase2-full-rollout.md`
+- `work/plans/phase3-bootstrap.md`

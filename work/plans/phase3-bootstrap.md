@@ -43,12 +43,21 @@ The product should move from a Phase 2-complete astrology tool into a Phase 3 pl
 
 ## 6. Ordered Step Queue
 
-- [ ] Step 1: Reconcile the current repository against the Phase 3 additions listed in `plan.md`
+- [x] Step 1: Reconcile the current repository against the Phase 3 additions listed in `plan.md`
 - [ ] Step 2: Choose the first bounded Phase 3 implementation slice that is safe to execute without roadmap changes
 - [ ] Step 3: Complete that slice through `impl -> review -> verify`
 - [ ] Step 4: Close the git lifecycle for the completed slice
 - [ ] Step 5: Repeat until the next coherent Phase 3 milestone is complete
 
-## 7. Active Step Rule
+## 7. Step Notes
+
+### Step 1
+
+- completed on `2026-05-08`
+- reconciliation ledger recorded in `work/decisions/2026-05-08-phase3-reconciliation.md`
+- verification recorded in `work/runs/2026-05-08-phase3-step1-reconciliation.md`
+- key conclusion: several chart-family additions listed under Phase 3 are already source-complete from late Phase 2 rollout, so the next safe slice should target a remaining platform gap rather than re-implementing those chart families
+
+## 8. Active Step Rule
 
 The main agent must treat the first unfinished item in the ordered step queue as the current step unless a more specific active marker is written here later.

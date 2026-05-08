@@ -2,14 +2,14 @@
 
 ## In Scope Right Now
 
-- extend advanced chart families on top of the shared generation framework
-- improve inspection and interaction surfaces without breaking current chart contracts
-- keep interpretation downstream of chart math
+- execute the active Phase 3 bootstrap plan from `work/plans/`
+- choose bounded platform slices that do not require roadmap reordering
+- keep interpretation downstream of chart math while platform surfaces expand around the chart engine
 
 ## Out Of Scope Right Now
 
-- Phase 3 platform work
-- accounts, payments, export, sharing, or cloud assets
+- casual roadmap reshuffling outside `plan.md`
+- destructive platform migrations without explicit escalation
 - replacing calculation behavior with LLM logic
 
 ## Stable Rule

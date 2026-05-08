@@ -4,8 +4,8 @@ Starry No Worry is growing toward a full-featured astrology charting platform. T
 
 ## Current Phase
 
-- active phase: Phase 2
-- current focus: advanced chart families, stronger analysis surfaces, and stable interpretation inputs
+- active phase: Phase 3 bootstrap
+- current focus: broader platform surfaces such as expanded location coverage, long-lived chart assets, export/share paths, and other post-Phase-2 product layers on top of the stable chart engine
 
 ## Durable Product Promise
 
