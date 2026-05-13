@@ -150,6 +150,11 @@
   - 先为少量代表性盘型跑通完整 agent 链路
   - 再逐步推广到所有相关盘型
   - 为未来用户问答保留稳定的 chart context 和 retrieval 接口
+- 当前 AI 解读底座已经完成第一层稳定 contract：
+  - `buildInterpretationContext` 负责组装 chart context、entry points、chart tags 与 QA bridge
+  - 本地 interpretation library + retrieval layer 负责最小 RAG 命中
+  - report composer 负责结构化 section、检索依据与后续问答预留
+  - 前端结果页已经暴露 `局部解读入口`、`检索依据`、`以后问答预留` 三类扩展点
 - 更细的盘型完成度与交互缺口应回看当前 active plan / `work/decisions/`，避免把短期审计状态误当成长久记忆
 - 在前端测试、tooltip、可视化修正时，要默认用户会检查很细的小问题
 - backend 测试环境以 `.venv312` 为准
