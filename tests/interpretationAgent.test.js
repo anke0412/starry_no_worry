@@ -112,3 +112,74 @@ test("uses chart placements and aspects as concrete interpretation signals", () 
   assert.equal(context.chartTags.includes("placement"), true);
   assert.match(report.retrievalNotes.map((note) => note.title).join(" "), /结构主轴/);
 });
+
+test("builds a marx-specific relationship section with citations", () => {
+  const chart = {
+    id: "chart-marx",
+    mode: "couple",
+    title: "小星 × 小月 的马克思盘",
+    category: "marx",
+    categoryLabel: "马克思盘",
+    people: [{ name: "小星" }, { name: "小月" }],
+    focus: ["长期关系", "情感深度", "关系粘性", "共同命题"],
+    forecastDate: "",
+    placements: [
+      { planet: "太阳", sign: "白羊", house: 1, degree: 18, minute: 0 },
+      { planet: "月亮", sign: "巨蟹", house: 4, degree: 9, minute: 0 },
+    ],
+    aspects: [
+      { from: "太阳", to: "月亮", type: "trine", label: "拱相", orb: "0.30°" },
+    ],
+    statistics: null,
+    placementGroups: [
+      { id: "primary-marx", title: "小星 视角马克思盘星体", placements: [{ planet: "太阳" }] },
+      { id: "secondary-marx", title: "小月 视角马克思盘星体", placements: [{ planet: "月亮" }] },
+    ],
+    overlays: [],
+  };
+
+  const report = createInterpretationReport(buildInterpretationContext(chart));
+  const marxSection = report.sections.find((section) => section.id === "marx-bond");
+
+  assert.ok(marxSection);
+  assert.match(marxSection.body, /长期黏性|长期粘性/);
+  assert.equal(Array.isArray(marxSection.citations), true);
+  assert.equal(marxSection.citations.length > 0, true);
+});
+
+test("builds a composite progression timing section with citations", () => {
+  const chart = {
+    id: "chart-composite-progression",
+    mode: "forecast",
+    title: "小星 × 小月 的组合盘次限盘",
+    category: "composite-progression",
+    categoryLabel: "组合盘次限盘",
+    people: [{ name: "小星" }, { name: "小月" }],
+    focus: ["关系阶段", "共同节奏", "情绪推进", "长期课题"],
+    forecastDate: "2026-06-01",
+    placements: [
+      { planet: "太阳", sign: "双子", house: 3, degree: 18, minute: 0 },
+      { planet: "月亮", sign: "天秤", house: 7, degree: 9, minute: 0 },
+    ],
+    aspects: [
+      { from: "太阳", to: "月亮", type: "trine", label: "拱相", orb: "0.30°" },
+    ],
+    statistics: null,
+    placementGroups: [
+      { id: "composite-core", title: "组合盘星体", placements: [{ planet: "太阳" }] },
+      { id: "composite-progressed", title: "次限星体", placements: [{ planet: "月亮" }] },
+    ],
+    overlays: [
+      { id: "overlay-1", title: "次限星体 飞入 组合盘", overlayName: "次限星体", referenceName: "组合盘" },
+    ],
+  };
+
+  const report = createInterpretationReport(buildInterpretationContext(chart));
+  const timingSection = report.sections.find((section) => section.id === "relationship-timing");
+
+  assert.ok(timingSection);
+  assert.match(timingSection.body, /2026-06-01/);
+  assert.match(timingSection.body, /组合盘次限/);
+  assert.equal(Array.isArray(timingSection.citations), true);
+  assert.equal(timingSection.citations.length > 0, true);
+});

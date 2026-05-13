@@ -67,7 +67,7 @@ The product should move from the closed Phase 3 bootstrap into a Phase 4 chart-r
 - [x] Step 5: Implement `时空中点盘` and `组合盘` `次限/三限` derivatives and expose them under `流年推运盘`
 - [x] Step 6: Implement `马克思盘` `次限/三限` derivatives and expose them under `流年推运盘`
 - [x] Step 7: Establish the reusable AI/RAG interpretation contract, retrieval library structure, and frontend extension points through `impl -> review -> verify`
-- [ ] Step 8: Connect the full AI interpretation pipeline for the first bounded subset of relationship charts through `impl -> review -> verify`
+- [x] Step 8: Connect the full AI interpretation pipeline for the first bounded subset of relationship charts through `impl -> review -> verify`
 - [ ] Step 9: Expand the AI interpretation pipeline across the remaining in-scope relationship charts and add cross-chart linkage hooks for future Q&A
 - [ ] Step 10: Close the Phase 4 milestone through final verification, plan updates, and git lifecycle completion
 
@@ -151,6 +151,13 @@ The product should move from the closed Phase 3 bootstrap into a Phase 4 chart-r
 ### Step 8
 
 - the first bounded subset should prioritize representative charts that exercise relationship reading and derivative reading without requiring every chart family to move at once
+- completed on `2026-05-13`
+- bounded-subset decision recorded in `work/decisions/2026-05-13-phase4-step8-first-ai-subset.md`
+- verification recorded in `work/runs/2026-05-13-phase4-step8-first-ai-subset.md`
+- delivered across:
+  - chart-specific interpretation blueprints for `马克思盘` and `组合盘次限盘`, keeping Step 7's shared context/retrieval/report contract intact
+  - local retrieval-library notes that target long-term relationship bonding and relationship-body timing instead of only generic relationship/timing summaries
+  - frontend result rendering that now exposes section-level `引用依据`, so the first bounded AI subset shows partial-reading output together with its retrieval-backed citations
 
 ### Step 9
 

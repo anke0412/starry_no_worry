@@ -22,9 +22,10 @@
 20. 这些双人 `次限/三限` 统一放在前端 `流年推运盘` 入口下，计算口径是“先生成基础双人盘，再对该盘做对应推运”。
 21. 当前已经源码支持 `组合盘`、`时空中点盘`、`马克思盘` 的双人 `次限/三限`；其中 `马克思盘` 继续保持双视角 contract，而 `组合盘`/`时空中点盘` 统一返回“基础关系盘 + 推运盘 + overlay”结构。
 22. Phase 4 的 AI 底座已经从单文件模板 agent 演进成 `context -> retrieval -> report` 三层结构，并落了一份本地 interpretation library 作为最小 RAG library。
-23. 结果页已经有三类稳定扩展点：`局部解读入口`、`检索依据`、`以后问答预留`；后续问答链路应复用这些 contract，而不是再起一套平行结构。
-24. 中文术语必须严格统一：人名用用户输入，行星名、星座名、相位/宫位/overlay 表述都要专业且精确。
-25. 用户非常在意前端细节，尤其是 tooltip、相位描述、轮盘标注和表格可读性。
-26. backend 测试环境以 `.venv312` 为准；测试基线优先记录可复核方式：当前在 `backend` 目录执行 `../.venv312/bin/python -m pytest --collect-only -q` 可收集 `100 tests`，不要只记固定 passed 数。
-27. 协作运行约定：主 agent 负责先读项目记忆与当前 task/plan，再决定下一任务，派发 `implement` / `review` / `verify` 三类子 agent，汇总结果并回写计划勾选，同时维护测试基线和审阅结论。
-28. 子代理命名必须带功能目标，方便人工审阅，例如：`impl_transit_generator`、`review_synastry_adapter`、`verify_backend_chart_suite`。
+23. 第一批完整 AI 解读链路已经先落在 `马克思盘` 与 `组合盘次限盘` 上：前者代表关系阅读，后者代表关系推运阅读，二者都能输出带 `引用依据` 的分段解读。
+24. 结果页已经有三类稳定扩展点：`局部解读入口`、`检索依据`、`以后问答预留`；后续问答链路应复用这些 contract，而不是再起一套平行结构。
+25. 中文术语必须严格统一：人名用用户输入，行星名、星座名、相位/宫位/overlay 表述都要专业且精确。
+26. 用户非常在意前端细节，尤其是 tooltip、相位描述、轮盘标注和表格可读性。
+27. backend 测试环境以 `.venv312` 为准；测试基线优先记录可复核方式：当前在 `backend` 目录执行 `../.venv312/bin/python -m pytest --collect-only -q` 可收集 `100 tests`，不要只记固定 passed 数。
+28. 协作运行约定：主 agent 负责先读项目记忆与当前 task/plan，再决定下一任务，派发 `implement` / `review` / `verify` 三类子 agent，汇总结果并回写计划勾选，同时维护测试基线和审阅结论。
+29. 子代理命名必须带功能目标，方便人工审阅，例如：`impl_transit_generator`、`review_synastry_adapter`、`verify_backend_chart_suite`。

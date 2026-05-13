@@ -1,8 +1,11 @@
+import { buildSubsetSections } from "./blueprints.js";
+
 export function createInterpretationReport(context, signals, retrievedNotes) {
   const sections = [
     buildOverviewSection(context, signals, retrievedNotes),
     buildSignalSection(context, signals),
     ...specializedSections(context, signals, retrievedNotes),
+    ...buildSubsetSections(context, signals, retrievedNotes),
   ].filter(Boolean);
 
   return {
