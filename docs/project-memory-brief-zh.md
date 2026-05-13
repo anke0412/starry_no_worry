@@ -15,9 +15,9 @@
 13. 后端统一生成框架已经落地：单体衍生、双体比较、双体融合三类生成器方向明确。
 14. 共享 chart generation framework 已建立；高级盘型的实际 rollout 状态以当前 active Phase 2 plan 与 `work/decisions/` 为准，不要仅凭旧 spec 或旧记忆假设某个声明盘型已经源码完整。
 15. 第二阶段稳定公共能力已经覆盖：可选点位、多宫制、相位集合/容许度、统计面板，以及消费真实盘面数据的本地解读 agent；更细的盘型完成度与交互缺口应回看当前 active plan。
-16. `phase2-full-rollout` 已完成，原 `phase3-bootstrap` 已关闭；当前执行入口切换到 `work/plans/phase4-relationship-derivatives-and-ai.md`。
+16. `phase2-full-rollout` 已完成，原 `phase3-bootstrap` 已关闭，`phase4-relationship-derivatives-and-ai` 也已完成；当前没有新的 execution-ready phase，最近完成的执行基线是 `work/plans/phase4-relationship-derivatives-and-ai.md`。
 17. 已完成的旧 Phase 3 引导切片包括地点预设扩展：内建地点已从中国 / 美国扩展到日本、韩国、新加坡、英国、加拿大、澳大利亚，并继续保留自定义地点回退。
-18. Phase 4 当前主线是关系盘体系纠偏与扩展：删除错误的 `中点组合盘`、`关系流年盘`，新增 `马克思盘`，并补齐 `时空中点盘`、`组合盘`、`马克思盘` 的双人 `次限/三限` 变体。
+18. 已完成的 Phase 4 主线是关系盘体系纠偏与扩展：删除错误的 `中点组合盘`、`关系流年盘`，新增 `马克思盘`，并补齐 `时空中点盘`、`组合盘`、`马克思盘` 的双人 `次限/三限` 变体。
 19. `马克思盘` 的稳定 contract 不是单盘融合，而是双盘结果：先生成共享 `时空中点盘`，再分别产出 `primaryMarxChart` 与 `secondaryMarxChart`，前端和后续推运都要基于这两个视角盘继续扩展。
 20. 这些双人 `次限/三限` 统一放在前端 `流年推运盘` 入口下，计算口径是“先生成基础双人盘，再对该盘做对应推运”。
 21. 当前已经源码支持 `组合盘`、`时空中点盘`、`马克思盘` 的双人 `次限/三限`；其中 `马克思盘` 继续保持双视角 contract，而 `组合盘`/`时空中点盘` 统一返回“基础关系盘 + 推运盘 + overlay”结构。
