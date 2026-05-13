@@ -18,6 +18,7 @@ export function createInterpretationReport(context, signals, retrievedNotes) {
     sections,
     entryPoints: context.entryPoints,
     retrievalNotes: retrievedNotes,
+    linkageHooks: context.linkageHooks,
     qaBridge: context.qaBridge,
     recommendedQuestions: questionsForAudience(context, signals),
   };

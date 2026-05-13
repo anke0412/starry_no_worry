@@ -163,9 +163,11 @@ test("natal result page uses stacked interpretation layout and tables", () => {
   assert.match(appSource, />以后问答预留</);
   assert.match(appSource, /report\.entryPoints\.map/);
   assert.match(appSource, /report\.retrievalNotes\.map/);
+  assert.match(appSource, /report\.linkageHooks\.map/);
   assert.match(appSource, /report\.qaBridge\.hint/);
   assert.match(appSource, /section\.citations\?\.length/);
   assert.match(appSource, /引用依据：/);
+  assert.match(appSource, /跨盘联动入口/);
 });
 
 test("result page renders overlay house tables when available", () => {
