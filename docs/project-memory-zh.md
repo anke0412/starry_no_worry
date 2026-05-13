@@ -159,6 +159,14 @@
   - `马克思盘` 作为关系阅读代表盘型，新增长期关系粘性 section，并引用双方视角组与命中的检索条目
   - `组合盘次限盘` 作为关系推运阅读代表盘型，新增关系推运切口 section，并引用 overlay 与命中的检索条目
   - 前端结果页现已支持按 section 展示 `引用依据`
+- Phase 4 现已把 AI 解读推广到剩余关系盘型：
+  - `比较盘`、`组合盘`、`时空中点盘` 都有各自的 chart-specific section
+  - `时空中点盘-次限/三限`、`马克思盘-次限/三限`、`组合盘-三限` 也都已接入 chart-specific timing section
+  - 这些扩展仍然复用 Step 7 的 `context -> retrieval -> report` contract，而不是新起平行 agent 流程
+- 当前问答预留层已经新增 `linkageHooks` contract：
+  - 会把当前盘联动基础关系盘、双方本命或双视角推运的入口整理成结构化 hooks
+  - 前端结果页已经暴露 `跨盘联动入口`
+  - 未来 chart Q&A 应直接消费 `linkageHooks`、`entryPoints`、`retrievalNotes`
 - 更细的盘型完成度与交互缺口应回看当前 active plan / `work/decisions/`，避免把短期审计状态误当成长久记忆
 - 在前端测试、tooltip、可视化修正时，要默认用户会检查很细的小问题
 - backend 测试环境以 `.venv312` 为准

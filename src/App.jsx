@@ -846,6 +846,20 @@ function AgentPanel({ report }) {
           </div>
         </article>
         <article>
+          <h3>跨盘联动入口</h3>
+          <p>这里会保留当前盘与相关基础盘之间的联动线索，后续细节问答会直接复用这些入口。</p>
+          <div className="question-bank">
+            {report.linkageHooks.map((hook) => (
+              <button key={hook.id} type="button">
+                {hook.title} · {hook.labels.join(" / ")}
+              </button>
+            ))}
+          </div>
+          {report.linkageHooks.map((hook) => (
+            <p key={`${hook.id}-detail`}>{hook.detail}</p>
+          ))}
+        </article>
+        <article>
           <h3>以后问答预留</h3>
           <p>{report.qaBridge.hint}</p>
           <p>当前可复用上下文：{report.qaBridge.reusableContextKeys.join(" / ")}</p>

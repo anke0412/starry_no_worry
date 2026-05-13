@@ -68,7 +68,7 @@ The product should move from the closed Phase 3 bootstrap into a Phase 4 chart-r
 - [x] Step 6: Implement `马克思盘` `次限/三限` derivatives and expose them under `流年推运盘`
 - [x] Step 7: Establish the reusable AI/RAG interpretation contract, retrieval library structure, and frontend extension points through `impl -> review -> verify`
 - [x] Step 8: Connect the full AI interpretation pipeline for the first bounded subset of relationship charts through `impl -> review -> verify`
-- [ ] Step 9: Expand the AI interpretation pipeline across the remaining in-scope relationship charts and add cross-chart linkage hooks for future Q&A
+- [x] Step 9: Expand the AI interpretation pipeline across the remaining in-scope relationship charts and add cross-chart linkage hooks for future Q&A
 - [ ] Step 10: Close the Phase 4 milestone through final verification, plan updates, and git lifecycle completion
 
 ## 7. Step Notes
@@ -162,6 +162,13 @@ The product should move from the closed Phase 3 bootstrap into a Phase 4 chart-r
 ### Step 9
 
 - expansion should reuse the Step 7 contract rather than spawning chart-specific one-off agent flows
+- completed on `2026-05-13`
+- expansion decision recorded in `work/decisions/2026-05-13-phase4-step9-ai-expansion-and-linkage-hooks.md`
+- verification recorded in `work/runs/2026-05-13-phase4-step9-ai-expansion-and-linkage-hooks.md`
+- delivered across:
+  - chart-specific interpretation sections for the remaining relationship charts: `比较盘`、`组合盘`、`时空中点盘`
+  - chart-specific interpretation sections for the remaining relationship derivatives: `时空中点盘-次限/三限`、`马克思盘-次限/三限`、`组合盘-三限`
+  - reusable `linkageHooks` context/report contract plus result-page `跨盘联动入口`, so later chart Q&A can reuse structured cross-chart entry points instead of re-deriving them ad hoc
 
 ## 8. Active Step Rule
 
