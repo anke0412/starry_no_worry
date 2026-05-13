@@ -118,7 +118,7 @@
 - 本地 interpretation agent 已升级为 chart-aware 版本：
   - 会消费真实 placements / aspects / statistics
   - 会输出带 `reportId`、`chartId`、`mode`、`title` 的结构化报告
-- `phase2-full-rollout` 已完成，旧 `phase3-bootstrap` 已关闭，当前执行入口已切换到 `work/plans/phase4-relationship-derivatives-and-ai.md`
+- `phase2-full-rollout` 已完成，旧 `phase3-bootstrap` 已关闭，`phase4-relationship-derivatives-and-ai` 也已完成；当前没有新的 execution-ready phase，最近完成的执行基线是 `work/plans/phase4-relationship-derivatives-and-ai.md`
 - 仓库已经源码具备多项原本列在后续阶段的盘型能力：
   - 日返盘
   - 月返盘
@@ -127,7 +127,7 @@
 - 旧 Phase 3 引导阶段首个已落地切片是地点预设扩展：
   - 内建地点已从中国 / 美国扩展到日本、韩国、新加坡、英国、加拿大、澳大利亚
   - 仍保留自定义地点回退
-- Phase 4 当前主线已经切换到关系盘体系纠偏与扩展：
+- 已完成的 Phase 4 主线是关系盘体系纠偏与扩展：
   - 删除错误的 `中点组合盘`
   - 删除错误的 `关系流年盘`
   - 新增 `马克思盘`
@@ -167,6 +167,10 @@
   - 会把当前盘联动基础关系盘、双方本命或双视角推运的入口整理成结构化 hooks
   - 前端结果页已经暴露 `跨盘联动入口`
   - 未来 chart Q&A 应直接消费 `linkageHooks`、`entryPoints`、`retrievalNotes`
+- 截至当前里程碑，Phase 4 已完整收口：
+  - 关系盘纠偏、马克思盘与双人 `次限/三限` 变体都已源码完成
+  - AI interpretation pipeline 已覆盖本轮范围内所有关系盘
+  - 这份 completed ledger 是下一次新阶段开始前的最新执行基线
 - 更细的盘型完成度与交互缺口应回看当前 active plan / `work/decisions/`，避免把短期审计状态误当成长久记忆
 - 在前端测试、tooltip、可视化修正时，要默认用户会检查很细的小问题
 - backend 测试环境以 `.venv312` 为准

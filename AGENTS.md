@@ -50,12 +50,12 @@ Code changes must be managed through branches.
 - after verify passes, update the plan, commit, push, merge into `main`, pull latest `main`, and only then continue
 - if push, merge, or pull fails, stop and report
 
-## Phase 4 Operating Rule
+## Phase 4 Completion Rule
 
-This repo is currently inside Phase 4 execution.
+This repo has completed the Phase 4 relationship-derivatives-and-AI milestone.
 
 - treat `plan.md` as the product roadmap
-- treat `work/plans/phase4-relationship-derivatives-and-ai.md` as the current active execution ledger unless a newer active plan replaces it
+- treat `work/plans/phase4-relationship-derivatives-and-ai.md` as the most recent completed execution ledger until a newer active plan is created
 - use `work/decisions/` to keep the Phase 4 scope shifts, bounded slice choices, and execution history auditable
 
 ## Escalate To The Human When
