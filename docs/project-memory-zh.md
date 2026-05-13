@@ -155,6 +155,10 @@
   - 本地 interpretation library + retrieval layer 负责最小 RAG 命中
   - report composer 负责结构化 section、检索依据与后续问答预留
   - 前端结果页已经暴露 `局部解读入口`、`检索依据`、`以后问答预留` 三类扩展点
+- Phase 4 的第一批完整 AI 解读子集已经源码落地：
+  - `马克思盘` 作为关系阅读代表盘型，新增长期关系粘性 section，并引用双方视角组与命中的检索条目
+  - `组合盘次限盘` 作为关系推运阅读代表盘型，新增关系推运切口 section，并引用 overlay 与命中的检索条目
+  - 前端结果页现已支持按 section 展示 `引用依据`
 - 更细的盘型完成度与交互缺口应回看当前 active plan / `work/decisions/`，避免把短期审计状态误当成长久记忆
 - 在前端测试、tooltip、可视化修正时，要默认用户会检查很细的小问题
 - backend 测试环境以 `.venv312` 为准

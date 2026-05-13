@@ -817,6 +817,7 @@ function AgentPanel({ report }) {
           <article key={section.id}>
             <h3>{section.title}</h3>
             <p>{section.body}</p>
+            {section.citations?.length ? <p>引用依据：{section.citations.join(" / ")}</p> : null}
           </article>
         ))}
       </div>
