@@ -66,7 +66,7 @@ The product should move from the closed Phase 3 bootstrap into a Phase 4 chart-r
 - [x] Step 4: Implement `马克思盘` as a supported relationship chart family through `impl -> review -> verify`
 - [x] Step 5: Implement `时空中点盘` and `组合盘` `次限/三限` derivatives and expose them under `流年推运盘`
 - [x] Step 6: Implement `马克思盘` `次限/三限` derivatives and expose them under `流年推运盘`
-- [ ] Step 7: Establish the reusable AI/RAG interpretation contract, retrieval library structure, and frontend extension points through `impl -> review -> verify`
+- [x] Step 7: Establish the reusable AI/RAG interpretation contract, retrieval library structure, and frontend extension points through `impl -> review -> verify`
 - [ ] Step 8: Connect the full AI interpretation pipeline for the first bounded subset of relationship charts through `impl -> review -> verify`
 - [ ] Step 9: Expand the AI interpretation pipeline across the remaining in-scope relationship charts and add cross-chart linkage hooks for future Q&A
 - [ ] Step 10: Close the Phase 4 milestone through final verification, plan updates, and git lifecycle completion
@@ -140,6 +140,13 @@ The product should move from the closed Phase 3 bootstrap into a Phase 4 chart-r
   - retrieval units and tagging
   - sectioned report composition
   - frontend partial-reading entry points
+- completed on `2026-05-13`
+- contract decision recorded in `work/decisions/2026-05-13-phase4-step7-ai-rag-contract.md`
+- verification recorded in `work/runs/2026-05-13-phase4-step7-ai-rag-contract.md`
+- delivered across:
+  - interpretation pipeline split into context, signals, retrieval, and report modules
+  - local interpretation library established as the first bounded RAG structure
+  - result page extension points for partial reading, retrieval evidence, and future Q&A reuse
 
 ### Step 8
 

@@ -158,6 +158,12 @@ test("natal result page uses stacked interpretation layout and tables", () => {
   assert.match(appSource, /aspectColumnTitle\(visibleChart, "to"\)/);
   assert.match(appSource, />相位类型</);
   assert.match(appSource, />容许度</);
+  assert.match(appSource, />局部解读入口</);
+  assert.match(appSource, />检索依据</);
+  assert.match(appSource, />以后问答预留</);
+  assert.match(appSource, /report\.entryPoints\.map/);
+  assert.match(appSource, /report\.retrievalNotes\.map/);
+  assert.match(appSource, /report\.qaBridge\.hint/);
 });
 
 test("result page renders overlay house tables when available", () => {

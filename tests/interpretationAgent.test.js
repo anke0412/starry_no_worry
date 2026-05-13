@@ -37,6 +37,9 @@ test("builds a relationship-specific interpretation report", () => {
   assert.match(report.title, /解读报告/);
   assert.equal(report.sections.some((section) => section.id === "dynamic"), true);
   assert.match(report.summary, /关系互动/);
+  assert.equal(report.entryPoints.length > 0, true);
+  assert.equal(report.retrievalNotes.length > 0, true);
+  assert.equal(report.qaBridge.status, "ready-for-followups");
   assert.doesNotMatch(report.sections[0].body, /占位解读/);
 });
 
@@ -60,6 +63,7 @@ test("builds a timing section for forecast categories", () => {
   assert.equal(report.sections.some((section) => section.id === "timing"), true);
   assert.match(report.recommendedQuestions.join(" "), /未来/);
   assert.match(report.sections.map((section) => section.body).join(" "), /2026-06-01/);
+  assert.equal(report.retrievalNotes.some((note) => note.sectionId === "timing"), true);
 });
 
 test("uses chart placements and aspects as concrete interpretation signals", () => {
@@ -104,4 +108,7 @@ test("uses chart placements and aspects as concrete interpretation signals", () 
   assert.match(fullText, /月亮巨蟹/);
   assert.match(fullText, /拱相/);
   assert.match(fullText, /火象/);
+  assert.equal(context.entryPoints.some((entryPoint) => entryPoint.kind === "placement"), true);
+  assert.equal(context.chartTags.includes("placement"), true);
+  assert.match(report.retrievalNotes.map((note) => note.title).join(" "), /结构主轴/);
 });

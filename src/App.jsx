@@ -820,6 +820,36 @@ function AgentPanel({ report }) {
           </article>
         ))}
       </div>
+      <div className="report-list">
+        <article>
+          <h3>局部解读入口</h3>
+          <p>后续 agent 会优先围绕这些局部入口做细读，再拼成整张盘的长文本解读。</p>
+          <div className="question-bank">
+            {report.entryPoints.map((entryPoint) => (
+              <button key={entryPoint.id} type="button">
+                {entryPoint.label} · {entryPoint.detail}
+              </button>
+            ))}
+          </div>
+        </article>
+        <article>
+          <h3>检索依据</h3>
+          <p>这一层是本地 RAG library 的命中结果，用来给后续 LLM 解读提供稳定、可审计的素材来源。</p>
+          <div className="report-list">
+            {report.retrievalNotes.map((note) => (
+              <article key={note.id}>
+                <h3>{note.title}</h3>
+                <p>{note.body}</p>
+              </article>
+            ))}
+          </div>
+        </article>
+        <article>
+          <h3>以后问答预留</h3>
+          <p>{report.qaBridge.hint}</p>
+          <p>当前可复用上下文：{report.qaBridge.reusableContextKeys.join(" / ")}</p>
+        </article>
+      </div>
       <div className="question-bank">
         <h3>可继续追问</h3>
         {report.recommendedQuestions.map((question) => (
